@@ -1,5 +1,8 @@
 # Setup and first use
 
+**Want help from your AI?** [Copy the setup prompt](https://hburaktasyurek.github.io/MutalaaMCP/en/#install-with-ai) and paste it into your AI app.
+
+
 [Türkçe](README.md) · [Home](../../README.en.md)
 
 This guide covers macOS and Windows. You need a Mütalaa account and an AI app with local MCP support.

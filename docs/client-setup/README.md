@@ -1,5 +1,8 @@
 # Kurulum ve ilk kullanım
 
+**Kurulumu yapay zekânızla yapmak ister misiniz?** [Kurulum metnini kopyalayın](https://hburaktasyurek.github.io/MutalaaMCP/#yapay-zekanla-kur) ve kullandığınız yapay zekâya yapıştırın.
+
+
 [English](README.en.md) · [Ana sayfa](../../README.md)
 
 Bu rehber macOS ve Windows içindir. Bir Mütalaa hesabı ve yerel MCP destekleyen yapay zekâ uygulaması gerekir.

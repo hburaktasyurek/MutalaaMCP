@@ -13,7 +13,30 @@ Free, open source, and running on your computer.
 - Read the relevant article or document and open its official source.
 - Start with everyday questions such as “What shared expenses must a tenant pay?”
 
-## Get started
+## Install with your AI
+
+Copy this prompt into your AI app. With access to your computer, it can perform setup; otherwise, it will guide you step by step.
+
+```text
+Help me install Mütalaa MCP on my computer.
+
+First read the official setup guide:
+https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/client-setup/README.en.md
+Companion skill guide:
+https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/mutalaa-skill.md
+
+Identify my operating system and intended AI app from context; ask if unknown. If you cannot access the guide, say so and ask me for its contents. Do not invent commands or compatibility claims.
+
+If you can run commands on my computer, inspect the existing installation and follow the appropriate documented steps. Preserve existing app settings and other MCP connections. Otherwise, guide me one short step at a time without assuming technical knowledge. Explain if my app does not support local MCP.
+
+Direct me to the sign-in screen when needed. Never ask me to paste passwords or access tokens into chat. Install the Mütalaa companion skill if supported.
+
+Finally, verify the connection with a real Mütalaa tool call: find the Turkish Income Tax Law and return its source link. Do not substitute web search for this verification. If tools are unavailable, guide me to the required new conversation or app and mark verification as pending.
+
+Briefly state what is complete and what I still need to do. Do not claim the installation is verified until a tool call succeeds.
+```
+
+## Manual setup
 
 You need a **Mütalaa account**, an internet connection, and an **AI app that supports local MCP connections**.
 

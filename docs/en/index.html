@@ -56,7 +56,7 @@
           <h1 id="hero-title">Bring Turkish legal research into the AI app you use.</h1>
           <p class="hero-copy">Research decisions and legislation from the app where you already work. See every result with its official source—not just a summary. You do not need to know what MCP means.</p>
           <div class="hero-actions">
-            <a class="button button-primary" href="https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/client-setup/README.en.md">Start setup</a>
+            <a class="button button-primary" href="#install-with-ai">Install with your AI</a>
             <a class="button button-secondary" href="https://mutalaa.tr/">Visit Mütalaa <span aria-hidden="true">↗</span></a>
           </div>
           <a class="hero-github" href="https://github.com/hburaktasyurek/MutalaaMCP">Explore the source on GitHub <span aria-hidden="true">↗</span></a>
@@ -99,6 +99,37 @@
         <span><strong>Direct links</strong> to official sources</span>
       </div>
     </div>
+
+    <section class="section section-muted" id="install-with-ai" aria-labelledby="ai-setup-title">
+      <div class="shell">
+        <div class="section-intro">
+          <h2 id="ai-setup-title">Install with your AI</h2>
+          <p>Copy this prompt into your AI app. With access to your computer, it can perform setup; otherwise, it will guide you step by step.</p>
+        </div>
+        <label class="prompt-label" for="setup-prompt">Prompt for your AI</label>
+        <textarea class="setup-prompt" id="setup-prompt" readonly spellcheck="false">Help me install Mütalaa MCP on my computer.
+
+First read the official setup guide:
+https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/client-setup/README.en.md
+Companion skill guide:
+https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/mutalaa-skill.md
+
+Identify my operating system and intended AI app from context; ask if unknown. If you cannot access the guide, say so and ask me for its contents. Do not invent commands or compatibility claims.
+
+If you can run commands on my computer, inspect the existing installation and follow the appropriate documented steps. Preserve existing app settings and other MCP connections. Otherwise, guide me one short step at a time without assuming technical knowledge. Explain if my app does not support local MCP.
+
+Direct me to the sign-in screen when needed. Never ask me to paste passwords or access tokens into chat. Install the Mütalaa companion skill if supported.
+
+Finally, verify the connection with a real Mütalaa tool call: find the Turkish Income Tax Law and return its source link. Do not substitute web search for this verification. If tools are unavailable, guide me to the required new conversation or app and mark verification as pending.
+
+Briefly state what is complete and what I still need to do. Do not claim the installation is verified until a tool call succeeds.</textarea>
+        <div class="hero-actions">
+          <button class="button button-primary" type="button" id="copy-setup" hidden data-success="Copied. Paste it into your AI app." data-failure="Could not copy automatically. Select and copy the text manually.">Copy setup prompt</button>
+          <a class="button button-secondary" href="https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/client-setup/README.en.md">Install manually</a>
+        </div>
+        <p id="copy-status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
 
     <section class="section" id="what-it-does" aria-labelledby="benefits-title">
       <div class="shell">
@@ -242,5 +273,6 @@
     </div>
     <div class="shell footer-note">MutalaaMCP is a legal-research tool, not a legal opinion or advisory service.</div>
   </footer>
+  <script src="../assets/setup.js" defer></script>
 </body>
 </html>

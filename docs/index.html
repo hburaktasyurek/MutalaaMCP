@@ -56,7 +56,7 @@
           <h1 id="hero-baslik">Hukuk araştırmasını, kullandığınız yapay zekâya taşıyın.</h1>
           <p class="hero-copy">Kararları ve mevzuatı sohbet ettiğiniz uygulamadan araştırın. Sonucu özetle birlikte değil, dayandığı resmî kaynakla görün. MCP'nin ne olduğunu bilmeniz gerekmez.</p>
           <div class="hero-actions">
-            <a class="button button-primary" href="https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/client-setup/README.md">Kuruluma başla</a>
+            <a class="button button-primary" href="#yapay-zekanla-kur">Yapay zekânla kur</a>
             <a class="button button-secondary" href="https://mutalaa.tr/">Mütalaa'yı ziyaret et <span aria-hidden="true">↗</span></a>
           </div>
           <a class="hero-github" href="https://github.com/hburaktasyurek/MutalaaMCP">Kaynak kodu GitHub'da incele <span aria-hidden="true">↗</span></a>
@@ -99,6 +99,37 @@
         <span><strong>Resmî kaynağa</strong> doğrudan bağlantı</span>
       </div>
     </div>
+
+    <section class="section section-muted" id="yapay-zekanla-kur" aria-labelledby="ai-setup-title">
+      <div class="shell">
+        <div class="section-intro">
+          <h2 id="ai-setup-title">Yapay zekânla kur</h2>
+          <p>Metni kopyalayıp kullandığınız yapay zekâya yapıştırın. Bilgisayarınıza erişebiliyorsa kurulumu yapar; erişemiyorsa adım adım yardımcı olur.</p>
+        </div>
+        <label class="prompt-label" for="setup-prompt">Yapay zekânıza vereceğiniz metin</label>
+        <textarea class="setup-prompt" id="setup-prompt" readonly spellcheck="false">Bilgisayarıma Mütalaa MCP’yi kurmama yardımcı ol.
+
+Önce resmî kurulum rehberini oku:
+https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/client-setup/README.md
+Beceri rehberi:
+https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/mutalaa-skill.md
+
+İşletim sistemimi ve kullanacağım yapay zekâ uygulamasını bağlamdan belirle; bilmiyorsan sor. Rehbere erişemiyorsan bunu söyle ve içeriğini iste; komut veya destek bilgisi uydurma.
+
+Bilgisayarımda komut çalıştırabiliyorsan mevcut kurulumu kontrol et ve rehberdeki uygun adımları uygula. Mevcut uygulama ayarlarımı ve diğer MCP bağlantılarımı koru. Komut çalıştıramıyorsan beni her seferinde tek, kısa bir adımla yönlendir; teknik bilgi bildiğimi varsayma. Uygulama yerel MCP desteklemiyorsa bu sınırlamayı açıkla.
+
+Hesap girişi gerektiğinde beni ilgili ekrana yönlendir. Şifremi veya erişim belirteçlerimi sohbete yazmamı isteme. Destekleniyorsa Mütalaa becerisini de kur.
+
+Son olarak gerçek bir Mütalaa araç çağrısıyla Gelir Vergisi Kanunu’nu bul ve kaynak bağlantısını getir. Web aramasını bu doğrulamanın yerine kullanma. Araçlara erişemiyorsan yeni sohbet veya uygulama adımında beni yönlendir; doğrulamanın beklediğini belirt.
+
+Tamamlanan adımları ve benim yapmam gerekenleri kısaca belirt. Araç çağrısı başarılı olmadan kurulumun doğrulandığını söyleme.</textarea>
+        <div class="hero-actions">
+          <button class="button button-primary" type="button" id="copy-setup" hidden data-success="Kopyalandı. Şimdi yapay zekânıza yapıştırın." data-failure="Otomatik kopyalanamadı. Metni seçip elle kopyalayın.">Kurulum metnini kopyala</button>
+          <a class="button button-secondary" href="https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/client-setup/README.md">Kendim kurmak istiyorum</a>
+        </div>
+        <p id="copy-status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
 
     <section class="section" id="ne-ise-yarar" aria-labelledby="fayda-baslik">
       <div class="shell">
@@ -242,5 +273,6 @@
     </div>
     <div class="shell footer-note">MutalaaMCP bir hukuk araştırma aracıdır; hukuki görüş veya danışmanlık hizmeti değildir.</div>
   </footer>
+  <script src="assets/setup.js" defer></script>
 </body>
 </html>

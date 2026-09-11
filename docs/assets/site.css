@@ -1155,3 +1155,32 @@ h3 {
     transition-duration: 0.01ms !important;
   }
 }
+
+.prompt-label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.setup-prompt {
+  display: block;
+  width: 100%;
+  min-height: 20rem;
+  padding: 1.25rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.setup-prompt:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+}
+
+#copy-setup { cursor: pointer; }
+#copy-setup[hidden] { display: none; }
+#copy-status { min-height: 1.6em; }
