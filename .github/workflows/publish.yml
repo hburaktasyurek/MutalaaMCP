@@ -1,0 +1,72 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact package version to publish (must match pyproject.toml)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-pypi
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository == 'hburaktasyurek/MutalaaMCP' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v10.0.1
+      - name: Verify requested version
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          python - <<'PY'
+          import os
+          import tomllib
+          from pathlib import Path
+          package = tomllib.loads(Path("pyproject.toml").read_text())["project"]
+          if os.environ["RELEASE_VERSION"] != package["version"]:
+              raise SystemExit("Requested version must match pyproject.toml")
+          PY
+      - run: uv sync --extra dev --frozen
+      - run: uv run pytest
+      - run: uv run ruff check src tests scripts
+      - run: uv run ruff format --check src tests scripts
+      - run: uv run mypy src
+      - run: uv build
+      - name: Check clean wheel installation
+        run: |
+          uv venv /tmp/mutalaamcp-release
+          uv pip install --python /tmp/mutalaamcp-release/bin/python dist/*.whl
+          uv pip check --python /tmp/mutalaamcp-release/bin/python
+          /tmp/mutalaamcp-release/bin/mutalaamcp --help
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/mutalaamcp
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+      - name: Publish distributions
+        uses: pypa/gh-action-pypi-publish@release/v1

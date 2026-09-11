@@ -1,0 +1,3363 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract": "mutalaamcp.tool-surface",
+  "version": "1",
+  "title": "MutalaaMCP V1 araştırma araç yüzeyi",
+  "description": "Sekiz V1 araştırma aracı için çalıştırılabilir JSON Schema/OpenAPI tarzı sözleşme. Araç adları, tanımlayıcılar ve hatalar MutalaaMCP’nin kendi yüzeyine aittir. Arama araçları kısa ve öz sonuçlar döndürür; belge_getir sayfalandırılmış Markdown döndürür. Her araştırma çağrısı, request_gate_errors içinde listelenen auth hatalarıyla denetlenir.",
+  "schema_export": {
+    "dialect": "https://json-schema.org/draft/2020-12/schema",
+    "normative": true,
+    "catalog_inlining": false,
+    "description": "Bu dosya bir sözleşme zarfıdır, JSON Schema örneği değildir. `$schema`, `$defs` ile her aracın `input_schema`/`output_schema` alanlarının lehçesini belirtir. Araç başına bu şemalar, paylaşılan katalogdaki `#/$defs/<Name>` işaretçilerine `$ref` verir ve bulundukları yerde kendi başlarına eksiksiz değildir. Burada `$defs` içeriğini her araçta çoğaltmayın. Belirlenimci dışa aktarma kuralıyla bağımsız bir şema üretin.",
+    "rule": [
+      "Dışa aktarma birimi, bir araç adı ile input_schema veya output_schema seçeneklerinden tam olarak biridir.",
+      "Bu şema nesnesini dışa aktarma kökü olarak kopyalayın. `$schema` değerini schema_export.dialect olarak ayarlayın. `$id` değerini `mutalaamcp:tool-surface:v1:<tool_name>:<input|output>` olarak ayarlayın.",
+      "`#/$defs/<Name>` biçimindeki `$ref` değerlerini derinlik öncelikli bir dolaşmayla toplayın: önce nesne anahtarlarını eklenme sırasına göre, ardından dizi öğelerini dizin sırasına göre işleyin. Name ilk kez görüldüğünde katalogdaki ilgili `$defs` girdisinin içine özyinelemeli olarak girin. Her Name’i yalnızca bir kez, ilk görülme sırasıyla kaydedin.",
+      "Dışa aktarma kökündeki `$defs` alanını, tam olarak bu Name’leri içeren bir nesne olarak ayarlayın; her biri katalogdaki `$defs[Name]` öğesinin derin kopyası olmalı ve ilk görülme sırasıyla yer almalıdır. Başvurulmayan katalog tanımları dahil edilmez.",
+      "`$ref` değerlerini `#/$defs/<Name>` olarak bırakın; dışa aktarılan belgenin içinde çözümlenirler. Tanımları satır içine almayın, yeniden adlandırmayın veya yeniden yazmayın."
+    ]
+  },
+  "provider_mappings": {
+    "karar_ara": {
+      "esas_year": {
+        "capability": "Güncel Bedesten ön yüzündeki Esas (E.) yıl filtresi",
+        "request_field": "data.esasNoYil",
+        "observed_request": "Ayrıntılı içtihat araması (turSec=2) için oluşturucu, `data` içinde `..._.yil && {esasNoYil: _.yil}` ifadesini içerir; boş değerler dahil edilmez. Tam zarf: `{data:{pageSize, pageNumber, ..., esasNoYil:<UI value>}, applicationName:\"UyapMevzuat\", paging:true}`.",
+        "observed_effect": "2026-09-03 tarihli kapsamı sınırlı canlı yeniden sorguda bu alanı içeren tam E/K isteği, dört E/K değeri JSON dizeleri olarak gönderildiğinde eşleşti; sayısal JSON değerleriyle eşleşme gözlenmedi. Bu gözlem tam Bedesten sağlayıcı yeterlilik onayı veya daha geniş veri kümelerinde filtre davranışının kanıtı değildir.",
+        "evidence": "Canlı ana sayfa betiği `https://mevzuat.adalet.gov.tr/static/js/main.b12f9f27.js`; ayıklanan oluşturucu `esasYilNo:_, ..._.yil&&{esasNoYil:_.yil}` ifadesini içerir. Durum `esasYilNo:{yil:\"\",sira:\"\"}` ile başlatılır ve E. girdisi geri çağırımı `{yil:e.yil,sira:e.sira}` üretir; 2026-09-03 tarihli sınırlı canlı yeniden sorguda JSON dizesi biçimiyle E/K eşleşmesi gözlendi."
+      },
+      "esas_sequence": {
+        "capability": "Güncel Bedesten ön yüzündeki Esas (E.) sıra filtresi",
+        "request_field": "data.esasNoSira",
+        "observed_request": "Aynı oluşturucu `..._.sira && {esasNoSira: _.sira}` ifadesini içerir; boş olduğunda koşullu olarak dahil edilmez ve iç içe bir nesne değil, esasNoYil alanının skaler eşdüzeyidir.",
+        "observed_effect": "2026-09-03 tarihli kapsamı sınırlı canlı yeniden sorguda bu alanı içeren tam E/K isteği, dört E/K değeri JSON dizeleri olarak gönderildiğinde eşleşti; sayısal JSON değerleriyle eşleşme gözlenmedi. Bu gözlem tam Bedesten sağlayıcı yeterlilik onayı veya daha geniş veri kümelerinde filtre davranışının kanıtı değildir.",
+        "evidence": "Canlı betik `https://mevzuat.adalet.gov.tr/static/js/main.b12f9f27.js`; tam parça `..._.yil&&{esasNoYil:_.yil},..._.sira&&{esasNoSira:_.sira}`. UI çağrı noktası, başlığı `Esas Yılı / No` olan `AdaletDosyaNo`, geri çağırımı ise `{yil:e.yil,sira:e.sira}` şeklindedir; 2026-09-03 tarihli sınırlı canlı yeniden sorguda JSON dizesi biçimiyle E/K eşleşmesi gözlendi."
+      },
+      "karar_year": {
+        "capability": "Güncel Bedesten ön yüzündeki Karar (K.) yıl filtresi",
+        "request_field": "data.kararNoYil",
+        "observed_request": "Oluşturucu, içteki `data` nesnesinde `...x.yil && {kararNoYil: x.yil}` ifadesini içerir; boş değerler dahil edilmez.",
+        "observed_effect": "2026-09-03 tarihli kapsamı sınırlı canlı yeniden sorguda bu alanı içeren tam E/K isteği, dört E/K değeri JSON dizeleri olarak gönderildiğinde eşleşti; sayısal JSON değerleriyle eşleşme gözlenmedi. Bu gözlem tam Bedesten sağlayıcı yeterlilik onayı veya daha geniş veri kümelerinde filtre davranışının kanıtı değildir.",
+        "evidence": "Canlı betik `https://mevzuat.adalet.gov.tr/static/js/main.b12f9f27.js`; tam parça `kararYilNo:x,...x.yil&&{kararNoYil:x.yil}`. Durum `kararYilNo:{yil:\"\",sira:\"\"}` şeklindedir ve UI geri çağırımı `Karar Yılı / No` başlığı için `{yil:e.yil,sira:e.sira}` üretir; 2026-09-03 tarihli sınırlı canlı yeniden sorguda JSON dizesi biçimiyle E/K eşleşmesi gözlendi."
+      },
+      "karar_sequence": {
+        "capability": "Güncel Bedesten ön yüzündeki Karar (K.) sıra filtresi",
+        "request_field": "data.kararNoSira",
+        "observed_request": "Oluşturucu, `...x.sira && {kararNoSira: x.sira}` ifadesini kararNoYil alanının skaler eşdüzeyi olarak içerir; boş olduğunda dahil edilmez.",
+        "observed_effect": "2026-09-03 tarihli kapsamı sınırlı canlı yeniden sorguda bu alanı içeren tam E/K isteği, dört E/K değeri JSON dizeleri olarak gönderildiğinde eşleşti; sayısal JSON değerleriyle eşleşme gözlenmedi. Bu gözlem tam Bedesten sağlayıcı yeterlilik onayı veya daha geniş veri kümelerinde filtre davranışının kanıtı değildir.",
+        "evidence": "Canlı betik `https://mevzuat.adalet.gov.tr/static/js/main.b12f9f27.js`; tam parça `...x.yil&&{kararNoYil:x.yil},...x.sira&&{kararNoSira:x.sira}`; 2026-09-03 tarihli sınırlı canlı yeniden sorguda JSON dizesi biçimiyle E/K eşleşmesi gözlendi."
+      },
+      "sort": {
+        "capability": "Güncel Bedesten içtihatlarının kronolojik sıralaması",
+        "request_field": "data.sortFields ve data.sortDirection",
+        "observed_request": "Güncel ön yüz yalnızca iki `ictihat` seçeneği sunar: `siraId:10` = `Karar Tarihi (Yeniden Eskiye)` ve `siraId:9` = `Karar Tarihi (Eskiden Yeniye)`. Eşleme şöyledir: `10 -> sortFields:[\"KARAR_TARIHI\"], sortDirection:\"desc\"`; `9 -> sortFields:[\"KARAR_TARIHI\"], sortDirection:\"ASC\"`. Bunlar aynı `{data:{...},applicationName:\"UyapMevzuat\",paging:true}` zarfına eklenir.",
+        "observed_effect": "2026-09-03 tarihinde kaydedilen kapsamı sınırlı canlı yoklamalarda desc ve ASC tarih sıralama yönlerinin ikisi de çalıştı. Bu gözlem yalnızca yönlerin bu sınırlı örneklerde işlendiğini gösterir; tüm veri kümesinin kronolojik eksiksizliği veya tam Bedesten sağlayıcı yeterliliği kanıtlanmış değildir.",
+        "evidence": "Canlı betik `https://mevzuat.adalet.gov.tr/static/js/main.b12f9f27.js`; statik sıralama dizisi 10/9 kimliklerini ve yukarıdaki etiketleri içerir; switch, 9/10 kimliklerini `KARAR_TARIHI` değerine eşler ve yön switch’i 9 değerini `ASC`, 10 değerini `desc` ile eşler; 2026-09-03 tarihinde kaydedilen sınırlı canlı yoklamalarda her iki yönün çalıştığı gözlendi.",
+        "surface_enum": {
+          "tarih_yeniden_eskiye": {
+            "sortFields": [
+              "KARAR_TARIHI"
+            ],
+            "sortDirection": "desc"
+          },
+          "tarih_eskiden_yeniye": {
+            "sortFields": [
+              "KARAR_TARIHI"
+            ],
+            "sortDirection": "ASC"
+          }
+        }
+      },
+      "date_from": {
+        "capability": "Güncel Bedesten karar tarihi alt sınırı",
+        "request_field": "data.kararTarihiStart",
+        "public_format": "YYYY-MM-DD",
+        "wire_format": "YYYY-MM-DDT00:00:00.000Z",
+        "bounds_inclusive": true,
+        "frontend_evidence": {
+          "format": "YYYY-MM-DDT00:00:00.000Z",
+          "evidence": "observed_frontend_construction"
+        },
+        "source_evidence": {
+          "format": "YYYY-MM-DDT00:00:00.000Z",
+          "evidence": "source_verified_client"
+        },
+        "live_probe": {
+          "as_of": "2026-09-04",
+          "canonical_ui": "https://mevzuat.adalet.gov.tr/",
+          "request_shape": "exact_official_spa",
+          "observed_wire_value": "2020-01-01T00:00:00Z",
+          "status": "PASS",
+          "evidence": "live_server_observed",
+          "scope": "bounded_date_filter_follow_up",
+          "general_wire_format_live_probed": false
+        }
+      },
+      "date_to": {
+        "capability": "Güncel Bedesten karar tarihi üst sınırı",
+        "request_field": "data.kararTarihiEnd",
+        "public_format": "YYYY-MM-DD",
+        "wire_format": "YYYY-MM-DDT23:59:59.000Z",
+        "bounds_inclusive": true,
+        "frontend_evidence": {
+          "format": "YYYY-MM-DDT23:59:59.000Z",
+          "evidence": "observed_frontend_construction"
+        },
+        "source_evidence": {
+          "format": "YYYY-MM-DDT23:59:59.000Z",
+          "evidence": "source_verified_client"
+        },
+        "live_probe": {
+          "as_of": "2026-09-04",
+          "canonical_ui": "https://mevzuat.adalet.gov.tr/",
+          "request_shape": "exact_official_spa",
+          "observed_wire_value": "2020-01-02T00:00:00Z",
+          "status": "PASS",
+          "evidence": "live_server_observed",
+          "scope": "bounded_date_filter_follow_up",
+          "general_wire_format_live_probed": false
+        }
+      },
+      "sort_relevance": {
+        "capability": "Güncel Bedesten ön yüzünde/hedef uç noktada ilgililik sıralaması",
+        "request_field": "UNSUPPORTED (doğrulanmış hedef token yok)",
+        "observed_request": "Canlı pakette hiçbir `RELEVANCE` veya `ALAKA` sıralama token’ı/seçeneği bulunmaz. Güncel ön yüz, içtihat sıralama seçeneklerini her zaman `sortFields:[\"KARAR_TARIHI\"]` değerine eşler; sabitlenmiş Bedesten modeli varsayılan olarak `sortFields:[\"KARAR_TARIHI\"]`, `sortDirection:\"desc\"` kullanır ve herhangi bir ilgililik alanı bildirmez.",
+        "observed_effect": "Güncel ön yüz veya sabitlenmiş Bedesten istemcisi tarafından herhangi bir ilgililik isteği oluşturulmadı. `RELEVANCE`, `ALAKA` veya eski bir sayısal değer gibi bir token çıkarsamayın.",
+        "evidence": "Canlı betik `https://mevzuat.adalet.gov.tr/static/js/main.b12f9f27.js`; sabitlenmiş commit `https://github.com/hburaktasyurek/yargi-mcp/tree/37681046796a44e1e5c9b893fcdc5330a8720184`, dosyalar `bedesten_mcp_module/models.py` ve `bedesten_mcp_module/client.py`.",
+        "advertised": false
+      }
+    },
+    "anayasa_karari_ara": {
+      "transport_norm_review": {
+        "capability": "Güncel norm denetimi arama aktarımı",
+        "request_field": "POST JSON gövdesi: kararTipi, query?, page, size",
+        "observed_request": "Bakım sorumlusunun geçiş kaydı ve güncel paylaşılan istemci, {\"kararTipi\":\"NormDenetimi\",\"query\":\"<metin>\",\"page\":1,\"size\":10} ile POST https://normkararlarbilgibankasi.anayasa.gov.tr/api/core/public/search kullanımını belirtir; query boş olduğunda dahil edilmez.",
+        "observed_effect": "Bakımı sürdürülen istemci, kararTipi alanını norm koleksiyonu ayrıştırıcısı olarak ele alır ve yalnızca serbest metin query ile sayfalandırmayı eşler. Canlı bir POST sonuç farkı doğrulanamadı; bunu bağımsız olarak test edilmiş bir filtre etkisi olarak değerlendirmeyin.",
+        "evidence": "Güncel istemci: https://raw.githubusercontent.com/saidsurucu/yargi-mcp/main/anayasa_mcp_module/api_client.py (KARAR_TIPI_NORM, SEARCH_PATH, AnayasaApiClient.search). Geçiş doğrulaması: https://github.com/saidsurucu/yargi-mcp/issues/33. https://normkararlarbilgibankasi.anayasa.gov.tr/api/core/public/search?kararTipi=NormDenetimi&page=1&size=1&query=__mutalaa_impossible_20260902__ adresine sentetik query ile yapılan doğrudan güncel GET yoklaması HTTP 500 döndürdü; dolayısıyla POST gövdesini doğrulamaz."
+      },
+      "transport_individual_application": {
+        "capability": "Güncel bireysel başvuru arama aktarımı",
+        "request_field": "POST JSON gövdesi: kararTipi, query?, page, size",
+        "observed_request": "Bakım sorumlusunun geçiş kaydı ve güncel paylaşılan istemci, bireysel başvuru sunucusundaki aynı yolun {\"kararTipi\":\"BireyselBasvuru\",\"query\":\"<metin>\",\"page\":1,\"size\":10} ile kullanılmasını belirtir.",
+        "observed_effect": "Bakımı sürdürülen istemci, birleştirilmiş anahtar kelime metnini query alanına; sayfa/sonuç-sayısı değerlerini ise page/size alanlarına eşler. Canlı bir POST sonuç farkı doğrulanamadı; bunu bağımsız olarak test edilmiş bir filtre etkisi olarak değerlendirmeyin.",
+        "evidence": "Güncel istemci: https://raw.githubusercontent.com/saidsurucu/yargi-mcp/main/anayasa_mcp_module/api_client.py. Güncel bireysel eşleyici: https://raw.githubusercontent.com/saidsurucu/yargi-mcp/main/anayasa_mcp_module/bireysel_client.py. https://kararlarbilgibankasi.anayasa.gov.tr/api/core/public/search?kararTipi=BireyselBasvuru&page=1&size=10&query=__mutalaa_impossible_20260902__ adresine yapılan doğrudan sentetik GET yoklaması HTTP 500 döndürdü."
+      },
+      "esas_no": {
+        "capability": "Güncel norm serbest metin eşlemesi",
+        "request_field": "query",
+        "observed_request": "Güncel norm istemcisi, boş olmayan keywords_all ve keywords_any değerlerini tek bir boşlukla birleştirir. Her ikisi de boşsa, boş olmayan case_number_esas ve decision_number_karar değerlerini aynı serbest metin query alanına ekler.",
+        "observed_effect": "Bakımı sürdürülen istemcide E/K değerleri ayrı sağlayıcı alanları olarak gönderilmez; yalnızca hiçbir anahtar kelime listesi bulunmadığında sıradan query metnine dönüşürler. keywords_exclude, period, dates, başvuru türü, başvurucu, norm, sonuç, gazete ve Boolean işaretleri güncel eşleyici tarafından serileştirilmez.",
+        "evidence": "https://raw.githubusercontent.com/saidsurucu/yargi-mcp/main/anayasa_mcp_module/client.py, _build_query ve search_norm_denetimi_decisions."
+      },
+      "karar_no": {
+        "capability": "Güncel norm serbest metin eşlemesi",
+        "request_field": "query",
+        "observed_request": "Güncel norm istemcisi, boş olmayan keywords_all ve keywords_any değerlerini tek bir boşlukla birleştirir. Her ikisi de boşsa, boş olmayan case_number_esas ve decision_number_karar değerlerini aynı serbest metin query alanına ekler.",
+        "observed_effect": "Bakımı sürdürülen istemcide E/K değerleri ayrı sağlayıcı alanları olarak gönderilmez; yalnızca hiçbir anahtar kelime listesi bulunmadığında sıradan query metnine dönüşürler. keywords_exclude, period, dates, başvuru türü, başvurucu, norm, sonuç, gazete ve Boolean işaretleri güncel eşleyici tarafından serileştirilmez.",
+        "evidence": "https://raw.githubusercontent.com/saidsurucu/yargi-mcp/main/anayasa_mcp_module/client.py, _build_query ve search_norm_denetimi_decisions."
+      },
+      "application_number": {
+        "capability": "Güncel bireysel serbest metin eşlemesi",
+        "request_field": "query",
+        "observed_request": "Güncel bireysel istemci, boş olmayan params.keywords değerlerini boşluklarla birleştirir ve bu dizeyi query olarak gönderir; page ve getattr(params, \"results_per_page\", 10) değerlerini page/size olarak gönderir.",
+        "observed_effect": "Bakımı sürdürülen bireysel istek eşlemesinde şu anda ayrı bir başvuru numarası, tarih aralığı veya rapor alanı yoktur. Eski modelin çıktı meta verisi alanları, aranabilir sağlayıcı girdilerinin varlığını kanıtlamaz.",
+        "evidence": "https://raw.githubusercontent.com/saidsurucu/yargi-mcp/main/anayasa_mcp_module/bireysel_client.py ve https://raw.githubusercontent.com/saidsurucu/yargi-mcp/main/anayasa_mcp_module/models.py."
+      }
+    }
+  },
+  "query_backed_identifier_filter": {
+    "warning_code": "query_backed_identifier_filter",
+    "tools": [
+      "anayasa_karari_ara"
+    ],
+    "when": "Bir anayasa_karari_ara isteği, türe özgü bir tanımlayıcı içerir: kind=norm_denetimi olduğunda esas_no ve/veya karar_no ya da kind=bireysel_basvuru olduğunda application_number. Bunlar kesin upstream filtre alanları değildir; güncel SPA POST gövdesi yalnızca kararTipi, query, page ve size alanlarını kabul eder.",
+    "compile": {
+      "order": [
+        "query",
+        "esas_no",
+        "karar_no",
+        "application_number"
+      ],
+      "rule": "Mevcut ve boş olmayan dizelerden sıralı bir token listesi oluşturun: varsa önce query; ardından kind=norm_denetimi ise varsa esas_no, sonra varsa karar_no; ardından kind=bireysel_basvuru ise varsa application_number. Token’ları tek bir ASCII boşluğuyla birleştirin. Bu dize, güncel SPA POST query değeridir. JSON query anahtarını yalnızca derlenen dize boş olduğunda dahil etmeyin. EsasNo, KararNo, application_number, KelimeAra veya diğer eski /Ara alanlarını hiçbir zaman ayrı güncel-API JSON anahtarları olarak göndermeyin."
+    },
+    "request_response_invariants": [
+      {
+        "id": "identifier-requires-query-backed-warning",
+        "tools": [
+          "anayasa_karari_ara"
+        ],
+        "statement": "Türe özgü bir tanımlayıcı içeren isteğe ait başarı nesnesi, kodu query_backed_identifier_filter olan bir uyarı içermek ZORUNDADIR. JSON Schema bu kısıtı ifade edemez: input_schema ve output_schema ayrı belgelerdir ve istek tanımlayıcıları ile yanıt arasında ortak bir kısıtlama uygulayamaz.",
+        "json_schema_expressible": false
+      }
+    ]
+  },
+  "id_grammars": {
+    "bedesten_document": {
+      "pattern": "^bedesten:[A-Za-z0-9._-]+$",
+      "example": "bedesten:abc123",
+      "opaque": true,
+      "mint": "Yalnızca karar_ara sonuçlarından. Asla bir atıftan, URL’den veya E/K demetinden değil.",
+      "routes_to": "belge_getir"
+    },
+    "mevzuat_document": {
+      "pattern": "^mevzuat:[A-Za-z0-9._-]+$",
+      "example": "mevzuat:345097",
+      "opaque": true,
+      "mint": "Yalnızca mevzuat_ara sonuçlarından. Kanun numarası, başlık, tür ve tertip birer atıftır, ID değildir.",
+      "routes_to": [
+        "belge_getir",
+        "mevzuat_madde_getir",
+        "mevzuat_icinde_ara",
+        "mevzuat_madde_agaci_getir"
+      ]
+    },
+    "anayasa_norm_review": {
+      "pattern": "^anayasa:nd:[1-9][0-9]{3}:[1-9][0-9]{0,17}$",
+      "example": "anayasa:nd:2023:123",
+      "opaque": false,
+      "restart_safe": true,
+      "serializes": "/ND/YYYY/N",
+      "mint": "norm_denetimi türündeki anayasa_karari_ara sonuçlarından veya standart bir /ND/YYYY/N yolu serileştirilerek. Süreç yeniden başlatıldığında kalıcılığını korur; geçici oturum URL’lerini ID olarak saklamayın.",
+      "routes_to": "belge_getir"
+    },
+    "anayasa_individual_application": {
+      "pattern": "^anayasa:bb:[1-9][0-9]{3}:[1-9][0-9]{0,17}$",
+      "example": "anayasa:bb:2021:30620",
+      "opaque": false,
+      "restart_safe": true,
+      "serializes": "/BB/YYYY/N",
+      "mint": "bireysel_basvuru türündeki anayasa_karari_ara sonuçlarından veya standart bir /BB/YYYY/N yolu serileştirilerek. Süreç yeniden başlatıldığında kalıcılığını korur; geçici oturum URL’lerini ID olarak saklamayın.",
+      "routes_to": "belge_getir"
+    }
+  },
+  "pagination": {
+    "index": "Her sayfalandırılmış araçta 1 tabanlı page.",
+    "search": {
+      "karar_ara": {
+        "page_size": {
+          "minimum": 1,
+          "maximum": 10,
+          "default": 10
+        }
+      },
+      "mevzuat_ara": {
+        "page_size": {
+          "minimum": 1,
+          "maximum": 20,
+          "default": 20
+        }
+      },
+      "anayasa_karari_ara": {
+        "page_size": {
+          "minimum": 1,
+          "maximum": 10,
+          "default": 10
+        }
+      },
+      "mevzuat_icinde_ara": {
+        "page_size": {
+          "minimum": 1,
+          "maximum": 50,
+          "default": 25
+        }
+      }
+    },
+    "documents": {
+      "parameter": "page",
+      "chunking": "Markdown'ı önce madde sınırlarında, ardından paragraf sınırlarında bölün. Sabit bir karakter dilimini sözleşme olarak yayımlamayın.",
+      "out_of_range": "chunk_out_of_range",
+      "no_clamp": true
+    },
+    "page_object": "PageInfo: page, page_size, total_records, total_pages ve has_more (yalnızca page < total_pages ise true). Arama için page_size, istenen sonuç kapasitesidir. DocumentSuccess ve ArticleSuccess için total_records her zaman 1, total_pages Markdown parça sayısı, page_size ise döndürülen Markdown'ın karakter sayısıdır."
+  },
+  "stale_content": {
+    "warning_code": "stale_content",
+    "when": "Yalnızca bir önbellek girdisinin güncellik süresi dolduktan ve yeniden doğrulama bir ağ hatası veya üst kaynak 5xx hatasıyla (RevalidationError.code=upstream_unavailable) başarısız olduktan sonra. Arama sonuçları 24 saat güncel kabul edilir. Birleştirilmiş mevzuat metni 24 saat güncel kabul edilir. Karar ve Anayasa Mahkemesi metinleri, LRU tahliyesine veya refresh=true olmasına kadar ad alanlı ID ile saklanır ve planlanmış bir sona erme süreleri yoktur.",
+    "document_success": "DocumentSuccess yalnızca süresi dolmuş bir mevzuat: ID için stale_content taşıyabilir. bedesten: ve anayasa: ID'leri hiçbir zaman güncelliğini yitirmiş DocumentSuccess olarak döndürülmez.",
+    "required_success_fields": [
+      "warnings",
+      "fetched_at",
+      "validated_at",
+      "revalidation_error"
+    ],
+    "never": "Hiçbir zaman güncelliğini yitirmiş başarı sonucuna dönüştürülmemesi gerekenler: üst kaynak 404 veya açık kaldırma/not_found; üst kaynak 429 / upstream_rate_limited; DocumentSuccess üzerindeki süresiz belge ID'leri (bedesten: ve anayasa:); isteğinde refresh=true ayarlanmış herhangi bir getirme işlemi.",
+    "refresh": "Getirme araçlarında refresh=true, yeniden doğrulamayı zorunlu kılar ve başarı durumunda hiçbir zaman stale_content döndürmez.",
+    "request_response_invariants": [
+      {
+        "id": "refresh-excludes-stale",
+        "tools": [
+          "belge_getir",
+          "mevzuat_madde_getir"
+        ],
+        "statement": "refresh=true içeren bir istek, warnings alanında stale_content bulunan bir başarı nesnesiyle YANITLANMAMALIDIR. JSON Schema bu kısıtı ifade edemez: input_schema ve output_schema ayrı belgelerdir ve request.refresh ile yanıtı birlikte kısıtlayamaz.",
+        "json_schema_expressible": false
+      }
+    ]
+  },
+  "ocr": {
+    "error_code": "ocr_required",
+    "when": "Taranmış veya yalnızca görüntü içeren bir PDF dönüştürülemez, çünkü yerel OCR kurulu değildir.",
+    "details_required": [
+      "source_url"
+    ],
+    "remote_fallback": false,
+    "retryable": false
+  },
+  "request_gate_errors": [
+    "authentication_required",
+    "session_expired",
+    "email_verification_required",
+    "terms_required",
+    "account_disabled",
+    "account_link_required"
+  ],
+  "error_codes": {
+    "invalid_params": {
+      "retryable": false,
+      "details": [
+        "field_errors"
+      ]
+    },
+    "authentication_required": {
+      "retryable": false,
+      "gate": true,
+      "when": "WorkOS oturumu yok, durum logged_out veya yerel kimlik bilgileri eksik. Her araştırma çağrısından önce kontrol edilir."
+    },
+    "session_expired": {
+      "retryable": false,
+      "gate": true,
+      "when": "Yenileme invalid_grant ile başarısız oldu veya oturum başka bir nedenle kullanılamıyor. Yeniden giriş yapılması gerekir."
+    },
+    "email_verification_required": {
+      "retryable": false,
+      "gate": true,
+      "when": "WorkOS e-posta adresi doğrulanmadığı için etkinleştirme 403 döndürdü."
+    },
+    "terms_required": {
+      "retryable": false,
+      "gate": true,
+      "details_required": [
+        "terms_url"
+      ],
+      "when": "Geçerli koşullar kabul edilmediği için etkinleştirme 403 döndürdü. details.terms_url, izin verilen kabul URL'sidir."
+    },
+    "account_disabled": {
+      "retryable": false,
+      "gate": true,
+      "when": "Etkinleştirme 403 account_disabled döndürdü. Hemen uygulandı; güncelliğini yitirmiş etkinleştirme için ek süre yoktur."
+    },
+    "account_link_required": {
+      "retryable": false,
+      "gate": true,
+      "when": "Doğrulanmış bir e-posta adresi zaten farklı bir kullanıcıya ait olduğu için etkinleştirme 409 döndürdü. Yalnızca kurulum sırasında değil, her araştırma aracında gösterilir."
+    },
+    "already_running": {
+      "retryable": false,
+      "when": "Geçerli kullanıcı için bir MutalaaMCP serve süreci zaten çalışıyor."
+    },
+    "not_configured": {
+      "retryable": false,
+      "when": "Gerekli bir sağlayıcı veya yerel yetenek yapılandırmada eksik. Gizli bilgiye dayalı yedek mekanizma yoktur."
+    },
+    "not_found": {
+      "retryable": false,
+      "when": "Ad alanlı bir getirme ID'si veya madde mevcut değil. Üst kaynak 404 yalnızca getirme işlemlerinde not_found anlamına gelir; arama uç noktasındaki sağlayıcı 404 ise upstream_unavailable/protokol hatasıdır."
+    },
+    "upstream_rate_limited": {
+      "retryable": true,
+      "details_required": [
+        "retry_after"
+      ],
+      "when": "Yerel token bucket veya üst kaynak 429. Hiçbir zaman güncelliğini yitirmiş başarı sonucuna dönüştürülmez."
+    },
+    "upstream_unavailable": {
+      "retryable": true,
+      "when": "Süresi dolmuş uygun bir önbellek girdisi güncelliğini yitirmiş başarı sonucu olarak döndürülemiyorsa ağ hatası, üst kaynak 5xx veya bir arama uç noktasındaki sağlayıcı 404/protokol hatası. Güncelliğini yitirmiş sonuca geri dönüş için uygun olanlar süresi dolmuş mevzuat (ve 24 saatlik arama listeleri) ile sınırlıdır; 429, süresiz bedesten:/anayasa: DocumentSuccess ve refresh=true hiçbir zaman uygun değildir."
+    },
+    "unsupported_format": {
+      "retryable": false,
+      "when": "Üst kaynağın MIME/tür bilgisi Markdown'a dönüştürülemiyor ve içerik yalnızca OCR gerektiren bir PDF değil."
+    },
+    "chunk_out_of_range": {
+      "retryable": false,
+      "when": "İstenen page, 1'den küçük veya total_pages değerinden büyük."
+    },
+    "ocr_required": {
+      "retryable": false,
+      "details_required": [
+        "source_url"
+      ],
+      "when": "Yerel OCR gerekli ancak kurulu değil. Uzak OCR yedeği yoktur."
+    }
+  },
+  "boolean_query": {
+    "tool": "mevzuat_icinde_ara",
+    "precedence": [
+      "parentheses",
+      "NOT",
+      "AND",
+      "OR"
+    ],
+    "adjacent_terms": "AND",
+    "operators_case": "uppercase",
+    "exact_phrase": "çift tırnak",
+    "turkish_i_folding": true,
+    "invalid": "invalid_params"
+  },
+  "$defs": {
+    "CalendarDate": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "bounds_inclusive": true,
+      "description": "ISO takvim tarihi (YYYY-MM-DD). Tarih aralıklarında başlangıç ve bitiş tarihleri dahildir. Desen, 2023-99-99 gibi olanaksız ayları/günleri reddeder; doğrulayıcı biçimleri denetlediğinde format=date ayrıca gerçek bir takvim tarihi olmasını gerektirir."
+    },
+    "BedestenDocumentId": {
+      "type": "string",
+      "pattern": "^bedesten:[A-Za-z0-9._-]+$",
+      "description": "Ad alanlı Bedesten karar ID'si. Opak yerel kısım [A-Za-z0-9._-]+ biçimindedir ve parse_document_id ile eşleşir."
+    },
+    "MevzuatDocumentId": {
+      "type": "string",
+      "pattern": "^mevzuat:[A-Za-z0-9._-]+$",
+      "description": "Ad alanlı Bedesten mevzuat ID'si. Opak yerel kısım [A-Za-z0-9._-]+ biçimindedir ve parse_document_id ile eşleşir. İnsanlar tarafından kullanılan atıflar ID değildir."
+    },
+    "AnayasaDocumentId": {
+      "type": "string",
+      "pattern": "^anayasa:(nd|bb):[1-9][0-9]{3}:[1-9][0-9]{0,17}$",
+      "description": "Yeniden başlatmalara dayanıklı Anayasa Mahkemesi ID'si: anayasa:nd|bb:<year>:<sequence>. Yıl 1000-9999 aralığındadır; sıra, başında sıfır bulunmayan 1–18 basamaklı pozitif bir ondalık tam sayıdır."
+    },
+    "DocumentId": {
+      "type": "string",
+      "pattern": "^(bedesten:[A-Za-z0-9._-]+|mevzuat:[A-Za-z0-9._-]+|anayasa:(nd|bb):[1-9][0-9]{3}:[1-9][0-9]{0,17})$",
+      "description": "belge_getir tarafından kabul edilen V1 ad alanlı getirme ID'si. Dil bilgisi parse_document_id ile tam olarak eşleşir."
+    },
+    "ConversionMethod": {
+      "type": "string",
+      "enum": [
+        "html_markdown",
+        "text_markdown",
+        "pdf_markdown",
+        "docx_markdown",
+        "ocr_markdown"
+      ],
+      "description": "Saklanan Markdown'ın özgün baytlardan nasıl üretildiği."
+    },
+    "ContentHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Tek bir sayfanın değil, belgenin tamamının normalleştirilmiş Markdown'ına ait SHA-256."
+    },
+    "RevalidationError": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "upstream_unavailable"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "description": "Önbellek yeniden doğrulamasının neden başarısız olduğu. Burada yalnızca uygun bir upstream_unavailable ağ hatası veya üst kaynak 5xx görünebilir. Üst kaynak 429 / upstream_rate_limited, 404 veya başka herhangi bir 4xx hiçbir zaman görünemez. Güncelliğini yitirmiş başarı sonucunda zorunludur; güncel başarı sonucunda yasaktır."
+    },
+    "ErrorDetails": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "field_errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "description": "invalid_params için her girdi alanına özgü doğrulama mesajları.",
+          "minProperties": 1
+        },
+        "retry_after": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Yeniden denenebilir bir üst kaynak hatasını tekrar denemeden önce beklenecek saniye sayısı."
+        },
+        "terms_url": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "description": "İzin verilen Mütalaa koşullarını kabul etme URL'si. code değeri terms_required olduğunda bulunur."
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "description": "Kanonik kaynak URL'si. code değeri ocr_required olduğunda, çağıranın özgün kaynağı açabilmesi için bulunur."
+        },
+        "upstream": {
+          "type": "string",
+          "enum": [
+            "bedesten",
+            "anayasa"
+          ],
+          "description": "Hatayı üreten sağlayıcı."
+        },
+        "revalidation_error": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/RevalidationError"
+            }
+          ],
+          "description": "Önbellek yeniden doğrulamasının neden başarısız olduğu. Yalnızca ağ/5xx (upstream_unavailable); hiçbir zaman 429 veya 404 değil."
+        }
+      }
+    },
+    "ErrorBody": {
+      "description": "Hata gövdesi. code ile ayrıştırılır; her varyant retryable değerini ve gerekli details alanlarını sabitler.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "account_disabled"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "$ref": "#/$defs/ErrorDetails"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "account_link_required"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "$ref": "#/$defs/ErrorDetails"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "already_running"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "$ref": "#/$defs/ErrorDetails"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "authentication_required"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "$ref": "#/$defs/ErrorDetails"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "chunk_out_of_range"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "$ref": "#/$defs/ErrorDetails"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "email_verification_required"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "$ref": "#/$defs/ErrorDetails"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "invalid_params"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ErrorDetails"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "field_errors"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable",
+            "details"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "not_configured"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "$ref": "#/$defs/ErrorDetails"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "not_found"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "$ref": "#/$defs/ErrorDetails"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "ocr_required"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ErrorDetails"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "source_url"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable",
+            "details"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "session_expired"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "$ref": "#/$defs/ErrorDetails"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "terms_required"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ErrorDetails"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "terms_url"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable",
+            "details"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "unsupported_format"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": false
+            },
+            "details": {
+              "$ref": "#/$defs/ErrorDetails"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "upstream_rate_limited"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": true
+            },
+            "details": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ErrorDetails"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "retry_after"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable",
+            "details"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "const": "upstream_unavailable"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "const": true
+            },
+            "details": {
+              "$ref": "#/$defs/ErrorDetails"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ]
+        }
+      ]
+    },
+    "ErrorEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "type": "boolean",
+          "const": false
+        },
+        "error": {
+          "$ref": "#/$defs/ErrorBody"
+        }
+      },
+      "required": [
+        "ok",
+        "error"
+      ],
+      "description": "Her araştırma aracı tarafından döndürülen kanonik hata: {ok:false, error:{code,message,retryable,details}}."
+    },
+    "ToolWarning": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "stale_content",
+            "query_backed_identifier_filter",
+            "outline_from_document",
+            "outline_incomplete"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ]
+    },
+    "PageInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1 tabanlı page dizini."
+        },
+        "page_size": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Bu page üzerinde döndürülen sonuç sayısı değil, istenen arama page kapasitesi. DocumentSuccess ve ArticleSuccess için döndürülen Markdown parçasının karakter uzunluğudur."
+        },
+        "total_records": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Arama araçları için eşleşen toplam kayıt sayısı. DocumentSuccess ve ArticleSuccess için yanıt tek bir belge veya madde getirdiğinden her zaman 1'dir."
+        },
+        "total_pages": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Bu sonuç kümesindeki toplam page sayısı. DocumentSuccess ve ArticleSuccess için Markdown parçası sayısıdır. Yalnızca page < total_pages ise has_more true olur."
+        },
+        "has_more": {
+          "type": "boolean",
+          "description": "Yalnızca page < total_pages ise true."
+        }
+      },
+      "required": [
+        "page",
+        "page_size",
+        "total_records",
+        "total_pages",
+        "has_more"
+      ]
+    },
+    "DecisionHit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/BedestenDocumentId"
+            }
+          ],
+          "description": "Ad alanlı Bedesten karar ID'si. Opak yerel kısım üst kaynaktaki documentId değeridir; bir atıf değildir ve E/K/tarih bilgilerinden yeniden oluşturulmaz."
+        },
+        "source": {
+          "type": "string",
+          "const": "bedesten"
+        },
+        "court": {
+          "type": "string",
+          "enum": [
+            "yargitay",
+            "danistay",
+            "istinaf",
+            "yerel",
+            "kyb"
+          ]
+        },
+        "chamber": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "esas_no": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Sonuçta bildirilen esas numarası. Çıktı meta verisidir. karar_ara girdi alanları esas_year ve esas_sequence değerlerinden farklıdır."
+        },
+        "karar_no": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Sonuçta bildirilen karar numarası. Çıktı meta verisidir. karar_ara girdi alanları karar_year ve karar_sequence değerlerinden farklıdır."
+        },
+        "date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CalendarDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Dâhilî takvim tarihi veya sağlayıcı bir tarih bildirmediyse null."
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "snippet": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "description": "Kanonik ve null olmayan kaynak URL'si. Çözümlenebilir bir kaynak URL'si bulunmayan üst kaynak öğesi, geçerli bir sonuç değil üst kaynak normalleştirme hatasıdır."
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "court",
+        "chamber",
+        "esas_no",
+        "karar_no",
+        "date",
+        "title",
+        "snippet",
+        "source_url"
+      ]
+    },
+    "LegislationHit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/MevzuatDocumentId"
+            }
+          ],
+          "description": "Ad alanlı Bedesten mevzuat ID'si. Opak yerel kısım üst kaynaktaki mevzuatId değeridir. İnsanlar tarafından kullanılan atıflar (kanun numarası, başlık, tertip) ID değildir ve önce mevzuat_ara aracılığıyla çözümlenmelidir."
+        },
+        "source": {
+          "type": "string",
+          "const": "bedesten"
+        },
+        "legislation_type": {
+          "type": "string",
+          "enum": [
+            "KANUN",
+            "KHK",
+            "TUZUK",
+            "CB_KARARNAME",
+            "YONETMELIK",
+            "CB_YONETMELIK",
+            "CB_KARAR",
+            "CB_GENELGE",
+            "KKY",
+            "UY",
+            "TEBLIGLER",
+            "MULGA"
+          ]
+        },
+        "number": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Bildirilen resmî mevzuat numarası. belge_getir girdisi olarak kullanılamaz."
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "official_gazette_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CalendarDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Dâhilî Resmî Gazete takvim tarihi veya bildirilmediyse null."
+        },
+        "official_gazette_issue": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "snippet": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "description": "Kanonik ve null olmayan kaynak URL'si. Çözümlenebilir bir kaynak URL'si bulunmayan üst kaynak öğesi, geçerli bir sonuç değil üst kaynak normalleştirme hatasıdır."
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "legislation_type",
+        "number",
+        "title",
+        "official_gazette_date",
+        "official_gazette_issue",
+        "snippet",
+        "source_url"
+      ]
+    },
+    "ConstitutionalHit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/AnayasaDocumentId"
+            }
+          ],
+          "description": "Yeniden başlatmalara dayanıklı Anayasa Mahkemesi belge ID'si: anayasa:nd:<year>:<sequence> veya anayasa:bb:<year>:<sequence>."
+        },
+        "source": {
+          "type": "string",
+          "const": "anayasa"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "norm_denetimi",
+            "bireysel_basvuru"
+          ]
+        },
+        "esas_no": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Sonuçta mevcut olduğunda norm denetimi esas numarası. Çıktı meta verisidir. Aynı addaki, kind'e özgü anayasa_karari_ara girdisinden farklıdır; bu girdi query içinde derlenir."
+        },
+        "karar_no": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Sonuçta mevcut olduğunda norm denetimi karar numarası. Çıktı meta verisidir. Aynı addaki, kind'e özgü anayasa_karari_ara girdisinden farklıdır; bu girdi query içinde derlenir."
+        },
+        "application_number": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Sonuçta mevcut olduğunda bireysel başvuru numarası. Çıktı meta verisidir. Aynı addaki, kind'e özgü anayasa_karari_ara girdisinden farklıdır; bu girdi query içinde derlenir."
+        },
+        "date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CalendarDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Dâhilî takvim tarihi veya sağlayıcı bir tarih bildirmediyse null."
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "summary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "snippet": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "description": "Kanonik ve null olmayan kaynak URL'si. Çözümlenebilir bir kaynak URL'si bulunmayan üst kaynak öğesi, geçerli bir sonuç değil üst kaynak normalleştirme hatasıdır."
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "kind",
+        "esas_no",
+        "karar_no",
+        "application_number",
+        "date",
+        "title",
+        "summary",
+        "snippet",
+        "source_url"
+      ],
+      "description": "Anayasa Mahkemesi arama sonucu. id türü nd ise her zaman kind=norm_denetimi; id türü bb ise her zaman kind=bireysel_basvuru.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^anayasa:nd:"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "norm_denetimi"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "norm_denetimi"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "id": {
+                "pattern": "^anayasa:nd:[1-9][0-9]{3}:[1-9][0-9]{0,17}$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^anayasa:bb:"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "bireysel_basvuru"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "bireysel_basvuru"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "id": {
+                "pattern": "^anayasa:bb:[1-9][0-9]{3}:[1-9][0-9]{0,17}$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "WithinHit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "article_number": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Metinde göründüğü şekliyle madde etiketi; varsa EK, GEÇİCİ ve MÜKERRER biçimleri dâhildir."
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "snippet": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "match_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "article_number",
+        "title",
+        "snippet",
+        "match_count"
+      ]
+    },
+    "OutlineNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "article_number": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Yaprak düğümler için madde etiketi. Bölüm/kısım düğümlerinde Null olur."
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OutlineNode"
+          }
+        }
+      },
+      "required": [
+        "article_number",
+        "title",
+        "children"
+      ]
+    },
+    "DecisionSearchSuccess": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "type": "boolean",
+          "const": true
+        },
+        "hits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DecisionHit"
+          }
+        },
+        "page": {
+          "$ref": "#/$defs/PageInfo"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "stale_content"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          },
+          "default": [],
+          "description": "Süresi dolmuş önbelleğin ağ/5xx yeniden doğrulama hatasından sonra stale_content içerebilir. 404 veya üst kaynaktan açıkça kaldırılma hiçbir zaman eski içerikle başarılı yanıta dönüştürülmez."
+        },
+        "fetched_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbelleğe alınan içerik baytlarının ilk indirildiği zaman."
+        },
+        "validated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbellek girdisinin üst kaynağa göre en son doğrulandığı zaman."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Yeniden doğrulamanın zorunlu hâle geldiği zaman."
+        },
+        "revalidation_error": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/RevalidationError"
+            }
+          ],
+          "description": "Eski içerikle başarılı yanıtta stale_content uyarısıyla birlikte zorunludur. Güncel başarılı yanıtta bulunmaz."
+        },
+        "announcement": {
+          "$ref": "#/$defs/Announcement"
+        }
+      },
+      "required": [
+        "ok",
+        "hits",
+        "page",
+        "warnings"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "warnings": {
+                "type": "array",
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "stale_content"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "warnings"
+            ]
+          },
+          "then": {
+            "required": [
+              "fetched_at",
+              "validated_at",
+              "revalidation_error"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "revalidation_error"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "LegislationSearchSuccess": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "type": "boolean",
+          "const": true
+        },
+        "hits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LegislationHit"
+          }
+        },
+        "page": {
+          "$ref": "#/$defs/PageInfo"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "stale_content"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          },
+          "default": [],
+          "description": "Süresi dolmuş önbelleğin ağ/5xx yeniden doğrulama hatasından sonra stale_content içerebilir. 404 veya üst kaynaktan açıkça kaldırılma hiçbir zaman eski içerikle başarılı yanıta dönüştürülmez."
+        },
+        "fetched_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbelleğe alınan içerik baytlarının ilk indirildiği zaman."
+        },
+        "validated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbellek girdisinin üst kaynağa göre en son doğrulandığı zaman."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Yeniden doğrulamanın zorunlu hâle geldiği zaman."
+        },
+        "revalidation_error": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/RevalidationError"
+            }
+          ],
+          "description": "Eski içerikle başarılı yanıtta stale_content uyarısıyla birlikte zorunludur. Güncel başarılı yanıtta bulunmaz."
+        },
+        "announcement": {
+          "$ref": "#/$defs/Announcement"
+        }
+      },
+      "required": [
+        "ok",
+        "hits",
+        "page",
+        "warnings"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "warnings": {
+                "type": "array",
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "stale_content"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "warnings"
+            ]
+          },
+          "then": {
+            "required": [
+              "fetched_at",
+              "validated_at",
+              "revalidation_error"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "revalidation_error"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ConstitutionalSearchSuccess": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "type": "boolean",
+          "const": true
+        },
+        "hits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConstitutionalHit"
+          }
+        },
+        "page": {
+          "$ref": "#/$defs/PageInfo"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "stale_content",
+                  "query_backed_identifier_filter"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          },
+          "default": [],
+          "description": "Süresi dolmuş önbelleğin ağ/5xx yeniden doğrulama hatasından sonra stale_content içerebilir. 404 veya üst kaynaktan açıkça kaldırılma hiçbir zaman eski içerikle başarılı yanıta dönüştürülmez. İstek, SPA query içine derlenmiş türe özgü bir tanımlayıcı içeriyorsa query_backed_identifier_filter içermelidir."
+        },
+        "fetched_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbelleğe alınan içerik baytlarının ilk indirildiği zaman."
+        },
+        "validated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbellek girdisinin üst kaynağa göre en son doğrulandığı zaman."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Yeniden doğrulamanın zorunlu hâle geldiği zaman."
+        },
+        "revalidation_error": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/RevalidationError"
+            }
+          ],
+          "description": "Eski içerikle başarılı yanıtta stale_content uyarısıyla birlikte zorunludur. Güncel başarılı yanıtta bulunmaz."
+        },
+        "announcement": {
+          "$ref": "#/$defs/Announcement"
+        }
+      },
+      "required": [
+        "ok",
+        "hits",
+        "page",
+        "warnings"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "warnings": {
+                "type": "array",
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "stale_content"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "warnings"
+            ]
+          },
+          "then": {
+            "required": [
+              "fetched_at",
+              "validated_at",
+              "revalidation_error"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "revalidation_error"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "DocumentSuccess": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "type": "boolean",
+          "const": true
+        },
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/DocumentId"
+            }
+          ],
+          "description": "Bir V1 arama aracından gelen, ad alanlı getirme ID değeri: bedesten:, mevzuat:, anayasa:nd: veya anayasa:bb:."
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "bedesten",
+            "anayasa"
+          ]
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "description": "Kanonik ve null olmayan kaynak URL adresi. Çözümlenebilir bir kaynak URL adresi bulunmayan üst kaynak öğesi, geçerli bir eşleşme değil, üst kaynak normalleştirme hatasıdır."
+        },
+        "markdown": {
+          "type": "string",
+          "description": "Yalnızca istenen sayfanın normalleştirilmiş Markdown içeriği. Eksik belgeler için boş dize kullanılmaz; bunlar not_found döndürür."
+        },
+        "mime_type": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Üst kaynaktaki özgün MIME türü."
+        },
+        "conversion": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConversionMethod"
+            }
+          ]
+        },
+        "content_hash": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ContentHash"
+            }
+          ]
+        },
+        "page": {
+          "$ref": "#/$defs/PageInfo",
+          "description": "Getirilen belge sayfalaması: total_records 1'dir, total_pages Markdown parça sayısıdır ve page_size bu yanıttaki Markdown karakter sayısıdır."
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "stale_content"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          },
+          "default": [],
+          "description": "Yalnızca süresi dolmuş bir mevzuat: ID için, ağ/5xx yeniden doğrulama hatasından sonra stale_content içerebilir. bedesten: veya anayasa: ID değerleri için hiçbir zaman, 429 sonrasında hiçbir zaman, 404 veya üst kaynaktan açıkça kaldırılma sonrasında hiçbir zaman ve istekte refresh=true ayarlandığında hiçbir zaman kullanılamaz."
+        },
+        "fetched_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbelleğe alınan içerik baytlarının ilk indirildiği zaman."
+        },
+        "validated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbellek girdisinin üst kaynağa göre en son doğrulandığı zaman."
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Yeniden doğrulamanın zorunlu hâle geldiği zaman. Karar ve Anayasa Mahkemesi metinleri için Null olur (zamanlanmış süre sonu yoktur; refresh=true olana dek LRU). Mevzuatın 24 saatlik güncelliği için null olmayan RFC 3339 zaman damgasıdır."
+        },
+        "revalidation_error": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/RevalidationError"
+            }
+          ],
+          "description": "Eski içerikle başarılı yanıtta stale_content uyarısıyla birlikte zorunludur. Güncel başarılı yanıtta bulunmaz. Kod her zaman upstream_unavailable olur."
+        },
+        "announcement": {
+          "$ref": "#/$defs/Announcement"
+        }
+      },
+      "required": [
+        "ok",
+        "id",
+        "source",
+        "source_url",
+        "markdown",
+        "mime_type",
+        "conversion",
+        "content_hash",
+        "page",
+        "warnings",
+        "fetched_at",
+        "validated_at",
+        "expires_at"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "warnings": {
+                "type": "array",
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "stale_content"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "warnings"
+            ]
+          },
+          "then": {
+            "required": [
+              "fetched_at",
+              "validated_at",
+              "revalidation_error"
+            ],
+            "properties": {
+              "id": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/MevzuatDocumentId"
+                  }
+                ],
+                "description": "stale_content yalnızca süresi dolmuş mevzuat: ID değerleri için geçerlidir. Süresi dolmayan bedesten: ve anayasa: ID değerleri, eski içerik taşıyan DocumentSuccess üzerinde KESİNLİKLE görünmemelidir."
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "revalidation_error"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^mevzuat:"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "expires_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "expires_at": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^bedesten:"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source": {
+                "const": "bedesten"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^mevzuat:"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source": {
+                "const": "bedesten"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^anayasa:"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source": {
+                "const": "anayasa"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ArticleSuccess": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "type": "boolean",
+          "const": true
+        },
+        "legislation_id": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/MevzuatDocumentId"
+            }
+          ],
+          "description": "Ad alanlı Bedesten mevzuat ID değeri. Opak yerel kısım, üst kaynaktaki mevzuatId değeridir. İnsanların kullandığı atıflar (kanun numarası, başlık, tertip) ID değildir ve önce mevzuat_ara aracılığıyla çözümlenmelidir."
+        },
+        "article_number": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "const": "bedesten"
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "description": "Kanonik ve null olmayan kaynak URL adresi. Çözümlenebilir bir kaynak URL adresi bulunmayan üst kaynak öğesi, geçerli bir eşleşme değil, üst kaynak normalleştirme hatasıdır."
+        },
+        "markdown": {
+          "type": "string",
+          "description": "Yalnızca istenen madde sayfasının normalleştirilmiş Markdown içeriği."
+        },
+        "mime_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "conversion": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConversionMethod"
+            }
+          ]
+        },
+        "content_hash": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ContentHash"
+            }
+          ]
+        },
+        "page": {
+          "$ref": "#/$defs/PageInfo",
+          "description": "Getirilen madde sayfalaması: total_records 1'dir, total_pages Markdown parça sayısıdır ve page_size bu yanıttaki Markdown karakter sayısıdır."
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "stale_content"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          },
+          "default": [],
+          "description": "Süresi dolmuş önbelleğin ağ/5xx yeniden doğrulama hatasından sonra stale_content içerebilir. 404 veya üst kaynaktan açıkça kaldırılma hiçbir zaman eski içerikle başarılı yanıta dönüştürülmez."
+        },
+        "fetched_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbelleğe alınan içerik baytlarının ilk indirildiği zaman."
+        },
+        "validated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbellek girdisinin üst kaynağa göre en son doğrulandığı zaman."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Yeniden doğrulamanın zorunlu hâle geldiği zaman."
+        },
+        "revalidation_error": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/RevalidationError"
+            }
+          ],
+          "description": "Eski içerikle başarılı yanıtta stale_content uyarısıyla birlikte zorunludur. Güncel başarılı yanıtta bulunmaz."
+        },
+        "announcement": {
+          "$ref": "#/$defs/Announcement"
+        }
+      },
+      "required": [
+        "ok",
+        "legislation_id",
+        "article_number",
+        "title",
+        "source",
+        "source_url",
+        "markdown",
+        "mime_type",
+        "conversion",
+        "content_hash",
+        "page",
+        "warnings",
+        "fetched_at",
+        "validated_at",
+        "expires_at"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "warnings": {
+                "type": "array",
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "stale_content"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "warnings"
+            ]
+          },
+          "then": {
+            "required": [
+              "fetched_at",
+              "validated_at",
+              "revalidation_error"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "revalidation_error"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "WithinSearchSuccess": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "type": "boolean",
+          "const": true
+        },
+        "legislation_id": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/MevzuatDocumentId"
+            }
+          ],
+          "description": "Ad alanlı Bedesten mevzuat ID değeri. Opak yerel kısım, üst kaynaktaki mevzuatId değeridir. İnsanların kullandığı atıflar (kanun numarası, başlık, tertip) ID değildir ve önce mevzuat_ara aracılığıyla çözümlenmelidir."
+        },
+        "hits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WithinHit"
+          }
+        },
+        "page": {
+          "$ref": "#/$defs/PageInfo"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "stale_content"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          },
+          "default": [],
+          "description": "Süresi dolmuş önbelleğin ağ/5xx yeniden doğrulama hatasından sonra stale_content içerebilir. 404 veya üst kaynaktan açıkça kaldırılma hiçbir zaman eski içerikle başarılı yanıta dönüştürülmez."
+        },
+        "fetched_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbelleğe alınan içerik baytlarının ilk indirildiği zaman."
+        },
+        "validated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbellek girdisinin üst kaynağa göre en son doğrulandığı zaman."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Yeniden doğrulamanın zorunlu hâle geldiği zaman."
+        },
+        "revalidation_error": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/RevalidationError"
+            }
+          ],
+          "description": "Eski içerikle başarılı yanıtta stale_content uyarısıyla birlikte zorunludur. Güncel başarılı yanıtta bulunmaz."
+        },
+        "announcement": {
+          "$ref": "#/$defs/Announcement"
+        }
+      },
+      "required": [
+        "ok",
+        "legislation_id",
+        "hits",
+        "page",
+        "warnings"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "warnings": {
+                "type": "array",
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "stale_content"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "warnings"
+            ]
+          },
+          "then": {
+            "required": [
+              "fetched_at",
+              "validated_at",
+              "revalidation_error"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "revalidation_error"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "OutlineSuccess": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "type": "boolean",
+          "const": true
+        },
+        "legislation_id": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/MevzuatDocumentId"
+            }
+          ],
+          "description": "Ad alanlı Bedesten mevzuat ID değeri. Opak yerel kısım, üst kaynaktaki mevzuatId değeridir. İnsanların kullandığı atıflar (kanun numarası, başlık, tertip) ID değildir ve önce mevzuat_ara aracılığıyla çözümlenmelidir."
+        },
+        "source": {
+          "type": "string",
+          "const": "bedesten"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OutlineNode"
+          },
+          "description": "Hiyerarşik bölüm/madde ağacı. Boş dizi, not_found değil, başarılı bir boş madde ağacıdır. Bazı türlerde genellikle ağaç bulunmaz."
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "stale_content",
+                  "outline_from_document",
+                  "outline_incomplete"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          },
+          "default": [],
+          "description": "Süresi dolmuş önbelleğin ağ/5xx yeniden doğrulama hatasından sonra stale_content içerebilir. 404 veya üst kaynaktan açıkça kaldırılma hiçbir zaman eski içerikle başarılı yanıta dönüştürülmez. outline_from_document açık kaynak başlıklarından oluşturulan ağacı, outline_incomplete tamamlanamayan üst kaynak başlıklarını belirtir."
+        },
+        "fetched_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbelleğe alınan içerik baytlarının ilk indirildiği zaman."
+        },
+        "validated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Önbellek girdisinin üst kaynağa göre en son doğrulandığı zaman."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Yeniden doğrulamanın zorunlu hâle geldiği zaman."
+        },
+        "revalidation_error": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/RevalidationError"
+            }
+          ],
+          "description": "Eski içerikle başarılı yanıtta stale_content uyarısıyla birlikte zorunludur. Güncel başarılı yanıtta bulunmaz."
+        },
+        "announcement": {
+          "$ref": "#/$defs/Announcement"
+        }
+      },
+      "required": [
+        "ok",
+        "legislation_id",
+        "source",
+        "nodes",
+        "warnings"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "warnings": {
+                "type": "array",
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "stale_content"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "warnings"
+            ]
+          },
+          "then": {
+            "required": [
+              "fetched_at",
+              "validated_at",
+              "revalidation_error"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "revalidation_error"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ResearchStartSuccess": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "const": true
+        },
+        "research_performed": {
+          "type": "boolean"
+        },
+        "guidance": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "description"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "initial_search": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/LegislationSearchSuccess"
+            },
+            {
+              "$ref": "#/$defs/ErrorEnvelope"
+            }
+          ]
+        },
+        "announcement": {
+          "$ref": "#/$defs/Announcement"
+        }
+      },
+      "required": [
+        "ok",
+        "research_performed",
+        "guidance",
+        "tools"
+      ],
+      "additionalProperties": false
+    },
+    "Announcement": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "body": {
+          "type": "string",
+          "maxLength": 600
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "body",
+        "url"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "tools": [
+    {
+      "name": "turk_hukuku_sorularinda_once_bu_araci_cagir",
+      "description": "Türk hukuku, mevzuat, hak, borç ve sorumluluk sorularında önce bu aracı çağırın. Mütalaa araştırma araçlarına başlangıç rehberi verir. İlgili mevzuatın adını biliyorsanız mevzuat_adi ile ilk aramayı da yapar; bilinmiyorsa ad uydurmadan yalnız soru gönderin. Hukuki görüş veya doğrulanmış madde metni üretmez. Başka ülke hukuku ve hukuk araştırması gerektirmeyen işler için kullanmayın.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "soru": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "pattern": "\\S",
+            "description": "Kullanıcının Türk hukukuna ilişkin sorusu."
+          },
+          "mevzuat_adi": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300,
+            "pattern": "\\S",
+            "description": "Biliyorsanız ilgili mevzuatın adı; örneğin Kat Mülkiyeti Kanunu. Emin değilseniz göndermeyin."
+          }
+        },
+        "required": [
+          "soru"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ResearchStartSuccess"
+          },
+          {
+            "$ref": "#/$defs/ErrorEnvelope"
+          }
+        ]
+      }
+    },
+    {
+      "name": "karar_ara",
+      "description": "Türk hukukundaki bir uyuşmazlığın mahkemelerce nasıl yorumlandığını, benzer olayları veya içtihat/emsal kararları araştırmak için kullanın; kullanıcının mahkeme, emsal veya MCP demesi gerekmez. Mevzuatın tek başına yanıtlamadığı uygulama sorularında ilgili kararın metnini okuyarak dayanak bulun. Yargıtay, Danıştay, bölge adliye (istinaf), yerel hukuk ve KYB kararlarını arayın. courts zorunludur; gizli bir mahkeme varsayılanı yoktur. İsteğe bağlı esas_year/esas_sequence ve karar_year/karar_sequence, Bedesten data.esasNoYil/esasNoSira/kararNoYil/kararNoSira alanlarına eşlenir. En az query veya eksiksiz bir E ya da K çifti zorunludur. Sıralama için yalnızca tarih_yeniden_eskiye/tarih_eskiden_yeniye kullanılabilir. bedesten: belge ID değerleri, court, chamber, esas/karar numaraları, date, isteğe bağlı snippet ve kaynak URL adresi içeren kompakt eşleşmeler döndürür. Markdown içeriğini belge_getir ile alın. Bu aracı mevzuat veya Anayasa Mahkemesi kararları için kullanmayın. Yargıtay ve Danıştay için courts değerleri küçük harfle \"yargitay\" ve \"danistay\" olmalıdır. Bir konu için önce dar bir ifade ve include_snippet=true, page_size=3 ile başlayın. İlk kaydın ilgili olduğunu varsaymayın; başlık/özet yoksa metni okuyun. Gönderme/görevsizlik gibi usul kararını esasa ilişkin emsal yerine sunmayın. Gerekirse sorguyu tam ifadeyle veya bilinen daireyle daraltın; bilinmeyen daire kodunu tahmin etmeyin. Şema hatasında araç parametrelerini düzeltin; yerel dosyalarda şema aramayın.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Bedesten karar ifadesi. Tırnak içine alınmış metin tam bir ifadedir; + zorunlu bir terimi belirtir; - bir terimi hariç tutar; büyük harfli AND, OR ve NOT kabul edilir. Joker karakterler, regex, bulanık arama ve yakınlık araması invalid_params olarak reddedilir. Yan yana gelen yalın terimler, yerel mevzuat Boolean ayrıştırıcısını değil, sağlayıcının ifade sözdizimini izler."
+          },
+          "courts": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "yargitay",
+                "danistay",
+                "istinaf",
+                "yerel",
+                "kyb"
+              ]
+            },
+            "description": "Zorunlu courts filtresi. Gizli bir varsayılan küme yoktur. yargitay=Yargıtay, danistay=Danıştay, istinaf=bölge adliye, yerel=yerel hukuk, kyb=Yargıtay Cumhuriyet Başsavcısının yazılı emri."
+          },
+          "chamber": {
+            "type": "string",
+            "enum": [
+              "H1",
+              "H2",
+              "H3",
+              "H4",
+              "H5",
+              "H6",
+              "H7",
+              "H8",
+              "H9",
+              "H10",
+              "H11",
+              "H12",
+              "H13",
+              "H14",
+              "H15",
+              "H16",
+              "H17",
+              "H18",
+              "H19",
+              "H20",
+              "H21",
+              "H22",
+              "H23",
+              "C1",
+              "C2",
+              "C3",
+              "C4",
+              "C5",
+              "C6",
+              "C7",
+              "C8",
+              "C9",
+              "C10",
+              "C11",
+              "C12",
+              "C13",
+              "C14",
+              "C15",
+              "C16",
+              "C17",
+              "C18",
+              "C19",
+              "C20",
+              "C21",
+              "C22",
+              "C23",
+              "HGK",
+              "CGK",
+              "BGK",
+              "HBK",
+              "CBK",
+              "D1",
+              "D2",
+              "D3",
+              "D4",
+              "D5",
+              "D6",
+              "D7",
+              "D8",
+              "D9",
+              "D10",
+              "D11",
+              "D12",
+              "D13",
+              "D14",
+              "D15",
+              "D16",
+              "D17",
+              "DBGK",
+              "IDDK",
+              "VDDK",
+              "IBK",
+              "IIK",
+              "DBK"
+            ],
+            "description": "Bedesten birimAdi alanına iletilen isteğe bağlı Yargıtay/Danıştay daire kodu. courts değeri yargitay veya danistay olduğunda anlamlıdır. Askerî AYIM kodları V1 içinde yer almaz."
+          },
+          "date_from": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/CalendarDate"
+              }
+            ],
+            "bounds_inclusive": true,
+            "provider_wire_format": "YYYY-MM-DDT00:00:00.000Z",
+            "description": "Karar tarihi için alt sınırdır; bu tarihteki kararlar da sonuçlara dahildir. Bedesten kararTarihiStart alanına YYYY-MM-DDT00:00:00.000Z UTC zaman damgası olarak eşlenir."
+          },
+          "date_to": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/CalendarDate"
+              }
+            ],
+            "bounds_inclusive": true,
+            "provider_wire_format": "YYYY-MM-DDT23:59:59.000Z",
+            "description": "Karar tarihi için üst sınırdır; bu tarihteki kararlar da sonuçlara dahildir. Bedesten kararTarihiEnd alanına YYYY-MM-DDT23:59:59.000Z UTC zaman damgası olarak eşlenir."
+          },
+          "esas_year": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 9999,
+            "description": "İsteğe bağlı Esas (E.) yılı. Bedesten data.esasNoYil alanına eşlenir. Mevcut ön yüz: data içinde `..._.yil && {esasNoYil: _.yil}`; boş değerler atlanır. Sağlayıcıya JSON dizesi olarak serileştirilir ve esas_sequence ile birlikte kullanılmalıdır. 2026-09-03 tarihli sınırlı canlı yeniden sorguda tam E/K eşleşmesi yalnızca JSON dizesi değerleriyle gözlendi; sayısal JSON değeriyle eşleşme gözlenmedi."
+          },
+          "esas_sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "İsteğe bağlı Esas (E.) sıra numarası. Bedesten data.esasNoSira alanına eşlenir. Mevcut ön yüz: `..._.sira && {esasNoSira: _.sira}` ifadesi esasNoYil ile aynı düzeyde skaler bir alandır; boş olduğunda atlanır. Sağlayıcıya JSON dizesi olarak serileştirilir ve esas_year ile birlikte kullanılmalıdır. 2026-09-03 tarihli sınırlı canlı yeniden sorguda tam E/K eşleşmesi yalnızca JSON dizesi değerleriyle gözlendi; sayısal JSON değeriyle eşleşme gözlenmedi."
+          },
+          "karar_year": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 9999,
+            "description": "İsteğe bağlı Karar (K.) yılı. Bedesten data.kararNoYil alanına eşlenir. Mevcut ön yüz: data içinde `...x.yil && {kararNoYil: x.yil}`; boş değerler atlanır. Sağlayıcıya JSON dizesi olarak serileştirilir ve karar_sequence ile birlikte kullanılmalıdır. 2026-09-03 tarihli sınırlı canlı yeniden sorguda tam E/K eşleşmesi yalnızca JSON dizesi değerleriyle gözlendi; sayısal JSON değeriyle eşleşme gözlenmedi."
+          },
+          "karar_sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "İsteğe bağlı Karar (K.) sıra numarası. Bedesten data.kararNoSira alanına eşlenir. Mevcut ön yüz: `...x.sira && {kararNoSira: x.sira}` ifadesi kararNoYil ile aynı düzeyde skaler bir alandır; boş olduğunda atlanır. Sağlayıcıya JSON dizesi olarak serileştirilir ve karar_year ile birlikte kullanılmalıdır. 2026-09-03 tarihli sınırlı canlı yeniden sorguda tam E/K eşleşmesi yalnızca JSON dizesi değerleriyle gözlendi; sayısal JSON değeriyle eşleşme gözlenmedi."
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "tarih_yeniden_eskiye",
+              "tarih_eskiden_yeniye"
+            ],
+            "default": "tarih_yeniden_eskiye",
+            "description": "Bedesten data.sortFields=[\"KARAR_TARIHI\"] ve data.sortDirection \"desc\" (tarih_yeniden_eskiye, ön yüzde siraId 10) veya \"ASC\" (tarih_eskiden_yeniye, ön yüzde siraId 9) olarak eşlenir. 2026-09-03 tarihinde kaydedilen kapsamı sınırlı canlı yoklamalarda her iki yön çalıştı; bu, yön davranışını ve yalnızca bu sınırlı örnekleri kanıtlar, tüm veri kümesinin kronolojik eksiksizliğini veya tam sağlayıcı yeterliliğini kanıtlamaz. Herhangi bir ilgililik sıralama belirteci sunulmamaktadır; mevcut Bedesten ön yüzünde veya sabitlenmiş istemcide böyle bir belirteç gözlemlenmemiştir."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1,
+            "description": "page 1'den başlar. Son sayfadan sonraki sayfalar hata yerine has_more=false ile boş bir sonuç listesi döndürür."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 10,
+            "description": "Sayfa başına sonuç sayısı. Bedesten 1–10 aralığını kabul eder."
+          },
+          "include_snippet": {
+            "type": "boolean",
+            "default": false,
+            "description": "true ise her sonuç, query odaklı kısa bir snippet içerebilir. false ise snippet null olur."
+          }
+        },
+        "required": [
+          "courts"
+        ],
+        "dependentRequired": {
+          "esas_year": [
+            "esas_sequence"
+          ],
+          "esas_sequence": [
+            "esas_year"
+          ],
+          "karar_year": [
+            "karar_sequence"
+          ],
+          "karar_sequence": [
+            "karar_year"
+          ]
+        },
+        "anyOf": [
+          {
+            "required": [
+              "query"
+            ]
+          },
+          {
+            "required": [
+              "esas_year",
+              "esas_sequence"
+            ]
+          },
+          {
+            "required": [
+              "karar_year",
+              "karar_sequence"
+            ]
+          }
+        ],
+        "description": "courts zorunludur. En az query veya eksiksiz bir E çifti (esas_year+esas_sequence) ya da eksiksiz bir K çifti (karar_year+karar_sequence) gereklidir. Eksik E veya K çiftleri invalid_params sonucuna yol açar."
+      },
+      "output_schema": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/DecisionSearchSuccess"
+          },
+          {
+            "$ref": "#/$defs/ErrorEnvelope"
+          }
+        ]
+      },
+      "errors": [
+        "authentication_required",
+        "session_expired",
+        "email_verification_required",
+        "terms_required",
+        "account_disabled",
+        "account_link_required",
+        "invalid_params",
+        "not_configured",
+        "upstream_rate_limited",
+        "upstream_unavailable"
+      ]
+    },
+    {
+      "name": "mevzuat_ara",
+      "description": "Türk hukukunda hak, yükümlülük, sorumluluk, süre ve başvuru koşullarına ilişkin soruların mevzuat dayanağını araştırmak için kullanın; kullanıcı kanun adı, madde, Mütalaa veya MCP belirtmek zorunda değildir. Kiracı aidatı, işçinin izin/tazminat hakları, tüketici iadesi, miras ve vergi yükümlülükleri gibi gündelik sorular da kapsamdadır. Kanun, yönetmelik ve tebliğ bulur; resmî kaynak URL’si sağlar. Türk mevzuatı dayanağı gerektiğinde önce burada ilgili düzenlemeyi bulup maddelerini okuyun; kaynak yetersizse veya kullanıcı özellikle web/başka kaynak isterse bunu gözetin. Bilinen numara için number ve uygun types filtresini, adla aramada title alanını kullanın. Örnek: GVK için {\"number\":\"193\",\"types\":[\"KANUN\"]}. Numara bilinmiyorsa tahmin etmek yerine title ile arayın. query yalnız gövde metni araştırması içindir; adı query içine yazmak ilgili başka düzenlemeleri de getirir. Sonuçlar ilgililiğe değil Resmî Gazete tarihine göre yeniden eskiye sıralanır; ilk kaydı otomatik seçmeyin, başlık/numara/türü doğrulayın. Kanun ararken MULGA kaydını kanunun kendisiyle karıştırmayın. page_size en fazla 20 olabilir; daha çok sonuç için page artırın. Kanun numarasından ID üretmeyin. Yalnız belgeyi bulma isteğinde başlık ve source_url yeterlidir; metin veya madde içeriği sorulursa dönen ID ile belge_getir veya mevzuat_madde_getir kullanın.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Bedesten phrase alanına eşlenen gövde metni aramasıdır. Solr tarzı tırnak içine alınmış tam ifade, +zorunlu, -yasaklı, * / ? joker karakterleri, bulanık eşleşme ~, yakınlık ve güçlendirme ^ kabul edilir. Değişmez AND, OR ve NOT değerleri bu alanda çalışmaz."
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Bedesten mevzuat_adi alanına eşlenen mevzuat adı aramasıdır. Birden fazla kelime AND ile eşleştirilir. Sondaki * ve tek karakterlik ? kabul edilir; diğer Solr operatörleri invalid_params sonucuna yol açar. Adı bilinen mevzuatı bulmak için query yerine bu alanı kullanın."
+          },
+          "number": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Bedesten mevzuat_no alanına eşlenen resmî mevzuat numarasıdır (örneğin 6098). Bu bir arama anahtarıdır, getirme ID'si değildir. Bilinen numaralı kanunu bulmak için öncelikle bu alanı types=[\"KANUN\"] ile kullanın; numarayı query içine yazmayın."
+          },
+          "types": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "KANUN",
+                "KHK",
+                "TUZUK",
+                "CB_KARARNAME",
+                "YONETMELIK",
+                "CB_YONETMELIK",
+                "CB_KARAR",
+                "CB_GENELGE",
+                "KKY",
+                "UY",
+                "TEBLIGLER",
+                "MULGA"
+              ]
+            },
+            "description": "İsteğe bağlı Bedesten mevzuat türü filtresi. Belirtilmemesi, on iki V1 türünün tümü anlamına gelir. Belirli bir kanun istendiğinde [\"KANUN\"] kullanın; aynı numara farklı türlerde bulunabilir."
+          },
+          "exact_title": {
+            "type": "boolean",
+            "default": false,
+            "description": "title ile birlikte true olduğunda Bedesten tamCumle tam başlık eşleşmesine eşlenir."
+          },
+          "gazette_date_from": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/CalendarDate"
+              }
+            ],
+            "bounds_inclusive": true,
+            "description": "Resmî Gazete tarihi için alt sınırdır; bu tarihte yayımlanan kayıtlar da sonuçlara dahildir. resmiGazeteTarihiStart alanına eşlenir."
+          },
+          "gazette_date_to": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/CalendarDate"
+              }
+            ],
+            "bounds_inclusive": true,
+            "description": "Resmî Gazete tarihi için üst sınırdır; bu tarihte yayımlanan kayıtlar da sonuçlara dahildir. resmiGazeteTarihiEnd alanına eşlenir."
+          },
+          "gazette_issue": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Resmî Gazete sayı numarasıdır ve resmiGazeteSayisi alanına eşlenir."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1,
+            "description": "page 1'den başlar. Son sayfadan sonraki sayfalar hata yerine has_more=false ile boş bir sonuç listesi döndürür."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "default": 20,
+            "description": "Sayfa başına sonuç sayısı. Bedesten mevzuat araması 1–20 aralığını kabul eder."
+          },
+          "include_snippet": {
+            "type": "boolean",
+            "default": false,
+            "description": "true ise her sonuç, query odaklı kısa bir snippet içerebilir. false ise snippet null olur."
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "query"
+            ]
+          },
+          {
+            "required": [
+              "title"
+            ]
+          },
+          {
+            "required": [
+              "number"
+            ]
+          }
+        ],
+        "description": "query, title veya number alanlarından en az biri gereklidir. Kanun numaraları ve başlıklar burada çözümlenecek atıflardır; mevzuat: ID'leri oluşturmazlar."
+      },
+      "output_schema": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/LegislationSearchSuccess"
+          },
+          {
+            "$ref": "#/$defs/ErrorEnvelope"
+          }
+        ]
+      },
+      "errors": [
+        "authentication_required",
+        "session_expired",
+        "email_verification_required",
+        "terms_required",
+        "account_disabled",
+        "account_link_required",
+        "invalid_params",
+        "not_configured",
+        "upstream_rate_limited",
+        "upstream_unavailable"
+      ]
+    },
+    {
+      "name": "anayasa_karari_ara",
+      "description": "Türkiye’de temel hak ihlalleri, ifade özgürlüğü, mülkiyet, adil yargılanma ve kanunların Anayasa’ya uygunluğu hakkında AYM içtihadı gerektiğinde kullanın; kullanıcının AYM veya MCP demesi gerekmez. Anayasa Mahkemesinin norm denetimi ve bireysel başvuru kararlarında arama yapar. kind zorunludur. Norm denetimi esas_no ve karar_no değerlerini, bireysel başvuru ise application_number değerini kabul eder; farklı karar türüne ait kimlik girdileri reddedilir. Kimlikler mevcut SPA query'sine derlenir (kesin upstream filtreleri değildir); başarılı sonuçlar daha sonra warning alanında query_backed_identifier_filter içerir. Tarih aralığı, başvurucu, sonuç, dönem ve gazete filtreleri sunulmamaktadır. Süreç yeniden başlatıldıktan sonra da geçerli olan ve kanonik /ND/YYYY/N ile /BB/YYYY/N rotalarını serileştiren anayasa:nd:YEAR:N veya anayasa:bb:YEAR:N ID'leriyle kısa sonuç kayıtları döndürür. Markdown içeriğini belge_getir ile alın. Siyasi parti ve Yüce Divan koleksiyonları V1 kapsamı dışındadır.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "norm_denetimi",
+              "bireysel_basvuru"
+            ],
+            "description": "Zorunlu karar ailesidir. Siyasi parti ve Yüce Divan aramaları V1 kapsamı dışındadır. Tüm türleri kapsayan örtük bir varsayılan yoktur."
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Mevcut SPA POST JSON query'sine (kararTipi, query, page, size) derlenen anahtar kelime metnidir. Eski bir KelimeAra /Ara alanı değildir. kind ile uyumlu bir kimlik mevcut olduğunda belirtilmeyebilir."
+          },
+          "esas_no": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[1-9][0-9]{3}/[1-9][0-9]*$",
+            "description": "Norm denetimi esas atfı YYYY/N biçimindedir. Türe özgüdür: yalnızca kind=norm_denetimi olduğunda geçerlidir. Mevcut SPA POST query'sine deterministik biçimde derlenir; kesin bir upstream filtre alanı değildir. Başarılı sonuçlarda warning alanı query_backed_identifier_filter içerir."
+          },
+          "karar_no": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[1-9][0-9]{3}/[1-9][0-9]*$",
+            "description": "Norm denetimi karar atfı YYYY/N biçimindedir. Türe özgüdür: yalnızca kind=norm_denetimi olduğunda geçerlidir. Mevcut SPA POST query'sine deterministik biçimde derlenir; kesin bir upstream filtre alanı değildir. Başarılı sonuçlarda warning alanı query_backed_identifier_filter içerir."
+          },
+          "application_number": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[1-9][0-9]{3}/[1-9][0-9]*$",
+            "description": "Bireysel başvuru numarası YYYY/N biçimindedir. Türe özgüdür: yalnızca kind=bireysel_basvuru olduğunda geçerlidir. Mevcut SPA POST query'sine deterministik biçimde derlenir; kesin bir upstream filtre alanı değildir. Başarılı sonuçlarda warning alanı query_backed_identifier_filter içerir."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1,
+            "description": "page 1'den başlar. Son sayfadan sonraki sayfalar hata yerine has_more=false ile boş bir sonuç listesi döndürür."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 10,
+            "description": "Sayfa başına sonuç sayısı. Gözlemlenen Anayasa Mahkemesi arama sayfası boyutu 1–10'dur."
+          },
+          "include_snippet": {
+            "type": "boolean",
+            "default": false,
+            "description": "true ise her sonuç, query odaklı kısa bir snippet içerebilir. false ise snippet null olur."
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "norm_denetimi"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "application_number"
+                ]
+              },
+              "anyOf": [
+                {
+                  "required": [
+                    "query"
+                  ]
+                },
+                {
+                  "required": [
+                    "esas_no"
+                  ]
+                },
+                {
+                  "required": [
+                    "karar_no"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "bireysel_basvuru"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "esas_no"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "karar_no"
+                    ]
+                  }
+                ]
+              },
+              "anyOf": [
+                {
+                  "required": [
+                    "query"
+                  ]
+                },
+                {
+                  "required": [
+                    "application_number"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "description": "kind zorunludur. Farklı karar türüne ait kimlik girdileri reddedilir: application_number, kind=norm_denetimi ile; esas_no ve karar_no ise kind=bireysel_basvuru ile geçersizdir. En az query veya kind ile uyumlu kimlik gereklidir (norm_denetimi: esas_no ve/veya karar_no; bireysel_basvuru: application_number). Kimlik değerleri mevcut SPA query'sine derlenir ve kesin upstream filtre alanları değildir."
+      },
+      "output_schema": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ConstitutionalSearchSuccess"
+          },
+          {
+            "$ref": "#/$defs/ErrorEnvelope"
+          }
+        ]
+      },
+      "errors": [
+        "authentication_required",
+        "session_expired",
+        "email_verification_required",
+        "terms_required",
+        "account_disabled",
+        "account_link_required",
+        "invalid_params",
+        "not_configured",
+        "upstream_rate_limited",
+        "upstream_unavailable"
+      ]
+    },
+    {
+      "name": "belge_getir",
+      "description": "Bir V1 arama ID'si (bedesten:, mevzuat:, anayasa:nd: veya anayasa:bb:) için ad alanına göre yönlendirilen, sayfalandırılmış Markdown getirme işlemidir. Uzun bir belgeyi page ile devam ettirir. Ham URL'leri kabul etmez. Yerel OCR bulunmayan taranmış PDF'ler ocr_required ile birlikte source_url döndürür; uzaktan OCR yedeği yoktur. Önbelleği yeniden doğrulamak için refresh ayarını kullanın. Aynı id/page/refresh birleşimini bu konuşmada zaten aldıysanız yeniden çağırmayın. Tek madde için bu araçla tüm belgeyi taramak yerine mevzuat_madde_getir kullanın. Bölüm yapısı için önce mevzuat_madde_agaci_getir kullanın. Kısmi metne dayanıyorsanız okuduğunuz kapsamı açıkça belirtin. Tam metin istenirse dipnotları, değişiklik tarihlerini ve parantezleri silmeyin; sadeleştirme ancak kullanıcı isterse ayrı bir özet olarak yapılır.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/DocumentId"
+              }
+            ],
+            "description": "Bir V1 arama aracından alınan ad alanlı getirme ID'sidir: bedesten:, mevzuat:, anayasa:nd: veya anayasa:bb:."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1,
+            "description": "Markdown için 1'den başlayan page değeridir. Parçalar önce madde, ardından paragraf sınırlarını izler. Aralık dışındaki sayfalar chunk_out_of_range döndürür; geçerli aralığa zorlanmazlar."
+          },
+          "refresh": {
+            "type": "boolean",
+            "default": false,
+            "description": "true ise güncellik denetimini atlar ve döndürmeden önce upstream kaynağına göre yeniden doğrulama yapar."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "output_schema": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/DocumentSuccess"
+          },
+          {
+            "$ref": "#/$defs/ErrorEnvelope"
+          }
+        ]
+      },
+      "errors": [
+        "authentication_required",
+        "session_expired",
+        "email_verification_required",
+        "terms_required",
+        "account_disabled",
+        "account_link_required",
+        "invalid_params",
+        "not_configured",
+        "upstream_rate_limited",
+        "upstream_unavailable",
+        "not_found",
+        "unsupported_format",
+        "chunk_out_of_range",
+        "ocr_required"
+      ]
+    },
+    {
+      "name": "mevzuat_madde_getir",
+      "description": "Hukuki bir soruya yanıt vermeden önce dayanak maddenin gerçek metnini doğrulamak için kullanın; arama başlığı tek başına hukuki sonuca dayanak değildir. Opak bir mevzuat: ID'si ve madde numarası kullanarak tek bir maddeyi sayfalandırılmış Markdown biçiminde getirir. Önce mevzuat_ara aracılığıyla mevzuatı çözümleyin. Mevzuatın tam metni gerektiğinde belge_getir kullanın. Tam madde metni istendiğinde kaynak metni olduğu gibi aktarın; dipnot, değişiklik tarihi ve parantezleri çıkarmayın. Aynı madde/sayfayı yeniden istemeyin; has_more varsa kalan sayfaları takip edin.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "legislation_id": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/MevzuatDocumentId"
+              }
+            ],
+            "description": "Ad alanlı Bedesten mevzuat ID'sidir. Opak yerel bölüm, upstream mevzuatId değeridir. İnsan tarafından okunabilir atıflar (kanun numarası, başlık, tertip) ID değildir ve önce mevzuat_ara aracılığıyla çözümlenmelidir."
+          },
+          "article_number": {
+            "type": "string",
+            "minLength": 1,
+            "description": "25, 25/A, EK 1, GEÇİCİ 1 ve MÜKERRER 1 gibi biçimler dâhil olmak üzere yayımlandığı şekliyle madde numarasıdır. Ad alanlı bir ID değildir."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1,
+            "description": "Markdown için 1'den başlayan page değeridir. Parçalar önce madde, ardından paragraf sınırlarını izler. Aralık dışındaki sayfalar chunk_out_of_range döndürür; geçerli aralığa zorlanmazlar."
+          },
+          "refresh": {
+            "type": "boolean",
+            "default": false,
+            "description": "true ise güncellik denetimini atlar ve döndürmeden önce upstream kaynağına göre yeniden doğrulama yapar."
+          }
+        },
+        "required": [
+          "legislation_id",
+          "article_number"
+        ]
+      },
+      "output_schema": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ArticleSuccess"
+          },
+          {
+            "$ref": "#/$defs/ErrorEnvelope"
+          }
+        ]
+      },
+      "errors": [
+        "authentication_required",
+        "session_expired",
+        "email_verification_required",
+        "terms_required",
+        "account_disabled",
+        "account_link_required",
+        "invalid_params",
+        "not_configured",
+        "upstream_rate_limited",
+        "upstream_unavailable",
+        "not_found",
+        "unsupported_format",
+        "chunk_out_of_range",
+        "ocr_required"
+      ]
+    },
+    {
+      "name": "mevzuat_icinde_ara",
+      "description": "Opak bir mevzuat: ID'siyle tanımlanan tek bir mevzuat içinde Boolean araması yapar. Öncelik sırası: parantezler, NOT, AND, OR; bitişik terimler örtük olarak AND anlamına gelir; Türkçe I katlama işlemi her zaman etkindir. Tam metin yerine kısa madde sonuçları döndürür. Önce mevzuat_ara aracılığıyla mevzuatı çözümleyin. Kullanıcı örnek veya kısa liste istiyorsa ilk sayfayı sunup toplam/has_more bilgisini belirtin; bütün sonuçları istediğinde sayfaları takip edin. Aynı sayfayı yeniden çağırmayın.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "legislation_id": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/MevzuatDocumentId"
+              }
+            ],
+            "description": "Ad alanlı Bedesten mevzuat ID'sidir. Opak yerel bölüm, upstream mevzuatId değeridir. İnsan tarafından okunabilir atıflar (kanun numarası, başlık, tertip) ID değildir ve önce mevzuat_ara aracılığıyla çözümlenmelidir."
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Tek bir mevzuat üzerinde yerel Boolean query'sidir. Operatör önceliği sırasıyla parantezler, NOT, AND ve OR şeklindedir. Bitişik terimler örtük olarak AND anlamına gelir. Operatörler büyük harfle yazılmalıdır. Tırnak içindeki metin tam bir ifadedir. Türkçe I/İ/ı/i katlama işlemi her zaman uygulanır. Geçersiz sözdizimi invalid_params döndürür."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1,
+            "description": "page 1'den başlar. Son sayfadan sonraki sayfalar hata yerine has_more=false ile boş bir sonuç listesi döndürür."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 25
+          },
+          "include_snippet": {
+            "type": "boolean",
+            "default": true,
+            "description": "true ise (varsayılan), her sonuç tam madde metni yerine eşleşen kısa bir snippet içerir."
+          },
+          "refresh": {
+            "type": "boolean",
+            "default": false,
+            "description": "true ise güncellik denetimini atlar ve döndürmeden önce upstream kaynağına göre yeniden doğrulama yapar."
+          }
+        },
+        "required": [
+          "legislation_id",
+          "query"
+        ]
+      },
+      "output_schema": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/WithinSearchSuccess"
+          },
+          {
+            "$ref": "#/$defs/ErrorEnvelope"
+          }
+        ]
+      },
+      "errors": [
+        "authentication_required",
+        "session_expired",
+        "email_verification_required",
+        "terms_required",
+        "account_disabled",
+        "account_link_required",
+        "invalid_params",
+        "not_configured",
+        "upstream_rate_limited",
+        "upstream_unavailable",
+        "not_found",
+        "unsupported_format",
+        "ocr_required"
+      ]
+    },
+    {
+      "name": "mevzuat_madde_agaci_getir",
+      "description": "Opak bir mevzuat: ID'siyle tanımlanan tek bir mevzuatın bölüm/madde ağacını döndürür. Boş ağaçlar başarılı sonuçtur (nodes []). Bazı türlerde genellikle ana hat ağacı bulunmaz. Önce mevzuat_ara aracılığıyla mevzuatı çözümleyin. Aynı ağacı tekrar çağırmayın. outline_from_document uyarısı ağacın açık tam metin başlıklarından üretildiğini belirtir; outline_incomplete varsa eksikliği açıkça söyleyin ve bölüm yapısı uydurmayın. Kullanıcı yalnız kısa bir yapı özeti istiyorsa eksik başlıklar için tüm belgeyi otomatik taramayın.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "legislation_id": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/MevzuatDocumentId"
+              }
+            ],
+            "description": "Ad alanlı Bedesten mevzuat ID'sidir. Opak yerel bölüm, upstream mevzuatId değeridir. İnsan tarafından okunabilir atıflar (kanun numarası, başlık, tertip) ID değildir ve önce mevzuat_ara aracılığıyla çözümlenmelidir."
+          },
+          "refresh": {
+            "type": "boolean",
+            "default": false,
+            "description": "true ise güncellik denetimini atlar ve döndürmeden önce upstream kaynağına göre yeniden doğrulama yapar."
+          }
+        },
+        "required": [
+          "legislation_id"
+        ]
+      },
+      "output_schema": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/OutlineSuccess"
+          },
+          {
+            "$ref": "#/$defs/ErrorEnvelope"
+          }
+        ]
+      },
+      "errors": [
+        "authentication_required",
+        "session_expired",
+        "email_verification_required",
+        "terms_required",
+        "account_disabled",
+        "account_link_required",
+        "invalid_params",
+        "not_configured",
+        "upstream_rate_limited",
+        "upstream_unavailable",
+        "not_found"
+      ]
+    }
+  ]
+}

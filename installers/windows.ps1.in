@@ -1,0 +1,57 @@
+$ErrorActionPreference = 'Stop'
+$workDir = $null
+$result = 0
+try {
+    Write-Host 'Mutalaa MCP @VERSION@ kurulumu'
+    Write-Host 'Internet kullanilir; gerekirse uv ve Python indirilir.'
+    Write-Host 'Mevcut Mutalaa uv kurulumu bu surumle degistirilir. Acik arastirmalari bitirin.'
+    Read-Host 'Devam etmek icin Enter, iptal icin Ctrl+C' | Out-Null
+    $workDir = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString())
+    New-Item -ItemType Directory -Path $workDir | Out-Null
+    $uvCommand = Get-Command uv -ErrorAction SilentlyContinue
+    $uvBin = Join-Path $env:USERPROFILE '.local\bin\uv.exe'
+    if ($uvCommand) { $uvBin = $uvCommand.Source }
+    if (!(Test-Path -LiteralPath $uvBin)) {
+        Write-Host 'uv kuruluyor...'
+        $env:UV_INSTALL_DIR = Join-Path $env:USERPROFILE '.local\bin'
+        $env:UV_NO_MODIFY_PATH = '1'
+        $bootstrap = (Invoke-WebRequest -UseBasicParsing 'https://astral.sh/uv/install.ps1').Content
+        & ([scriptblock]::Create($bootstrap))
+        if (!(Test-Path -LiteralPath $uvBin)) { throw 'uv kurulumu tamamlanamadi.' }
+    }
+    $wheel = Join-Path $workDir '@WHEEL@'
+    Invoke-WebRequest -UseBasicParsing '@URL@' -OutFile $wheel
+    if ((Get-FileHash -LiteralPath $wheel -Algorithm SHA256).Hash.ToLowerInvariant() -ne '@SHA256@') {
+        throw 'Dosya dogrulanamadi; kurulum iptal edildi.'
+    }
+    $toolDir = & $uvBin tool dir
+    if ($LASTEXITCODE -ne 0) { throw 'uv dizini okunamadi.' }
+    $cli = Join-Path $toolDir 'mutalaamcp\Scripts\mutalaamcp.exe'
+    if (Test-Path -LiteralPath $cli) {
+        $status = & $cli service status
+        if ($status -contains 'status=running') {
+            & $cli service stop
+            if ($LASTEXITCODE -ne 0) { throw 'Mevcut hizmet durdurulamadi.' }
+        }
+    }
+    & $uvBin tool install --force --python 3.12 $wheel
+    if ($LASTEXITCODE -ne 0) { throw 'Paket kurulumu tamamlanamadi.' }
+    & $cli setup --client codex --transport http
+    if ($LASTEXITCODE -ne 0) { throw 'MCP hizmeti baslatilamadi.' }
+    try {
+        Set-Clipboard -Value 'http://127.0.0.1:18769/mcp'
+        Write-Host 'Baglanti adresi panoya kopyalandi.'
+    } catch { Write-Host 'Adresi asagidan elle kopyalayabilirsiniz.' }
+    Write-Host 'Hazir! Uygulamanizin MCP bolumune mutalaamcp adiyla ekleyin:'
+    Write-Host 'http://127.0.0.1:18769/mcp'
+    Write-Host "Token ve baslik alanlarini bos birakin. Kimligi Dogrula'yi secin."
+    Write-Host 'Rehber: https://github.com/hburaktasyurek/MutalaaMCP/blob/@TAG@/docs/client-setup/README.md'
+} catch {
+    Write-Host "Kurulum tamamlanamadi: $_"
+    Write-Host 'Mevcut hizmet durdurulduysa yeniden baslatmaniz gerekebilir.'
+    $result = 1
+} finally {
+    if ($workDir -and (Test-Path -LiteralPath $workDir)) { Remove-Item -LiteralPath $workDir -Recurse -Force }
+    Read-Host 'Pencereyi kapatmak icin Enter' | Out-Null
+}
+exit $result

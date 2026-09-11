@@ -1,0 +1,11 @@
+{
+  "mcp": {
+    "mutalaamcp": {
+      "type": "local",
+      "command": [
+        "/opt/mutalaamcp/bin/mutalaamcp",
+        "serve"
+      ]
+    }
+  }
+}

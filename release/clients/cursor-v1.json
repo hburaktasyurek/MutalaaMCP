@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "mutalaamcp": {
+      "command": "/opt/mutalaamcp/bin/mutalaamcp",
+      "args": [
+        "serve"
+      ]
+    }
+  }
+}

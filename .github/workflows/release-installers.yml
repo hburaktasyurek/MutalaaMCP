@@ -1,0 +1,107 @@
+name: Prepare downloadable installers
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag matching pyproject.toml (for example v0.1.0)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-installers
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository == 'hburaktasyurek/MutalaaMCP' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v10.0.1
+      - run: uv sync --extra dev --frozen
+      - run: uv run pytest
+      - run: uv run ruff check src tests scripts
+      - run: uv run ruff format --check src tests scripts
+      - run: uv run mypy src
+      - run: uv build
+      - name: Build release files
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          uv run python scripts/build_installers.py --wheel dist/*.whl --output dist --tag "$RELEASE_TAG"
+          rm dist/Mutalaa-macOS.zip
+          cd dist
+          sha256sum *.whl *.tar.gz *.cmd > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-files
+          path: dist/
+          if-no-files-found: error
+
+  smoke:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v10.0.1
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: dist/
+      - run: uv sync --extra dev --frozen
+      - run: uv run pytest tests/test_installers.py
+      - name: Install the built wheel without starting services
+        shell: bash
+        run: |
+          uv venv smoke-env
+          if [ "$RUNNER_OS" = Windows ]; then
+            python=smoke-env/Scripts/python.exe
+            cli=smoke-env/Scripts/mutalaamcp.exe
+          else
+            python=smoke-env/bin/python
+            cli=smoke-env/bin/mutalaamcp
+          fi
+          uv pip install --python "$python" dist/*.whl
+          uv pip check --python "$python"
+          "$cli" --help
+
+  draft:
+    needs: [build, smoke]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: dist/
+      - name: Create a draft release (never replace an existing release)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo 'This release already exists. Do not replace published installers.'
+            exit 1
+          fi
+          if git rev-parse --verify "refs/tags/$RELEASE_TAG" >/dev/null 2>&1; then
+            test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$GITHUB_SHA"
+          fi
+          gh release create "$RELEASE_TAG" dist/* --draft --target "$GITHUB_SHA" --title "Mutalaa MCP $RELEASE_TAG" --notes-file installers/RELEASE_NOTES.md

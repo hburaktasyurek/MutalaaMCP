@@ -1,0 +1,4 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+*.command.in text eol=lf
+*.ps1.in text eol=lf

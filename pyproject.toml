@@ -1,0 +1,107 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mutalaamcp"
+version = "0.1.0"
+description = "Local Turkish legal research MCP server."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["legal research", "MCP", "Turkish law"]
+dependencies = [
+    "fastmcp>=3.2.4,<4",
+    "filelock>=3.13",
+    "httpx>=0.28.1",
+    "keyring>=25",
+    "platformdirs>=4.0.0",
+    "pypdf>=5.0",
+    "pydantic>=2.11.7",
+    "pydantic-settings>=2.7",
+    "typer>=0.26.0,<1",
+]
+
+[project.urls]
+Homepage = "https://hburaktasyurek.github.io/MutalaaMCP/"
+Documentation = "https://hburaktasyurek.github.io/MutalaaMCP/"
+Repository = "https://github.com/hburaktasyurek/MutalaaMCP"
+Issues = "https://github.com/hburaktasyurek/MutalaaMCP/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "hatchling>=1.27.0",
+    "pytest-asyncio",
+    "hypothesis",
+    "ruff",
+    "mypy",
+]
+ocr = [
+    "paddleocr==3.7.0",
+    "paddlepaddle==3.3.0",
+]
+
+[project.scripts]
+mutalaamcp = "mutalaamcp.__main__:main"
+
+[tool.hatch.build]
+exclude = [
+    "/.local/**",
+    "/.codex/**",
+    "/.agents/**",
+    "/.claude/**",
+    "/.hypothesis/**",
+    "/.omp/**",
+    "/.cache/**",
+    "/.pytest_cache/**",
+    "/.mypy_cache/**",
+    "/.ruff_cache/**",
+    "/.tox/**",
+    "/.nox/**",
+    "/.venv/**",
+    "/.idea/**",
+    "/.vscode/**",
+    "/dist/**",
+    "/build/**",
+    "/htmlcov/**",
+    "/.coverage",
+    "/.coverage.*",
+    "/coverage.xml",
+    "/**/__pycache__/**",
+    "/**/*.py[cod]",
+    "/**/*.egg-info/**",
+    "/**/.DS_Store",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/contracts",
+    "/release",
+    "/README.md",
+    "/README.en.md",
+    "/LICENSE",
+    "/SECURITY.md",
+    "/SECURITY.en.md",
+    "/SUPPORT.md",
+    "/SUPPORT.en.md",
+    "/TRADEMARK_POLICY",
+    "/TRADEMARK_POLICY.en.md",
+    "/THIRD_PARTY_NOTICES",
+    "/THIRD_PARTY_NOTICES.en.md",
+    "/pyproject.toml",
+    "/uv.lock",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mutalaamcp"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"contracts/tool-surface-v1.json" = "mutalaamcp/contracts/tool-surface-v1.json"
+"release" = "mutalaamcp/release"

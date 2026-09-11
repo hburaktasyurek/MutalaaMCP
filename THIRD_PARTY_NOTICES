@@ -1,0 +1,48 @@
+# Üçüncü Taraf Bildirimleri
+
+Bu dosya, kaynaktan türetilmiş kod bildirimlerini çalışma zamanında çözümlenen
+paketlerin bildirimlerinden ayırır. MutalaaMCP kaynak kodunun lisansını
+değiştirmez; bkz. `LICENSE`.
+
+İngilizce çeviri: [THIRD_PARTY_NOTICES.en.md](THIRD_PARTY_NOTICES.en.md).
+
+## Depoya dahil edilen font yazılımı
+
+Web sitesindeki `docs/assets/fonts/` dizini Newsreader fontunun WOFF2 dosyalarını
+içerir.
+
+Copyright 2020 The Newsreader Project Authors
+(<http://github.com/productiontype/Newsreader>)
+
+Font yazılımı SIL Open Font License 1.1 ile lisanslanmıştır. Tam telif hakkı
+bildirimi ve lisans metni `docs/assets/fonts/OFL.txt` dosyasındadır. Bu font
+lisansı MutalaaMCP kaynak kodunun lisansını değiştirmez.
+
+## Kaynaktan türetilmiş kod
+
+Bu bildirim hazırlanırken, bu depodaki hiçbir kaynak kod dosyası üçüncü taraf
+bir kaynak deposundan kopyalanmış veya büyük ölçüde türetilmiş olarak
+tanımlanmamıştır. Gelecekte bir dosya üçüncü taraf bir projeden kopyalanır veya
+büyük ölçüde türetilirse, o kaynağın gerekli telif hakkı ve lisans bildirimleri
+korunmalıdır.
+
+## Doğrudan çalışma zamanı bağımlılıkları
+
+`pyproject.toml`, aşağıdaki doğrudan çalışma zamanı bağımlılıklarını bildirir.
+Bunlar ayrı dağıtımlar olarak kurulur ve kaynakları bu depoya dahil edilmemiştir.
+Aşağıdaki lisans tanımlayıcıları kaydedilmiş paket üstverisini açıklar;
+bağımlılık aralıklarının izin verdiği her sürüm hakkında bir beyan değildir.
+
+| Dağıtım | Lisans tanımlayıcısı |
+| --- | --- |
+| FastMCP | Apache-2.0 |
+| filelock | MIT |
+| httpx | BSD-3-Clause |
+| keyring | MIT |
+| platformdirs | MIT |
+| PaddleOCR (isteğe bağlı OCR extra'sı) | Apache-2.0 |
+| PaddlePaddle (isteğe bağlı OCR extra'sı) | Apache-2.0 |
+| pypdf | BSD-3-Clause |
+| pydantic | MIT |
+| pydantic-settings | MIT |
+| typer | MIT |

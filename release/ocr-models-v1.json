@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "model_id": "pp-ocrv6-small",
+  "runtime": "paddleocr",
+  "runtime_version": "3.7.0",
+  "runtime_options": {
+    "device": "cpu",
+    "text_detection_model_name": "PP-OCRv6_small_det",
+    "text_detection_model_dir": "PP-OCRv6_small_det_infer",
+    "text_recognition_model_name": "PP-OCRv6_small_rec",
+    "text_recognition_model_dir": "PP-OCRv6_small_rec_infer",
+    "use_doc_orientation_classify": false,
+    "use_doc_unwarping": false,
+    "use_textline_orientation": false
+  },
+  "allowed_hosts": [
+    "paddle-model-ecology.bj.bcebos.com"
+  ],
+  "artifacts": {
+    "darwin-arm64": {
+      "downloads": [
+        {
+          "name": "text-detection",
+          "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_small_det_infer.tar",
+          "sha256": "bfb7c1e59f0faa6b540ebdca93aea3f4b1f2477805b389fbee117820d68fe9f5",
+          "size_bytes": 10055680,
+          "archive": "tar"
+        },
+        {
+          "name": "text-recognition",
+          "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_small_rec_infer.tar",
+          "sha256": "da460f968ce9f88325ac3a34fa302077d6e9b0dcefb16ba3137cd7796f879d06",
+          "size_bytes": 21442560,
+          "archive": "tar"
+        }
+      ],
+      "files": [
+        "PP-OCRv6_small_det_infer/inference.json",
+        "PP-OCRv6_small_det_infer/inference.pdiparams",
+        "PP-OCRv6_small_det_infer/inference.yml",
+        "PP-OCRv6_small_rec_infer/inference.json",
+        "PP-OCRv6_small_rec_infer/inference.pdiparams",
+        "PP-OCRv6_small_rec_infer/inference.yml"
+      ]
+    },
+    "windows-x64": {
+      "downloads": [
+        {
+          "name": "text-detection",
+          "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_small_det_infer.tar",
+          "sha256": "bfb7c1e59f0faa6b540ebdca93aea3f4b1f2477805b389fbee117820d68fe9f5",
+          "size_bytes": 10055680,
+          "archive": "tar"
+        },
+        {
+          "name": "text-recognition",
+          "url": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_small_rec_infer.tar",
+          "sha256": "da460f968ce9f88325ac3a34fa302077d6e9b0dcefb16ba3137cd7796f879d06",
+          "size_bytes": 21442560,
+          "archive": "tar"
+        }
+      ],
+      "files": [
+        "PP-OCRv6_small_det_infer/inference.json",
+        "PP-OCRv6_small_det_infer/inference.pdiparams",
+        "PP-OCRv6_small_det_infer/inference.yml",
+        "PP-OCRv6_small_rec_infer/inference.json",
+        "PP-OCRv6_small_rec_infer/inference.pdiparams",
+        "PP-OCRv6_small_rec_infer/inference.yml"
+      ]
+    }
+  }
+}

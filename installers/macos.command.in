@@ -1,0 +1,45 @@
+#!/bin/bash
+set -euo pipefail
+finish() {
+    result=$?
+    if [ "$result" -ne 0 ]; then
+        echo "Kurulum tamamlanamadi. Yukaridaki hatayi kontrol edin."
+        echo "Mevcut hizmet durdurulduysa yeniden baslatmaniz gerekebilir."
+    fi
+    [ -z "${work_dir:-}" ] || rm -rf "$work_dir"
+    read -r -p "Pencereyi kapatmak icin Enter'a basin... " _ || true
+    exit "$result"
+}
+trap finish EXIT
+[ "$(uname -s)" = Darwin ] || { echo "Bu dosya macOS icindir."; exit 1; }
+echo "Mutalaa MCP @VERSION@ kurulumu"
+echo "Internet kullanilir; gerekirse uv ve Python indirilir."
+echo "Mevcut Mutalaa uv kurulumu bu surumle degistirilir. Acik arastirmalari bitirin."
+read -r -p "Devam etmek icin Enter, iptal icin Ctrl+C... " _
+work_dir=$(mktemp -d)
+uv_bin=$(command -v uv || true)
+if [ -z "$uv_bin" ] && [ -x "$HOME/.local/bin/uv" ]; then uv_bin="$HOME/.local/bin/uv"; fi
+if [ -z "$uv_bin" ]; then
+    echo "uv kuruluyor..."
+    curl --proto '=https' --tlsv1.2 -fLsS https://astral.sh/uv/install.sh -o "$work_dir/uv-install.sh"
+    UV_INSTALL_DIR="$HOME/.local/bin" UV_NO_MODIFY_PATH=1 sh "$work_dir/uv-install.sh"
+    uv_bin="$HOME/.local/bin/uv"
+fi
+wheel="$work_dir/@WHEEL@"
+curl --proto '=https' --tlsv1.2 -fLsS '@URL@' -o "$wheel"
+actual=$(shasum -a 256 "$wheel")
+[ "${actual%% *}" = '@SHA256@' ] || { echo "Dosya dogrulanamadi; kurulum iptal edildi."; exit 1; }
+tool_dir=$("$uv_bin" tool dir)
+cli="$tool_dir/mutalaamcp/bin/mutalaamcp"
+if [ -x "$cli" ] && "$cli" service status | grep -q '^status=running$'; then
+    "$cli" service stop
+fi
+"$uv_bin" tool install --force --python 3.12 "$wheel"
+"$cli" setup --client codex --transport http
+if printf '%s' 'http://127.0.0.1:18769/mcp' | pbcopy; then
+    echo "Baglanti adresi panoya kopyalandi."
+fi
+echo "Hazir! Uygulamanizin MCP bolumune mutalaamcp adiyla ekleyin:"
+echo "http://127.0.0.1:18769/mcp"
+echo "Token ve baslik alanlarini bos birakin. Kimligi Dogrula'yi secin."
+echo "Rehber: https://github.com/hburaktasyurek/MutalaaMCP/blob/@TAG@/docs/client-setup/README.md"

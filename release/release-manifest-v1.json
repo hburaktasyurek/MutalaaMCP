@@ -1,0 +1,64 @@
+{
+  "manifest_version": 1,
+  "package": {
+    "name": "mutalaamcp",
+    "version": "0.1.0"
+  },
+  "cache_schema_version": 1,
+  "ocr_model_manifest_version": 1,
+  "minimum_runtime": {
+    "python": {
+      "minimum_version": "3.12",
+      "verification": "repository-verified"
+    },
+    "uv": {
+      "minimum_version": null,
+      "verification": "unverified"
+    }
+  },
+  "targets": [
+    {
+      "os": "macos",
+      "architecture": "arm64",
+      "os_version": {
+        "verification": "unverified"
+      }
+    },
+    {
+      "os": "windows",
+      "architecture": "x86_64",
+      "os_version": {
+        "verification": "unverified"
+      }
+    }
+  ],
+  "clients": {
+    "claude-desktop": {
+      "verification": "unverified"
+    },
+    "codex": {
+      "verification": "unverified"
+    },
+    "cursor": {
+      "verification": "unverified"
+    },
+    "google-antigravity": {
+      "verification": "unverified"
+    },
+    "zcode": {
+      "verification": "unverified"
+    },
+    "opencode-desktop": {
+      "verification": "unverified"
+    },
+    "witsy": {
+      "verification": "unverified"
+    },
+    "hermes-agent": {
+      "verification": "unverified"
+    },
+    "cherry-studio": {
+      "verification": "unverified"
+    }
+  }
+}

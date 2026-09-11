@@ -1,0 +1,59 @@
+name: Özellik önerisi / Feature request
+description: Sınırlı ve hassas olmayan bir iyileştirme önerin / Propose a bounded, non-sensitive improvement
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Güvenlik ve gizlilik / Security and privacy
+        Erişim belirteci, yenileme belirteci, API anahtarı, sunucu sırrı, kişisel veri, hukuki sorgu veya belge metni eklemeyin. Günlükleri ve örnekleri ayıklayın.
+
+        Do not include access or refresh tokens, API keys, server secrets, personal data, legal queries, or document text. Redact logs and examples.
+
+        Güvenlik açığını burada bildirmeyin; GitHub Private Vulnerability Reporting kanalını kullanın. Hukuki tavsiye istekleri bu issue formunun kapsamı dışındadır.
+
+        Do not report a security vulnerability here; use GitHub Private Vulnerability Reporting. Legal-advice requests are outside this issue form's scope.
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Mevcut durum veya yeniden üretim / Current behavior or reproduction
+      description: Hangi sınırlı sorunu çözmek istediğinizi ve varsa hassas olmayan yeniden üretim adımlarını yazın. / Describe the bounded problem and, when applicable, non-sensitive steps that reproduce it.
+      placeholder: |
+        Problem:
+        Current behavior:
+        Steps (if applicable):
+    validations:
+      required: true
+  - type: textarea
+    id: desired-outcome
+    attributes:
+      label: İstenen sonuç / Desired outcome
+      description: Kullanıcının göreceği sonucu ve başarı ölçütünü açıklayın. / Explain the user-visible outcome and how success would be recognized.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Önerilen kapsam / Proposed scope
+      description: En küçük çözümü, kapsam dışındakileri ve mümkünse alternatifleri yazın. / State the smallest solution, non-goals, and alternatives if any.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Ortam ve bağlam / Environment and context
+      description: İşletim sistemi, Python sürümü, kurulum yöntemi ve ilgili istemci/sürümü yazın; yerel yolları veya hesap bilgilerini ayıklayın. / State OS, Python version, installation method, and relevant client/version; redact local paths and account details.
+      placeholder: |
+        - OS:
+        - Python:
+        - Installation:
+        - Client and version (if relevant):
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Gizlilik onayı / Privacy confirmation
+      options:
+        - label: Hassas içerik eklemediğimi ve bunun hukuki tavsiye isteği olmadığını onaylıyorum. / I confirm I have not included sensitive content and this is not a legal-advice request.
+          required: true

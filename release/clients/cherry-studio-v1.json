@@ -1,0 +1,6 @@
+{
+  "command": "/opt/mutalaamcp/bin/mutalaamcp",
+  "arguments": [
+    "serve"
+  ]
+}

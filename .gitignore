@@ -1,0 +1,48 @@
+# Python bytecode and build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Tool caches and coverage
+.cache/
+.hypothesis/
+.mypy_cache/
+.nox/
+.pytest_cache/
+.ruff_cache/
+.tox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Local workspace state
+.omp/
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Local environment configuration
+.env*
+!.env.example
+
+# Personal research notes, agent sessions and local settings
+.local/
+.codex/
+.agents/
+.claude/
+
+# Staged GitHub Pages output
+_site/
