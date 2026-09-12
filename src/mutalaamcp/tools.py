@@ -729,6 +729,7 @@ def register_tools(mcp: FastMCP, /) -> None:
             "ok": True,
             "research_performed": False,
             "guidance": [
+                "KESİNLİKLE ÖNEMLİ — VERİ GİZLİLİĞİ: Mütalaa'ya giden her argüman anonimleştirilerek yazılır; hiçbir araca gizli bilgi gönderilmez. Gerçek kişi adları, kimlik numaraları, adres ve iletişim bilgileri, yerel dosya yolları, kamuya açık olmayan veya devam eden dava, soruşturma, icra ve başvuru numaraları ile hukuki konuyu belirlemek için gerekmeyen taraf ve belge ayrıntıları argümanlara girmez; olay 'davacı', 'davalı mirasçı', 'muris' gibi soyut rollerle anlatılır. Yayımlanmış mevzuat numaraları ve resmî karar kimlikleri gerektiğinde kullanılabilir.",
                 "Bu çıktı hukuki görüş değildir. Sorunun dayanağını aşağıdaki araçlarla araştırın.",
                 "Mevzuat adı biliniyorsa mevzuat_ara(title=...) kullanın; bilinmiyorsa kısa hukuki terimlerle query araması yapın.",
                 "Sonuçlar tarihe göre sıralıdır. Başlık, numara ve türü doğrulayın; ilk kaydı otomatik seçmeyin.",

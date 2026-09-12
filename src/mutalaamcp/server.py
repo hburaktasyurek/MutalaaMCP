@@ -19,6 +19,13 @@ do not send the whole conversational question as a law title. Use court/AYM rese
 when precedent is relevant, not automatically for every simple question.
 Respect an explicit request for another source or web search. Use other sources
 when coverage or retrieval is insufficient, and state what could not be verified.
+Tool arguments carry anonymized research questions only; confidential information
+is never sent to Mütalaa. Arguments must not contain names or identifiers of
+private persons, identity numbers, addresses or contact details, local file
+paths, non-public or ongoing case, investigation or enforcement file numbers, or
+case details not needed to frame the legal issue. Describe matters with abstract
+roles such as claimant, heir or deceased. Published legislation numbers and
+officially published decision identifiers may be included when needed.
 For a known law number use mevzuat_ara(number=..., types=["KANUN"]); for a law name
 use title, not the body-text query. Resolve familiar abbreviations such as GVK to
 their law name; do not guess unknown numbers. Check title, number and type before

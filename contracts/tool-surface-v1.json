@@ -2543,7 +2543,7 @@
   "tools": [
     {
       "name": "turk_hukuku_sorularinda_once_bu_araci_cagir",
-      "description": "Türk hukuku, mevzuat, hak, borç ve sorumluluk sorularında önce bu aracı çağırın. Mütalaa araştırma araçlarına başlangıç rehberi verir. İlgili mevzuatın adını biliyorsanız mevzuat_adi ile ilk aramayı da yapar; bilinmiyorsa ad uydurmadan yalnız soru gönderin. Hukuki görüş veya doğrulanmış madde metni üretmez. Başka ülke hukuku ve hukuk araştırması gerektirmeyen işler için kullanmayın.",
+      "description": "Türk hukuku, mevzuat, hak, borç ve sorumluluk sorularında önce bu aracı çağırın. Mütalaa araştırma araçlarına başlangıç rehberi verir. Mütalaa'ya gönderilen her metin anonimleştirilir; bu araç dahil hiçbir argümana gizli bilgi yazılmaz. İlgili mevzuatın adını biliyorsanız mevzuat_adi ile ilk aramayı da yapar; bilinmiyorsa ad uydurmadan yalnız soru gönderin. Hukuki görüş veya doğrulanmış madde metni üretmez. Başka ülke hukuku ve hukuk araştırması gerektirmeyen işler için kullanmayın.",
       "input_schema": {
         "type": "object",
         "properties": {
@@ -2552,14 +2552,14 @@
             "minLength": 1,
             "maxLength": 2000,
             "pattern": "\\S",
-            "description": "Kullanıcının Türk hukukuna ilişkin sorusu."
+            "description": "Kullanıcının Türk hukukuna ilişkin sorusunun anonimleştirilmiş hâli. Mütalaa'ya gizli bilgi gönderilmez: gerçek kişi adları, kimlik numaraları, adres ve iletişim bilgileri, yerel dosya yolları, kamuya açık olmayan veya devam eden dava, soruşturma, icra ve başvuru numaraları ile hukuki konuyu belirlemek için gerekmeyen taraf ve belge ayrıntıları bu alana yazılmaz. Olay \"davacı\", \"davalı mirasçı\", \"muris\" gibi soyut rollerle anlatılır. Yayımlanmış mevzuat numaraları ve resmî olarak yayımlanmış karar kimlikleri gerektiğinde kullanılabilir."
           },
           "mevzuat_adi": {
             "type": "string",
             "minLength": 1,
             "maxLength": 300,
             "pattern": "\\S",
-            "description": "Biliyorsanız ilgili mevzuatın adı; örneğin Kat Mülkiyeti Kanunu. Emin değilseniz göndermeyin."
+            "description": "Biliyorsanız ilgili mevzuatın adı; örneğin Kat Mülkiyeti Kanunu. Emin değilseniz göndermeyin. Bu alana soru metni, kişi adı veya gizli bilgi yazılmaz."
           }
         },
         "required": [
@@ -2580,7 +2580,7 @@
     },
     {
       "name": "karar_ara",
-      "description": "Türk hukukundaki bir uyuşmazlığın mahkemelerce nasıl yorumlandığını, benzer olayları veya içtihat/emsal kararları araştırmak için kullanın; kullanıcının mahkeme, emsal veya MCP demesi gerekmez. Mevzuatın tek başına yanıtlamadığı uygulama sorularında ilgili kararın metnini okuyarak dayanak bulun. Yargıtay, Danıştay, bölge adliye (istinaf), yerel hukuk ve KYB kararlarını arayın. courts zorunludur; gizli bir mahkeme varsayılanı yoktur. İsteğe bağlı esas_year/esas_sequence ve karar_year/karar_sequence, Bedesten data.esasNoYil/esasNoSira/kararNoYil/kararNoSira alanlarına eşlenir. En az query veya eksiksiz bir E ya da K çifti zorunludur. Sıralama için yalnızca tarih_yeniden_eskiye/tarih_eskiden_yeniye kullanılabilir. bedesten: belge ID değerleri, court, chamber, esas/karar numaraları, date, isteğe bağlı snippet ve kaynak URL adresi içeren kompakt eşleşmeler döndürür. Markdown içeriğini belge_getir ile alın. Bu aracı mevzuat veya Anayasa Mahkemesi kararları için kullanmayın. Yargıtay ve Danıştay için courts değerleri küçük harfle \"yargitay\" ve \"danistay\" olmalıdır. Bir konu için önce dar bir ifade ve include_snippet=true, page_size=3 ile başlayın. İlk kaydın ilgili olduğunu varsaymayın; başlık/özet yoksa metni okuyun. Gönderme/görevsizlik gibi usul kararını esasa ilişkin emsal yerine sunmayın. Gerekirse sorguyu tam ifadeyle veya bilinen daireyle daraltın; bilinmeyen daire kodunu tahmin etmeyin. Şema hatasında araç parametrelerini düzeltin; yerel dosyalarda şema aramayın.",
+      "description": "Türk hukukundaki bir uyuşmazlığın mahkemelerce nasıl yorumlandığını, benzer olayları veya içtihat/emsal kararları araştırmak için kullanın; kullanıcının mahkeme, emsal veya MCP demesi gerekmez. Mevzuatın tek başına yanıtlamadığı uygulama sorularında ilgili kararın metnini okuyarak dayanak bulun. Yargıtay, Danıştay, bölge adliye (istinaf), yerel hukuk ve KYB kararlarını arayın. Argümanlar anonimleştirilerek yazılır; metin alanlarına gizli bilgi veya kişi adı girmez. courts zorunludur; gizli bir mahkeme varsayılanı yoktur. İsteğe bağlı esas_year/esas_sequence ve karar_year/karar_sequence, Bedesten data.esasNoYil/esasNoSira/kararNoYil/kararNoSira alanlarına eşlenir. En az query veya eksiksiz bir E ya da K çifti zorunludur. Sıralama için yalnızca tarih_yeniden_eskiye/tarih_eskiden_yeniye kullanılabilir. bedesten: belge ID değerleri, court, chamber, esas/karar numaraları, date, isteğe bağlı snippet ve kaynak URL adresi içeren kompakt eşleşmeler döndürür. Markdown içeriğini belge_getir ile alın. Bu aracı mevzuat veya Anayasa Mahkemesi kararları için kullanmayın. Yargıtay ve Danıştay için courts değerleri küçük harfle \"yargitay\" ve \"danistay\" olmalıdır. Bir konu için önce dar bir ifade ve include_snippet=true, page_size=3 ile başlayın. İlk kaydın ilgili olduğunu varsaymayın; başlık/özet yoksa metni okuyun. Gönderme/görevsizlik gibi usul kararını esasa ilişkin emsal yerine sunmayın. Gerekirse sorguyu tam ifadeyle veya bilinen daireyle daraltın; bilinmeyen daire kodunu tahmin etmeyin. Şema hatasında araç parametrelerini düzeltin; yerel dosyalarda şema aramayın.",
       "input_schema": {
         "type": "object",
         "additionalProperties": false,
@@ -2588,7 +2588,7 @@
           "query": {
             "type": "string",
             "minLength": 1,
-            "description": "Bedesten karar ifadesi. Tırnak içine alınmış metin tam bir ifadedir; + zorunlu bir terimi belirtir; - bir terimi hariç tutar; büyük harfli AND, OR ve NOT kabul edilir. Joker karakterler, regex, bulanık arama ve yakınlık araması invalid_params olarak reddedilir. Yan yana gelen yalın terimler, yerel mevzuat Boolean ayrıştırıcısını değil, sağlayıcının ifade sözdizimini izler."
+            "description": "Bedesten karar ifadesi. Tırnak içine alınmış metin tam bir ifadedir; + zorunlu bir terimi belirtir; - bir terimi hariç tutar; büyük harfli AND, OR ve NOT kabul edilir. Joker karakterler, regex, bulanık arama ve yakınlık araması invalid_params olarak reddedilir. Yan yana gelen yalın terimler, yerel mevzuat Boolean ayrıştırıcısını değil, sağlayıcının ifade sözdizimini izler. Bu alana gizli bilgi veya kişi adı yazılmaz; soyut hukuki terimler kullanın."
           },
           "courts": {
             "type": "array",
@@ -2819,7 +2819,7 @@
     },
     {
       "name": "mevzuat_ara",
-      "description": "Türk hukukunda hak, yükümlülük, sorumluluk, süre ve başvuru koşullarına ilişkin soruların mevzuat dayanağını araştırmak için kullanın; kullanıcı kanun adı, madde, Mütalaa veya MCP belirtmek zorunda değildir. Kiracı aidatı, işçinin izin/tazminat hakları, tüketici iadesi, miras ve vergi yükümlülükleri gibi gündelik sorular da kapsamdadır. Kanun, yönetmelik ve tebliğ bulur; resmî kaynak URL’si sağlar. Türk mevzuatı dayanağı gerektiğinde önce burada ilgili düzenlemeyi bulup maddelerini okuyun; kaynak yetersizse veya kullanıcı özellikle web/başka kaynak isterse bunu gözetin. Bilinen numara için number ve uygun types filtresini, adla aramada title alanını kullanın. Örnek: GVK için {\"number\":\"193\",\"types\":[\"KANUN\"]}. Numara bilinmiyorsa tahmin etmek yerine title ile arayın. query yalnız gövde metni araştırması içindir; adı query içine yazmak ilgili başka düzenlemeleri de getirir. Sonuçlar ilgililiğe değil Resmî Gazete tarihine göre yeniden eskiye sıralanır; ilk kaydı otomatik seçmeyin, başlık/numara/türü doğrulayın. Kanun ararken MULGA kaydını kanunun kendisiyle karıştırmayın. page_size en fazla 20 olabilir; daha çok sonuç için page artırın. Kanun numarasından ID üretmeyin. Yalnız belgeyi bulma isteğinde başlık ve source_url yeterlidir; metin veya madde içeriği sorulursa dönen ID ile belge_getir veya mevzuat_madde_getir kullanın.",
+      "description": "Türk hukukunda hak, yükümlülük, sorumluluk, süre ve başvuru koşullarına ilişkin soruların mevzuat dayanağını araştırmak için kullanın; kullanıcı kanun adı, madde, Mütalaa veya MCP belirtmek zorunda değildir. Kiracı aidatı, işçinin izin/tazminat hakları, tüketici iadesi, miras ve vergi yükümlülükleri gibi gündelik sorular da kapsamdadır. Argümanlar anonimleştirilerek yazılır; metin alanlarına gizli bilgi veya kişi adı girmez. Kanun, yönetmelik ve tebliğ bulur; resmî kaynak URL’si sağlar. Türk mevzuatı dayanağı gerektiğinde önce burada ilgili düzenlemeyi bulup maddelerini okuyun; kaynak yetersizse veya kullanıcı özellikle web/başka kaynak isterse bunu gözetin. Bilinen numara için number ve uygun types filtresini, adla aramada title alanını kullanın. Örnek: GVK için {\"number\":\"193\",\"types\":[\"KANUN\"]}. Numara bilinmiyorsa tahmin etmek yerine title ile arayın. query yalnız gövde metni araştırması içindir; adı query içine yazmak ilgili başka düzenlemeleri de getirir. Sonuçlar ilgililiğe değil Resmî Gazete tarihine göre yeniden eskiye sıralanır; ilk kaydı otomatik seçmeyin, başlık/numara/türü doğrulayın. Kanun ararken MULGA kaydını kanunun kendisiyle karıştırmayın. page_size en fazla 20 olabilir; daha çok sonuç için page artırın. Kanun numarasından ID üretmeyin. Yalnız belgeyi bulma isteğinde başlık ve source_url yeterlidir; metin veya madde içeriği sorulursa dönen ID ile belge_getir veya mevzuat_madde_getir kullanın.",
       "input_schema": {
         "type": "object",
         "additionalProperties": false,
@@ -2827,12 +2827,12 @@
           "query": {
             "type": "string",
             "minLength": 1,
-            "description": "Bedesten phrase alanına eşlenen gövde metni aramasıdır. Solr tarzı tırnak içine alınmış tam ifade, +zorunlu, -yasaklı, * / ? joker karakterleri, bulanık eşleşme ~, yakınlık ve güçlendirme ^ kabul edilir. Değişmez AND, OR ve NOT değerleri bu alanda çalışmaz."
+            "description": "Bedesten phrase alanına eşlenen gövde metni aramasıdır. Solr tarzı tırnak içine alınmış tam ifade, +zorunlu, -yasaklı, * / ? joker karakterleri, bulanık eşleşme ~, yakınlık ve güçlendirme ^ kabul edilir. Değişmez AND, OR ve NOT değerleri bu alanda çalışmaz. Bu alana gizli bilgi veya kişi adı yazılmaz; soyut hukuki terimler kullanın."
           },
           "title": {
             "type": "string",
             "minLength": 1,
-            "description": "Bedesten mevzuat_adi alanına eşlenen mevzuat adı aramasıdır. Birden fazla kelime AND ile eşleştirilir. Sondaki * ve tek karakterlik ? kabul edilir; diğer Solr operatörleri invalid_params sonucuna yol açar. Adı bilinen mevzuatı bulmak için query yerine bu alanı kullanın."
+            "description": "Bedesten mevzuat_adi alanına eşlenen mevzuat adı aramasıdır. Birden fazla kelime AND ile eşleştirilir. Sondaki * ve tek karakterlik ? kabul edilir; diğer Solr operatörleri invalid_params sonucuna yol açar. Adı bilinen mevzuatı bulmak için query yerine bu alanı kullanın. Bu alana soru metni, kişi adı veya gizli bilgi yazılmaz."
           },
           "number": {
             "type": "string",
@@ -2953,7 +2953,7 @@
     },
     {
       "name": "anayasa_karari_ara",
-      "description": "Türkiye’de temel hak ihlalleri, ifade özgürlüğü, mülkiyet, adil yargılanma ve kanunların Anayasa’ya uygunluğu hakkında AYM içtihadı gerektiğinde kullanın; kullanıcının AYM veya MCP demesi gerekmez. Anayasa Mahkemesinin norm denetimi ve bireysel başvuru kararlarında arama yapar. kind zorunludur. Norm denetimi esas_no ve karar_no değerlerini, bireysel başvuru ise application_number değerini kabul eder; farklı karar türüne ait kimlik girdileri reddedilir. Kimlikler mevcut SPA query'sine derlenir (kesin upstream filtreleri değildir); başarılı sonuçlar daha sonra warning alanında query_backed_identifier_filter içerir. Tarih aralığı, başvurucu, sonuç, dönem ve gazete filtreleri sunulmamaktadır. Süreç yeniden başlatıldıktan sonra da geçerli olan ve kanonik /ND/YYYY/N ile /BB/YYYY/N rotalarını serileştiren anayasa:nd:YEAR:N veya anayasa:bb:YEAR:N ID'leriyle kısa sonuç kayıtları döndürür. Markdown içeriğini belge_getir ile alın. Siyasi parti ve Yüce Divan koleksiyonları V1 kapsamı dışındadır.",
+      "description": "Türkiye’de temel hak ihlalleri, ifade özgürlüğü, mülkiyet, adil yargılanma ve kanunların Anayasa’ya uygunluğu hakkında AYM içtihadı gerektiğinde kullanın; kullanıcının AYM veya MCP demesi gerekmez. Anayasa Mahkemesinin norm denetimi ve bireysel başvuru kararlarında arama yapar. Argümanlar anonimleştirilerek yazılır; metin alanlarına gizli bilgi veya kişi adı girmez. kind zorunludur. Norm denetimi esas_no ve karar_no değerlerini, bireysel başvuru ise application_number değerini kabul eder; farklı karar türüne ait kimlik girdileri reddedilir. Kimlikler mevcut SPA query'sine derlenir (kesin upstream filtreleri değildir); başarılı sonuçlar daha sonra warning alanında query_backed_identifier_filter içerir. Tarih aralığı, başvurucu, sonuç, dönem ve gazete filtreleri sunulmamaktadır. Süreç yeniden başlatıldıktan sonra da geçerli olan ve kanonik /ND/YYYY/N ile /BB/YYYY/N rotalarını serileştiren anayasa:nd:YEAR:N veya anayasa:bb:YEAR:N ID'leriyle kısa sonuç kayıtları döndürür. Markdown içeriğini belge_getir ile alın. Siyasi parti ve Yüce Divan koleksiyonları V1 kapsamı dışındadır.",
       "input_schema": {
         "type": "object",
         "additionalProperties": false,
@@ -2969,7 +2969,7 @@
           "query": {
             "type": "string",
             "minLength": 1,
-            "description": "Mevcut SPA POST JSON query'sine (kararTipi, query, page, size) derlenen anahtar kelime metnidir. Eski bir KelimeAra /Ara alanı değildir. kind ile uyumlu bir kimlik mevcut olduğunda belirtilmeyebilir."
+            "description": "Mevcut SPA POST JSON query'sine (kararTipi, query, page, size) derlenen anahtar kelime metnidir. Eski bir KelimeAra /Ara alanı değildir. kind ile uyumlu bir kimlik mevcut olduğunda belirtilmeyebilir. Bu alana gizli bilgi veya kişi adı yazılmaz; soyut hukuki terimler kullanın."
           },
           "esas_no": {
             "type": "string",
@@ -3238,7 +3238,7 @@
     },
     {
       "name": "mevzuat_icinde_ara",
-      "description": "Opak bir mevzuat: ID'siyle tanımlanan tek bir mevzuat içinde Boolean araması yapar. Öncelik sırası: parantezler, NOT, AND, OR; bitişik terimler örtük olarak AND anlamına gelir; Türkçe I katlama işlemi her zaman etkindir. Tam metin yerine kısa madde sonuçları döndürür. Önce mevzuat_ara aracılığıyla mevzuatı çözümleyin. Kullanıcı örnek veya kısa liste istiyorsa ilk sayfayı sunup toplam/has_more bilgisini belirtin; bütün sonuçları istediğinde sayfaları takip edin. Aynı sayfayı yeniden çağırmayın.",
+      "description": "Opak bir mevzuat: ID'siyle tanımlanan tek bir mevzuat içinde Boolean araması yapar. Öncelik sırası: parantezler, NOT, AND, OR; bitişik terimler örtük olarak AND anlamına gelir; Türkçe I katlama işlemi her zaman etkindir. Tam metin yerine kısa madde sonuçları döndürür. Argümanlar anonimleştirilerek yazılır; metin alanlarına gizli bilgi veya kişi adı girmez. Önce mevzuat_ara aracılığıyla mevzuatı çözümleyin. Kullanıcı örnek veya kısa liste istiyorsa ilk sayfayı sunup toplam/has_more bilgisini belirtin; bütün sonuçları istediğinde sayfaları takip edin. Aynı sayfayı yeniden çağırmayın.",
       "input_schema": {
         "type": "object",
         "additionalProperties": false,
@@ -3254,7 +3254,7 @@
           "query": {
             "type": "string",
             "minLength": 1,
-            "description": "Tek bir mevzuat üzerinde yerel Boolean query'sidir. Operatör önceliği sırasıyla parantezler, NOT, AND ve OR şeklindedir. Bitişik terimler örtük olarak AND anlamına gelir. Operatörler büyük harfle yazılmalıdır. Tırnak içindeki metin tam bir ifadedir. Türkçe I/İ/ı/i katlama işlemi her zaman uygulanır. Geçersiz sözdizimi invalid_params döndürür."
+            "description": "Tek bir mevzuat üzerinde yerel Boolean query'sidir. Operatör önceliği sırasıyla parantezler, NOT, AND ve OR şeklindedir. Bitişik terimler örtük olarak AND anlamına gelir. Operatörler büyük harfle yazılmalıdır. Tırnak içindeki metin tam bir ifadedir. Türkçe I/İ/ı/i katlama işlemi her zaman uygulanır. Geçersiz sözdizimi invalid_params döndürür. Bu alana gizli bilgi veya kişi adı yazılmaz; soyut hukuki terimler kullanın."
           },
           "page": {
             "type": "integer",

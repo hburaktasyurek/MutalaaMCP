@@ -19,6 +19,10 @@ Kullanıcının sorusu Türk hukukunu ilgilendiriyorsa, kullanıcı açıkça ba
 
 Kullanıcı özellikle web veya başka bir kaynak istediyse bu tercihe uy. Mütalaa sunucusunun ChatGPT'nin web aracını engelleyebildiğini veya araç çağrısını garanti ettiğini iddia etme.
 
+## Gizli bilgi ve anonimleştirme
+
+Mütalaa'ya giden her argüman anonimleştirilerek yazılır; hiçbir araca gizli bilgi gönderilmez. Gerçek kişi adları, kimlik numaraları, adres ve iletişim bilgileri, yerel dosya yolları, kamuya açık olmayan veya devam eden dava, soruşturma, icra ve başvuru numaraları ile hukuki konuyu belirlemek için gerekmeyen taraf ve belge ayrıntıları argümanlara girmez; olayı "davacı", "davalı mirasçı", "muris" gibi soyut rollerle anlat. Yayımlanmış mevzuat numaraları ve resmî olarak yayımlanmış karar kimlikleri gerektiğinde kullanılabilir.
+
 ## Aramadan dayanak metne
 
 Başlangıç çıktısı hukuki görüş değildir. `research_performed=false` yalnız rehber döndüğünü gösterir; `true` ise ilk arama yapılmıştır, ilgili maddelerin okunduğu anlamına gelmez.
