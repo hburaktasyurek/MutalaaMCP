@@ -1,0 +1,135 @@
+{
+  "generator": "source/compose.cjs — tamamen vektör kompozisyon; raster ürün sahnesi yok",
+  "fonts": {
+    "display": "Newsreader (değişken TTF, wght 500; italik sahne metinleri Newsreader Italic) — source/fonts/",
+    "support": "Helvetica Neue (sistem)",
+    "note": "Render aşamasında resvg fontFiles=source/fonts/*.ttf; MUTALAA_FONTS ile dış klasör verilebilir. Depodaki woff2 alt kümeleri Türkçe glif ve resvg uyumluluğu nedeniyle kullanılmaz."
+  },
+  "brand_provenance": "HB GLOBAL ve imza grupları ../instagram-2026-09/source/ içindeki onaylı SVG'lerden okunup aynen gömülür; yeniden çizilmez.",
+  "assets": [
+    {
+      "name": "01-soz-ucar-gonderi",
+      "width": 1080,
+      "height": 1350,
+      "bg": "#faf8f3",
+      "productRowY": 1152,
+      "logo": "hb-global-siyah",
+      "signature": "hburaktasyurek-imza-siyah",
+      "headline": [
+        "Söz uçar,",
+        "kaynak kalır."
+      ],
+      "support": [
+        "Yanıt yapay zekâdan, kaynak Mütalaa’dan.",
+        "Mevzuat ve yargı kararları, resmî bağlantılarıyla."
+      ],
+      "scene": "Üç konuşma balonu solda yükselip silikleşir; en üsttekinden soluk metin kırıntıları savrulur. Sağda pirinç mühürlü belge kartı sabit durur; altında 'mevzuat.adalet.gov.tr' bağlantısı ve 'Resmî kaynak' etiketi."
+    },
+    {
+      "name": "02-oyle-dediler-gonderi",
+      "width": 1080,
+      "height": 1350,
+      "bg": "#141b29",
+      "productRowY": 1152,
+      "logo": "hb-global-beyaz",
+      "signature": "hburaktasyurek-imza-beyaz",
+      "headline": [
+        "Öyle dediler."
+      ],
+      "support": [
+        "Bir de kaynağına bakın."
+      ],
+      "quotes": [
+        "“Aidatı kiracı öder.”",
+        "“Değişim yapmayız.”",
+        "“Yargıtay’ın kararı böyle.”"
+      ],
+      "scene": "Zarf, fiş ve klasör simgeli üç krem iddia balonu pirinç eğrilerle alttaki tek resmî belgeye bağlanır; belge 'mevzuat.adalet.gov.tr' bağlantısı taşır."
+    },
+    {
+      "name": "03-ucretsiz-gonderi",
+      "width": 1080,
+      "height": 1350,
+      "bg": "#faf8f3",
+      "productRowY": 1152,
+      "logo": "hb-global-siyah",
+      "signature": "hburaktasyurek-imza-siyah",
+      "headline": [
+        "Ne ücret,",
+        "ne aracı,",
+        "ne sır."
+      ],
+      "support": [
+        "Ücretsiz ve açık kaynaklı araç bilgisayarınızda çalışır;",
+        "sorgularınız aracısız, doğrudan resmî kaynaklara gider."
+      ],
+      "footnote": "Yapay zekâ uygulamanızın ücretleri geçerli olabilir.",
+      "scene": "Dizüstü bilgisayar ('bilgisayarınız') ile sütunlu kurum binası ('adalet.gov.tr') arasında doğrudan pirinç ok; altta kesikli dolambaçlı yol ve iptal işareti aracısızlığı anlatır."
+    },
+    {
+      "name": "01-soz-ucar-hikaye",
+      "width": 1080,
+      "height": 1920,
+      "bg": "#faf8f3",
+      "productRowY": 1492,
+      "logo": "hb-global-siyah",
+      "signature": "hburaktasyurek-imza-siyah",
+      "headline": [
+        "Söz uçar,",
+        "kaynak kalır."
+      ],
+      "support": [
+        "Yanıt yapay zekâdan, kaynak Mütalaa’dan.",
+        "Mevzuat ve yargı kararları, resmî bağlantılarıyla."
+      ],
+      "scene": "Gönderi sahnesinin hikâye uyarlaması; en soluk üçüncü balon ve kırıntılar çıkarıldı, sahne alt metnin altına kaydırıldı. Üst ~470px ve alt ~200px arayüz alanı boştur; bağlantı etiketi (540,1750)."
+    },
+    {
+      "name": "02-oyle-dediler-hikaye",
+      "width": 1080,
+      "height": 1920,
+      "bg": "#141b29",
+      "productRowY": 1492,
+      "logo": "hb-global-beyaz",
+      "signature": "hburaktasyurek-imza-beyaz",
+      "headline": [
+        "Öyle dediler."
+      ],
+      "support": [
+        "Bir de kaynağına bakın."
+      ],
+      "quotes": [
+        "“Aidatı kiracı öder.”",
+        "“Değişim yapmayız.”",
+        "“Yargıtay’ın kararı böyle.”"
+      ],
+      "scene": "Gönderi sahnesi 190px aşağı kaydırılarak uyarlandı. Bağlantı etiketi (540,1750)."
+    },
+    {
+      "name": "03-ucretsiz-hikaye",
+      "width": 1080,
+      "height": 1920,
+      "bg": "#faf8f3",
+      "productRowY": 1492,
+      "logo": "hb-global-siyah",
+      "signature": "hburaktasyurek-imza-siyah",
+      "headline": [
+        "Ne ücret,",
+        "ne aracı,",
+        "ne sır."
+      ],
+      "support": [
+        "Ücretsiz ve açık kaynaklı araç bilgisayarınızda çalışır;",
+        "sorgularınız aracısız, doğrudan resmî kaynaklara gider."
+      ],
+      "footnote": "Yapay zekâ uygulamanızın ücretleri geçerli olabilir.",
+      "scene": "Gönderi sahnesi 220px aşağı kaydırılarak uyarlandı. Bağlantı etiketi (540,1750)."
+    }
+  ],
+  "shared_brand_asset_sha256": {
+    "hb-global-beyaz.svg": "71c8da9a687ec7403b25bc1cb50cd278dfe73acee73afcc6c789687b47cc4786",
+    "hb-global-siyah.svg": "8f1c8fe8125b36f12a154562fd92f9597dd64d9880a474e70d048ce07aead2c7",
+    "hburaktasyurek-imza-beyaz.svg": "31fd1a7e49afb3b8839c087d284ecb67994db05869e08fdc33d5e1ed7d8b9dca",
+    "hburaktasyurek-imza-siyah.svg": "203d36ff471ccfa2f8f702f04d21dd26094d66c8e2e02ec4383e83f239b3b1f1"
+  }
+}
