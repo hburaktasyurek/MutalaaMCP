@@ -663,6 +663,7 @@ async def test_refresh_invalid_grant_deletes_credentials(
     assert caught.value.error == "invalid_grant"
     assert caught.value.http_status == 400
     assert session.access_token() is None
+    assert session.is_logged_out()
     assert fake_keyring.passwords == {}
     assert_no_persisted_secrets(tmp_path, fake_keyring)
 
@@ -929,6 +930,7 @@ async def test_ensure_authorized_propagates_refresh_invalid_grant(
     assert device_flow.refresh_tokens == [REFRESH_TOKEN]
     assert activation_client.access_tokens == []
     assert session.access_token() is None
+    assert session.is_logged_out()
     assert_no_persisted_secrets(tmp_path, fake_keyring)
 
 

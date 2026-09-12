@@ -119,6 +119,12 @@ class AuthSession:
                 now=self._clock(), skew_seconds=_ACCESS_TOKEN_EXPIRY_SKEW_SECONDS
             )
         if not valid_access_token and credentials.refresh_token is None:
+            if (
+                state is not None
+                and state.status == "active"
+                and _state_matches(state, self._state.read())
+            ):
+                self._state.write_logged_out()
             raise AuthenticationRequired()
 
         if not valid_access_token:
@@ -226,6 +232,9 @@ class AuthSession:
             credentials = self._credentials.snapshot()
             refresh_token = credentials.refresh_token
             if refresh_token is None:
+                state = self._state.read()
+                if state is not None and state.status == "active":
+                    self._state.write_logged_out()
                 raise SessionExpired("Yenileme belirteci depolanmamış.")
             task = self._refresh_tasks.get(refresh_token)
             if task is None:
@@ -255,6 +264,7 @@ class AuthSession:
                 if self._state.is_logged_out():
                     raise AuthenticationRequired()
                 if self._credentials.matches(credentials):
+                    self._state.write_logged_out()
                     self._credentials.delete()
                 current = self._credentials.snapshot()
                 if current.access_token is not None:

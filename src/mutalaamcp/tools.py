@@ -353,12 +353,19 @@ def _not_configured() -> dict[str, Any]:
 
 
 def _authorization_error(error: Exception) -> dict[str, Any]:
+    reauth_hint = (
+        " Yeniden giriş için istemcide MutalaaMCP'nin kimlik doğrulama "
+        "akışını başlatın veya terminalde `mutalaamcp auth login` çalıştırın."
+    )
     if isinstance(error, AuthenticationRequired):
         return _envelope(
-            ErrorCode.AUTHENTICATION_REQUIRED, "Kimlik doğrulaması gerekli."
+            ErrorCode.AUTHENTICATION_REQUIRED,
+            "Kimlik doğrulaması gerekli." + reauth_hint,
         )
     if isinstance(error, SessionExpired):
-        return _envelope(ErrorCode.SESSION_EXPIRED, "Oturumun süresi doldu.")
+        return _envelope(
+            ErrorCode.SESSION_EXPIRED, "Oturumun süresi doldu." + reauth_hint
+        )
     if isinstance(error, ActivationError):
         return _envelope(
             error.code,
