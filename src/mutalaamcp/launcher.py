@@ -363,7 +363,7 @@ def _commit_healthy_start(state, backup):
     _delete_backup(backup)
 
 
-def _run_candidate_with_rollback(launcher, state, previous, cache_path, backup):
+def _run_candidate_with_rollback(launcher, state, previous, cache_path, backup, argv):
     try:
         marker = _create_private_readiness_file()
     except OSError as exc:
@@ -377,7 +377,7 @@ def _run_candidate_with_rollback(launcher, state, previous, cache_path, backup):
     environment[_RUNTIME_READY_FILE_ENV] = str(marker)
     try:
         try:
-            process = subprocess.Popen([str(launcher), "serve"], env=environment)
+            process = subprocess.Popen([str(launcher), *argv], env=environment)
         except OSError as exc:
             print(
                 f"mutalaamcp başlatıcısı: aday başlatılamadı: {{exc}}",
@@ -407,8 +407,9 @@ def _run_candidate_with_rollback(launcher, state, previous, cache_path, backup):
 
 
 def main():
-    if sys.argv[1:] != ["serve"]:
-        return _fail("yalnızca serve komutu desteklenir")
+    argv = sys.argv[1:]
+    if argv not in (["serve"], ["serve-http"]):
+        return _fail("yalnızca serve veya serve-http komutları desteklenir")
     try:
         state = _load_state()
         launcher = _launcher_from(state, "etkin sürüm")
@@ -422,11 +423,11 @@ def main():
             environment = os.environ.copy()
             environment.pop(_RUNTIME_READY_FILE_ENV, None)
             return subprocess.run(
-                [str(launcher), "serve"], check=False, env=environment
+                [str(launcher), *argv], check=False, env=environment
             ).returncode
         previous, cache_path, backup = rollback
         return _run_candidate_with_rollback(
-            launcher, state, previous, cache_path, backup
+            launcher, state, previous, cache_path, backup, argv
         )
     except (OSError, RuntimeError, ValueError) as exc:
         return _fail(f"başlatıcı durumu kalıcı hâle getirilemedi: {{exc}}")
