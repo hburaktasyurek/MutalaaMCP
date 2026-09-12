@@ -20,10 +20,12 @@ import subprocess
 import sys
 import tempfile
 import uuid
-from collections.abc import Callable, Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlsplit
+
+import httpx
 
 from mutalaamcp.domain.errors import ErrorCode
 from mutalaamcp.launcher import LauncherError, ensure_stable_launcher
@@ -68,23 +70,34 @@ class PackageIntegrity:
     name: str
     version: str
     hashes: tuple[str, ...]
+    url: str | None = None
+    marker: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
 class VerifiedUpdateManifest:
-    """Trusted, complete, hash-bound input for one candidate installation.
-
-    Callers must obtain this object from their verified release channel.  The
-    updater intentionally has no network manifest lookup or implicit index
-    fallback; tests may provide a local verified fixture.
-    """
+    """Trusted, complete, hash-bound input for one candidate installation."""
 
     index_url: str
     package: PackageIntegrity
     dependencies: tuple[PackageIntegrity, ...]
 
 
+@dataclass(frozen=True, slots=True)
+class UpdateOffer:
+    """A release-channel document validated into installable form."""
+
+    version: str
+    manifest: VerifiedUpdateManifest
+
+
 HealthCheck = Callable[[Path, Settings, Path | None], None]
+
+_MANIFEST_MAX_BYTES = 262_144
+_UPDATE_CHECK_INTERVAL_SECONDS = 6 * 60 * 60.0
+_UPDATE_FIRST_CHECK_SECONDS = 60.0
+_RELEASE_VERSION = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:(a|b|rc)(\d+))?$")
+_PRERELEASE_ORDER = {"a": 0, "b": 1, "rc": 2}
 
 
 def resolve_uv(settings: Settings) -> Path:
@@ -115,6 +128,158 @@ def resolve_uv(settings: Settings) -> Path:
             "Yapılandırılmış uv çalıştırılabilir dosyası çalıştırılabilir değildir."
         )
     return executable
+
+
+def fetch_update_offer(client: httpx.Client, url: str) -> UpdateOffer:
+    """Fetch and strictly validate the hash-bound update manifest over HTTPS."""
+
+    manifest_url = _validated_https_url(url, "güncelleme bildirim adresi")
+    try:
+        with client.stream(
+            "GET", manifest_url, follow_redirects=True
+        ) as response:
+            if response.status_code != 200:
+                raise UpdateError(
+                    "Güncelleme bildirimi beklenmeyen bir durum döndürdü "
+                    f"(HTTP {response.status_code})."
+                )
+            body = bytearray()
+            for chunk in response.iter_bytes():
+                body.extend(chunk)
+                if len(body) > _MANIFEST_MAX_BYTES:
+                    raise UpdateError(
+                        "Güncelleme bildirimi izin verilen boyutu aşıyor."
+                    )
+    except httpx.HTTPError as exc:
+        raise UpdateError("Güncelleme bildirimine erişilemiyor.") from exc
+    try:
+        payload = json.loads(bytes(body))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise UpdateError("Güncelleme bildirimi geçerli JSON değil.") from exc
+    return _parse_update_offer(payload)
+
+
+def _parse_update_offer(payload: object) -> UpdateOffer:
+    if not isinstance(payload, Mapping):
+        raise UpdateError("Güncelleme bildirimi bir JSON nesnesi olmalıdır.")
+    if payload.get("manifest_version") != 1:
+        raise UpdateError("Güncelleme bildirimi sürümü desteklenmiyor.")
+    version = payload.get("version")
+    _validate_target_version(version)
+    index_url = payload.get("index_url")
+    if not isinstance(index_url, str):
+        raise UpdateError("Güncelleme bildirimi bir HTTPS paket dizini içermelidir.")
+    package = _parse_package_integrity(payload.get("package"), "güncelleme paketi")
+    raw_dependencies = payload.get("dependencies")
+    if not isinstance(raw_dependencies, list):
+        raise UpdateError("Güncelleme bildirimi bağımlılıkları bir liste olmalıdır.")
+    dependencies = tuple(
+        _parse_package_integrity(item, "güncelleme bağımlılığı")
+        for item in raw_dependencies
+    )
+    manifest = _validate_update_manifest(
+        version,
+        VerifiedUpdateManifest(
+            index_url=index_url, package=package, dependencies=dependencies
+        ),
+    )
+    return UpdateOffer(version=version, manifest=manifest)
+
+
+def _parse_package_integrity(value: object, label: str) -> PackageIntegrity:
+    if not isinstance(value, Mapping):
+        raise UpdateError(f"Güncelleme bildirimindeki {label} bozuk.")
+    url = value.get("url")
+    if url is not None:
+        url = _validated_https_url(url, label)
+    marker = value.get("marker")
+    if marker is not None and not isinstance(marker, str):
+        raise UpdateError(f"Güncelleme bildirimindeki {label} bozuk.")
+    raw_hashes = value.get("hashes")
+    if not isinstance(raw_hashes, list) or any(
+        not isinstance(item, str) for item in raw_hashes
+    ):
+        raise UpdateError(f"Güncelleme bildirimindeki {label} bozuk.")
+    name = value.get("name")
+    package_version = value.get("version")
+    if not isinstance(name, str) or not isinstance(package_version, str):
+        raise UpdateError(f"Güncelleme bildirimindeki {label} bozuk.")
+    return PackageIntegrity(
+        name=name,
+        version=package_version,
+        hashes=tuple(raw_hashes),
+        url=url,
+        marker=marker,
+    )
+
+
+def _validated_https_url(value: object, label: str) -> str:
+    """Require an HTTPS URL without credentials, query, or fragment."""
+
+    if not isinstance(value, str) or not value or any(
+        character.isspace() for character in value
+    ):
+        raise UpdateError(f"{label} güvenilir bir HTTPS adresi gerektirir.")
+    try:
+        parts = urlsplit(value)
+        port = parts.port
+    except ValueError as exc:
+        raise UpdateError(f"{label} geçersiz.") from exc
+    if (
+        parts.scheme != "https"
+        or not parts.hostname
+        or parts.username is not None
+        or parts.password is not None
+        or parts.query
+        or parts.fragment
+    ):
+        raise UpdateError(f"{label} güvenilir bir HTTPS adresi gerektirir.")
+    if port is not None and not 1 <= port <= 65535:
+        raise UpdateError(f"{label} geçersiz.")
+    return value
+
+
+def _version_key(version: str) -> tuple[int, int, int, int, int] | None:
+    match = _RELEASE_VERSION.fullmatch(version)
+    if match is None:
+        return None
+    major, minor, patch, tag, number = match.groups()
+    order = 3 if tag is None else _PRERELEASE_ORDER[tag]
+    return (int(major), int(minor), int(patch), order, int(number or 0))
+
+
+def is_newer_version(candidate: str, current: str) -> bool:
+    """True when the channel version is strictly newer than the running one."""
+
+    candidate_key = _version_key(candidate)
+    current_key = _version_key(current)
+    return (
+        candidate_key is not None
+        and current_key is not None
+        and candidate_key > current_key
+    )
+
+
+async def auto_update_loop(
+    *,
+    is_managed: Callable[[], bool],
+    check_and_apply: Callable[[], bool],
+    on_updated: Callable[[], None],
+    interval_seconds: float = _UPDATE_CHECK_INTERVAL_SECONDS,
+    first_delay_seconds: float = _UPDATE_FIRST_CHECK_SECONDS,
+    sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
+) -> None:
+    """Poll the release channel and apply a verified update while managed."""
+
+    await sleep(first_delay_seconds)
+    while True:
+        try:
+            if is_managed() and await asyncio.to_thread(check_and_apply):
+                on_updated()
+                return
+        except Exception:  # noqa: BLE001 -- update checks must never break serving
+            pass
+        await sleep(interval_seconds)
 
 
 def read_active_version(
@@ -297,6 +462,14 @@ def _validate_package_integrity(value: object, label: str) -> None:
             raise UpdateError(
                 f"Bütünlük bildirimindeki {label} geçersiz bir SHA-256 özetine sahip."
             )
+    if value.url is not None:
+        _validated_https_url(value.url, label)
+    if value.marker is not None and (
+        not value.marker.strip()
+        or len(value.marker) > 300
+        or any(character in value.marker for character in "\r\n")
+    ):
+        raise UpdateError(f"Bütünlük bildirimindeki {label} geçersiz bir işaretçi içeriyor.")
 
 
 def _normalized_package_name(name: str) -> str:
@@ -319,11 +492,17 @@ def _write_hashed_requirements(
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as output:
             for requirement in (manifest.package, *manifest.dependencies):
+                if requirement.url is not None:
+                    specifier = f"{requirement.name} @ {requirement.url}"
+                else:
+                    specifier = f"{requirement.name}=={requirement.version}"
+                if requirement.marker is not None:
+                    specifier += f" ; {requirement.marker}"
                 hashes = " ".join(
                     f"--hash=sha256:{_hash_digest(value_hash)}"
                     for value_hash in requirement.hashes
                 )
-                output.write(f"{requirement.name}=={requirement.version} {hashes}\n")
+                output.write(f"{specifier} {hashes}\n")
             output.flush()
             os.fsync(output.fileno())
         return requirements

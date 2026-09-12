@@ -5,10 +5,12 @@ from __future__ import annotations
 import asyncio
 import os
 import plistlib
+import signal
 import subprocess
 import sys
 import time
-from contextlib import asynccontextmanager
+from collections.abc import Coroutine
+from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 from typing import Any
 
@@ -54,13 +56,19 @@ def create_native_server(settings: Settings):
 
     @asynccontextmanager
     async def lifespan(mcp):
+        update_task: asyncio.Task[None] | None = None
         try:
             async with tool_lifespan(mcp) as context:
                 runtime = context["runtime"]
                 if isinstance(runtime, ToolRuntime):
                     provider.session = runtime.auth
+                update_task = asyncio.create_task(_auto_update_task(settings))
                 yield context
         finally:
+            if update_task is not None:
+                update_task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await update_task
             await provider.aclose()
 
     server = create_server(lifespan_factory=lifespan, auth=provider)
@@ -72,6 +80,92 @@ def create_native_server(settings: Settings):
         )
 
     return server
+
+
+def _auto_update_task(settings: Settings) -> Coroutine[Any, Any, None]:
+    from mutalaamcp.update import auto_update_loop
+
+    return auto_update_loop(
+        is_managed=lambda: service_targets_selector(settings),
+        check_and_apply=lambda: _check_and_apply_update(settings),
+        on_updated=_restart_service_process,
+    )
+
+
+def service_targets_selector(settings: Settings) -> bool:
+    """Self-update only when the service registration invokes the selector.
+
+    The selector is what turns ``active-version.json`` into a version switch;
+    a registration pointing at a versioned binary must not self-update, or the
+    supervisor would keep relaunching the old code and the loop would retry
+    forever.
+    """
+
+    selector = _selector_path(settings)
+    if sys.platform == "darwin":
+        plist = Path.home() / "Library" / "LaunchAgents" / f"{_LABEL}.plist"
+        try:
+            payload = plistlib.loads(plist.read_bytes())
+        except (OSError, ValueError):
+            return False
+        arguments = (
+            payload.get("ProgramArguments") if isinstance(payload, dict) else None
+        )
+        if not isinstance(arguments, list) or not arguments:
+            return False
+        try:
+            target = Path(str(arguments[0])).expanduser().resolve()
+            expected = selector.resolve(strict=True)
+        except OSError:
+            return False
+        return target == expected
+    if os.name == "nt":
+        wrapper = settings.data_dir / "native-service.cmd"
+        try:
+            content = wrapper.read_text(encoding="utf-8")
+            expected = os.path.normcase(str(selector.resolve(strict=True)))
+        except OSError:
+            return False
+        return expected in os.path.normcase(content)
+    return False
+
+
+def _selector_path(settings: Settings) -> Path:
+    name = "mutalaamcp.cmd" if os.name == "nt" else "mutalaamcp"
+    return settings.data_dir / name
+
+
+def _check_and_apply_update(settings: Settings) -> bool:
+    """Fetch the release channel and install a strictly newer version."""
+
+    from mutalaamcp.update import (
+        fetch_update_offer,
+        is_newer_version,
+        update_to_version,
+    )
+
+    with httpx.Client(
+        timeout=settings.http_timeout_seconds, follow_redirects=False
+    ) as client:
+        offer = fetch_update_offer(client, settings.update_manifest_url)
+    if not is_newer_version(offer.version, __version__):
+        return False
+    update_to_version(
+        settings,
+        offer.version,
+        current_launcher=sys.argv[0],
+        integrity_manifest=offer.manifest,
+    )
+    return True
+
+
+def _restart_service_process() -> None:
+    """Exit so the supervisor relaunches the selector onto the new version."""
+
+    if os.name == "posix":
+        os.kill(os.getpid(), signal.SIGTERM)
+    # On Windows the scheduled task only runs at sign-in; the switched state
+    # takes effect on the next launch.
 
 
 def run_native_server(settings: Settings) -> None:
@@ -96,11 +190,14 @@ def native_service_ready(settings: Settings) -> bool:
             f"http://127.0.0.1:{settings.http_port}/health", timeout=1, trust_env=False
         )
         value = response.json()
-        return response.status_code == 200 and value == {
-            "service": "MutalaaMCP",
-            "version": __version__,
-            "transport": "http",
-        }
+        # Do not pin ``version``: after a self-update the service reports the
+        # newly activated release while this CLI binary is still the older one.
+        return (
+            response.status_code == 200
+            and isinstance(value, dict)
+            and value.get("service") == "MutalaaMCP"
+            and value.get("transport") == "http"
+        )
     except (httpx.HTTPError, ValueError):
         return False
 
@@ -114,6 +211,7 @@ def install_native_service(settings: Settings, launcher: str) -> None:
         "MUTALAAMCP_MODEL_DIR": str(settings.model_dir),
         "MUTALAAMCP_AUTH_BASE_URL": settings.auth_base_url,
         "MUTALAAMCP_TERMS_BASE_URL": settings.terms_base_url,
+        "MUTALAAMCP_UPDATE_MANIFEST_URL": settings.update_manifest_url,
     }
     if sys.platform == "darwin":
         directory = Path.home() / "Library" / "LaunchAgents"

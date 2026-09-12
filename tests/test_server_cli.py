@@ -1092,3 +1092,106 @@ def test_cli_help_handles_legacy_output_encoding() -> None:
         check=True,
     )
     assert "Kullanım" in result.stdout.decode("utf-8")
+
+
+def test_update_installs_the_verified_channel_offer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from mutalaamcp.update import (
+        ActiveVersion,
+        PackageIntegrity,
+        UpdateOffer,
+        UpdateResult,
+        VerifiedUpdateManifest,
+    )
+
+    manifest = VerifiedUpdateManifest(
+        index_url="https://pypi.org/simple",
+        package=PackageIntegrity(
+            name="mutalaamcp",
+            version="2.0.0",
+            hashes=("0" * 64,),
+            url="https://releases.test/mutalaamcp-2.0.0-py3-none-any.whl",
+        ),
+        dependencies=(),
+    )
+    offer = UpdateOffer(version="2.0.0", manifest=manifest)
+    monkeypatch.setattr(
+        "mutalaamcp.update.fetch_update_offer", lambda _client, _url: offer
+    )
+    monkeypatch.setattr(
+        "mutalaamcp.cli._launcher_path", lambda: "/stable/mutalaamcp"
+    )
+    installs: list[dict[str, object]] = []
+
+    def install(_settings, version, **kwargs):
+        installs.append({"version": version, **kwargs})
+        return UpdateResult(
+            previous=ActiveVersion("1.0.0", Path("/stable/mutalaamcp")),
+            active=ActiveVersion("2.0.0", Path("/candidate/mutalaamcp")),
+        )
+
+    monkeypatch.setattr("mutalaamcp.update.update_to_version", install)
+
+    result = runner.invoke(app, ["update"])
+
+    assert result.exit_code == 0
+    assert installs and installs[0]["version"] == "2.0.0"
+    assert installs[0]["integrity_manifest"] == manifest
+    assert '"active_version":"2.0.0"' in _cli_text(result)
+
+
+def test_update_pins_must_match_the_channel_offer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from mutalaamcp.update import UpdateOffer
+
+    offer = UpdateOffer(
+        version="2.0.0",
+        manifest=None,  # type: ignore[arg-type] -- pinned mismatch fails before use
+    )
+    monkeypatch.setattr(
+        "mutalaamcp.update.fetch_update_offer", lambda _client, _url: offer
+    )
+    monkeypatch.setattr(
+        "mutalaamcp.update.update_to_version",
+        lambda *_a, **_k: pytest.fail("update_to_version must not run"),
+    )
+
+    result = runner.invoke(app, ["update", "--version", "1.9.9"])
+
+    assert result.exit_code != 0
+    assert "2.0.0" in _cli_text(result)
+
+
+def test_update_reports_channel_failures_as_unavailable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from mutalaamcp.update import UpdateError
+
+    def fail(_client, _url):
+        raise UpdateError("Güncelleme bildirimine erişilemiyor.")
+
+    monkeypatch.setattr("mutalaamcp.update.fetch_update_offer", fail)
+
+    result = runner.invoke(app, ["update"])
+
+    assert result.exit_code != 0
+    assert ErrorCode.UPSTREAM_UNAVAILABLE.value in _cli_text(result)
+
+
+def test_update_while_the_managed_service_runs_explains_the_lock(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from mutalaamcp.update import UpdateOffer
+
+    offer = UpdateOffer(version="2.0.0", manifest=None)  # type: ignore[arg-type]
+    monkeypatch.setattr(
+        "mutalaamcp.update.fetch_update_offer", lambda _client, _url: offer
+    )
+    lock_path = tmp_path / "data" / "serve.lock"
+    with FileLock(lock_path):
+        result = runner.invoke(app, ["update"])
+
+    assert result.exit_code != 0
+    assert "hizmet" in _cli_text(result).lower()

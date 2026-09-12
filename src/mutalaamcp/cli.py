@@ -780,7 +780,7 @@ def setup(
                 raise ValueError("HTTP giriş akışı için --client codex seçin.")
             from mutalaamcp.native_service import install_native_service
 
-            install_native_service(settings, _launcher_path())
+            install_native_service(settings, _prepare_stable_launcher(settings))
             config = f'[mcp_servers.mutalaamcp]\nurl = "http://127.0.0.1:{settings.http_port}/mcp"\n'
             print(config, end="")
             _copy_to_clipboard(config)
@@ -827,7 +827,7 @@ def native_service(
     settings = load_settings()
     try:
         if action == "start":
-            install_native_service(settings, _launcher_path())
+            install_native_service(settings, _prepare_stable_launcher(settings))
         elif action == "stop":
             stop_native_service()
         elif action != "status":
@@ -1083,22 +1083,47 @@ def ocr_status() -> None:
 
 @app.command()
 def update(
-    version: str = typer.Option(..., "--version", help="Yüklenecek tam paket sürümü."),
+    version: str | None = typer.Option(
+        None,
+        "--version",
+        help="Beklenen tam paket sürümü; kanalın sunduğu sürümle doğrulanır.",
+    ),
 ) -> None:
-    """Atomik etkinleştirmeden önce yalıtılmış adayı yükle ve sağlık denetiminden geçir."""
+    """Sürüm kanalındaki en son doğrulanmış sürümü yükle ve etkinleştir."""
 
-    from mutalaamcp.update import UpdateError, update_to_version
+    from mutalaamcp.update import (
+        UpdateError,
+        fetch_update_offer,
+        update_to_version,
+    )
 
     settings = load_settings()
+    try:
+        with httpx.Client(
+            timeout=settings.http_timeout_seconds, follow_redirects=False
+        ) as client:
+            offer = fetch_update_offer(client, settings.update_manifest_url)
+    except UpdateError as exc:
+        _fail(ErrorCode.UPSTREAM_UNAVAILABLE, str(exc))
+    if version is not None and version != offer.version:
+        _fail(
+            ErrorCode.INVALID_PARAMS,
+            f"Sürüm kanalı {offer.version} sunuyor; istenen sürüm {version} mevcut değil.",
+        )
     try:
         with mutation_lock(settings.serve_lock_path):
             result = update_to_version(
                 settings,
-                version,
+                offer.version,
                 current_launcher=_launcher_path(),
+                integrity_manifest=offer.manifest,
             )
     except AlreadyRunning as exc:
-        _fail(ErrorCode.ALREADY_RUNNING, str(exc))
+        _fail(
+            ErrorCode.ALREADY_RUNNING,
+            f"{exc} Elle güncelleme için MutalaaMCP kullanan istemciyi veya yerel "
+            "hizmeti kapatın; yönetilen hizmet güncellemeyi kendisi uygular.",
+        )
     except UpdateError as exc:
         _fail(ErrorCode.NOT_CONFIGURED, str(exc))
     print(

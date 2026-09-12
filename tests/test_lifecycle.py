@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import io
 import json
 import os
+import plistlib
 import signal
 import sqlite3
 import stat
@@ -15,9 +17,10 @@ import tarfile
 from contextlib import closing
 from pathlib import Path
 
+import httpx
 import pytest
 
-from mutalaamcp import ocr as ocr_module
+from mutalaamcp import native_service, ocr as ocr_module
 from mutalaamcp.launcher import ensure_stable_launcher
 from mutalaamcp.ocr import (
     OcrArtifact,
@@ -33,9 +36,13 @@ from mutalaamcp.update import (
     ActiveVersion,
     PackageIntegrity,
     UpdateError,
+    UpdateOffer,
     VerifiedUpdateManifest,
+    auto_update_loop,
     backup_cache,
+    fetch_update_offer,
     install_candidate,
+    is_newer_version,
     update_to_version,
 )
 
@@ -801,3 +808,373 @@ def _create_cache(path: Path, *, user_version: int) -> None:
 def _cache_version(path: Path) -> int:
     with closing(sqlite3.connect(path)) as connection:
         return int(connection.execute("PRAGMA user_version").fetchone()[0])
+
+
+def _offer_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "manifest_version": 1,
+        "version": "2.0.0",
+        "index_url": "https://pypi.org/simple",
+        "package": {
+            "name": "mutalaamcp",
+            "version": "2.0.0",
+            "url": "https://releases.test/mutalaamcp-2.0.0-py3-none-any.whl",
+            "hashes": ["0" * 64],
+        },
+        "dependencies": [
+            {
+                "name": "fastmcp",
+                "version": "3.0.0",
+                "hashes": ["1" * 64],
+                "marker": "sys_platform == 'win32'",
+            }
+        ],
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _offer_client(body: object, status: int = 200) -> httpx.Client:
+    content = body if isinstance(body, bytes) else json.dumps(body).encode()
+    transport = httpx.MockTransport(
+        lambda _request: httpx.Response(status, content=content)
+    )
+    return httpx.Client(transport=transport)
+
+
+def test_fetch_update_offer_binds_version_urls_hashes_and_markers() -> None:
+    offer = fetch_update_offer(
+        _offer_client(_offer_payload()), "https://releases.test/update.json"
+    )
+
+    assert offer.version == "2.0.0"
+    assert offer.manifest.index_url == "https://pypi.org/simple"
+    assert offer.manifest.package.url == (
+        "https://releases.test/mutalaamcp-2.0.0-py3-none-any.whl"
+    )
+    assert offer.manifest.package.hashes == ("0" * 64,)
+    dependency = offer.manifest.dependencies[0]
+    assert dependency.marker == "sys_platform == 'win32'"
+
+
+def test_fetch_update_offer_requires_https_channel() -> None:
+    with pytest.raises(UpdateError, match="HTTPS"):
+        fetch_update_offer(_offer_client(_offer_payload()), "http://releases.test/x")
+
+
+def test_fetch_update_offer_rejects_non_ok_and_invalid_json() -> None:
+    with pytest.raises(UpdateError, match="HTTP 404"):
+        fetch_update_offer(
+            _offer_client(b"{}", status=404), "https://releases.test/x"
+        )
+    with pytest.raises(UpdateError, match="geçerli JSON"):
+        fetch_update_offer(
+            _offer_client(b"{"), "https://releases.test/x"
+        )
+
+
+@pytest.mark.parametrize(
+    "package",
+    [
+        {
+            "name": "mutalaamcp",
+            "version": "2.0.0",
+            "url": "http://releases.test/mutalaamcp-2.0.0-py3-none-any.whl",
+            "hashes": ["0" * 64],
+        },
+        {
+            "name": "mutalaamcp",
+            "version": "2.0.0",
+            "url": "https://user:pw@releases.test/mutalaamcp-2.0.0-py3-none-any.whl",
+            "hashes": ["0" * 64],
+        },
+        {
+            "name": "mutalaamcp",
+            "version": "2.0.0",
+            "url": "https://releases.test/wheel.whl?token=abc",
+            "hashes": ["0" * 64],
+        },
+        {"name": "mutalaamcp", "version": "2.0.0", "hashes": []},
+        {
+            "name": "mutalaamcp",
+            "version": "2.0.0",
+            "hashes": ["not-a-sha"],
+        },
+        {"name": "mutalaamcp", "version": "9.9.9", "hashes": ["0" * 64]},
+        {"name": "other", "version": "2.0.0", "hashes": ["0" * 64]},
+    ],
+)
+def test_fetch_update_offer_rejects_unbound_or_insecure_package(
+    package: dict[str, object],
+) -> None:
+    with pytest.raises(UpdateError):
+        fetch_update_offer(
+            _offer_client(_offer_payload(package=package)),
+            "https://releases.test/x",
+        )
+
+
+def test_fetch_update_offer_rejects_unknown_manifest_version_and_duplicates() -> None:
+    with pytest.raises(UpdateError, match="sürümü desteklenmiyor"):
+        fetch_update_offer(
+            _offer_client(_offer_payload(manifest_version=2)),
+            "https://releases.test/x",
+        )
+    duplicate = {"name": "fastmcp", "version": "3.0.1", "hashes": ["2" * 64]}
+    dependencies = [*_offer_payload()["dependencies"], duplicate]
+    with pytest.raises(UpdateError, match="yinelenen"):
+        fetch_update_offer(
+            _offer_client(_offer_payload(dependencies=dependencies)),
+            "https://releases.test/x",
+        )
+
+
+def test_fetch_update_offer_bounds_manifest_size() -> None:
+    oversized = b" " * (262_144 + 1)
+    with pytest.raises(UpdateError, match="boyutu"):
+        fetch_update_offer(
+            _offer_client(oversized), "https://releases.test/x"
+        )
+
+
+@pytest.mark.parametrize(
+    ("candidate", "current", "expected"),
+    [
+        ("2.0.0", "1.0.0", True),
+        ("1.0.0", "2.0.0", False),
+        ("2.0.0", "2.0.0", False),
+        ("1.0.1", "1.0.0", True),
+        ("2.0.0rc1", "2.0.0b2", True),
+        ("2.0.0", "2.0.0rc3", True),
+        ("2.0.0a2", "2.0.0a1", True),
+        ("nightly", "1.0.0", False),
+        ("2.0.0", "installed", False),
+    ],
+)
+def test_is_newer_version_orders_release_tracks(
+    candidate: str, current: str, expected: bool
+) -> None:
+    assert is_newer_version(candidate, current) is expected
+
+
+def test_auto_update_loop_applies_verified_offer_and_stops() -> None:
+    delays: list[float] = []
+    applied: list[str] = []
+
+    async def sleep(seconds: float) -> None:
+        delays.append(seconds)
+
+    attempts = iter((False, True))
+
+    async def run() -> None:
+        await auto_update_loop(
+            is_managed=lambda: True,
+            check_and_apply=lambda: next(attempts),
+            on_updated=lambda: applied.append("restarted"),
+            interval_seconds=10.0,
+            first_delay_seconds=1.0,
+            sleep=sleep,
+        )
+
+    asyncio.run(run())
+
+    assert delays == [1.0, 10.0]
+    assert applied == ["restarted"]
+
+
+def test_auto_update_loop_skips_checks_while_unmanaged() -> None:
+    checks: list[str] = []
+    managed = iter((False, False, True))
+
+    async def run() -> None:
+        await auto_update_loop(
+            is_managed=lambda: next(managed),
+            check_and_apply=lambda: checks.append("checked") or True,
+            on_updated=lambda: None,
+            interval_seconds=10.0,
+            first_delay_seconds=1.0,
+            sleep=lambda _seconds: asyncio.sleep(0),
+        )
+
+    asyncio.run(run())
+
+    assert checks == ["checked"]
+
+
+def test_auto_update_loop_survives_channel_failures() -> None:
+    outcomes = iter((RuntimeError("offline"), True))
+    applied: list[str] = []
+
+    def check() -> bool:
+        outcome = next(outcomes)
+        if isinstance(outcome, BaseException):
+            raise outcome
+        return outcome
+
+    async def run() -> None:
+        await auto_update_loop(
+            is_managed=lambda: True,
+            check_and_apply=check,
+            on_updated=lambda: applied.append("restarted"),
+            interval_seconds=10.0,
+            first_delay_seconds=1.0,
+            sleep=lambda _seconds: asyncio.sleep(0),
+        )
+
+    asyncio.run(run())
+
+    assert applied == ["restarted"]
+
+
+def test_stable_launcher_forwards_serve_http_to_selected_version(
+    tmp_path: Path,
+) -> None:
+    settings = _settings(tmp_path)
+    argv_record = tmp_path / "argv.json"
+    child = _fake_python_executable(
+        tmp_path / "current" / "mutalaamcp",
+        "\n".join(
+            (
+                f"#!{sys.executable}",
+                "import json",
+                "import sys",
+                "from pathlib import Path",
+                f"Path({str(argv_record)!r}).write_text(",
+                "    json.dumps(sys.argv[1:]), encoding='utf-8'",
+                ")",
+                "",
+            )
+        ),
+    )
+    settings.active_version_state_path.parent.mkdir(parents=True)
+    settings.active_version_state_path.write_text(
+        json.dumps({"version": "1.0.0", "launcher": str(child)}),
+        encoding="utf-8",
+    )
+
+    stable = ensure_stable_launcher(settings.data_dir, child)
+    served = subprocess.run([str(stable), "serve-http"], check=False)
+
+    assert served.returncode == 0
+    assert json.loads(argv_record.read_text(encoding="utf-8")) == ["serve-http"]
+
+    argv_record.unlink()
+    rejected = subprocess.run([str(stable), "bogus"], check=False)
+    assert rejected.returncode == 1
+    assert not argv_record.exists()
+
+
+def test_stable_launcher_forwards_serve_http_through_candidate_rollback(
+    tmp_path: Path,
+) -> None:
+    settings = _settings(tmp_path)
+    old_launcher = _fake_executable(tmp_path / "old" / "mutalaamcp")
+    _create_cache(settings.cache_db_path, user_version=1)
+    backup = backup_cache(settings)
+    assert backup is not None
+    argv_record = tmp_path / "candidate-argv.json"
+    candidate_path = settings.version_root / ".candidate-2.0.0-http" / "bin" / "mutalaamcp"
+    candidate = _fake_python_executable(
+        candidate_path,
+        "\n".join(
+            (
+                f"#!{sys.executable}",
+                "import json",
+                "import os",
+                "import sys",
+                "from pathlib import Path",
+                f"Path({str(argv_record)!r}).write_text(",
+                "    json.dumps(sys.argv[1:]), encoding='utf-8'",
+                ")",
+                "marker = Path(os.environ['MUTALAAMCP_RUNTIME_READY_FILE'])",
+                "marker.write_bytes(b'ready\\n')",
+                "",
+            )
+        ),
+    )
+    settings.active_version_state_path.parent.mkdir(parents=True, exist_ok=True)
+    settings.active_version_state_path.write_text(
+        json.dumps(
+            {
+                "version": "2.0.0",
+                "launcher": str(candidate),
+                "rollback": {
+                    "version": "1.0.0",
+                    "launcher": str(old_launcher),
+                    "cache_path": str(settings.cache_db_path),
+                    "cache_backup": str(backup),
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    stable = ensure_stable_launcher(settings.data_dir, old_launcher)
+    served = subprocess.run([str(stable), "serve-http"], check=False)
+
+    assert served.returncode == 0
+    assert json.loads(argv_record.read_text(encoding="utf-8")) == ["serve-http"]
+    assert json.loads(settings.active_version_state_path.read_text()) == {
+        "version": "2.0.0",
+        "launcher": str(candidate),
+    }
+
+
+def test_service_targets_selector_only_when_registration_uses_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(sys, "platform", "darwin")
+    home = tmp_path / "home"
+    monkeypatch.setattr(Path, "home", classmethod(lambda _cls: home))
+    settings = _settings(tmp_path)
+    selector = settings.data_dir / "mutalaamcp"
+    selector.parent.mkdir(parents=True)
+    selector.write_text("#selector\n", encoding="utf-8")
+    plist_dir = home / "Library" / "LaunchAgents"
+    plist_dir.mkdir(parents=True)
+    plist = plist_dir / "tr.mutalaa.mcp.plist"
+
+    assert native_service.service_targets_selector(settings) is False
+
+    plist.write_bytes(
+        plistlib.dumps(
+            {"Label": "tr.mutalaa.mcp", "ProgramArguments": [str(selector), "serve-http"]}
+        )
+    )
+    assert native_service.service_targets_selector(settings) is True
+
+    other = _fake_executable(tmp_path / "other" / "mutalaamcp")
+    plist.write_bytes(
+        plistlib.dumps(
+            {"Label": "tr.mutalaa.mcp", "ProgramArguments": [str(other), "serve-http"]}
+        )
+    )
+    assert native_service.service_targets_selector(settings) is False
+
+
+def test_managed_update_check_applies_only_strictly_newer_offers(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    settings = _settings(tmp_path)
+    offer = UpdateOffer(version="2.0.0", manifest=_update_manifest())
+    monkeypatch.setattr(
+        "mutalaamcp.update.fetch_update_offer", lambda _client, _url: offer
+    )
+    installs: list[dict[str, object]] = []
+    monkeypatch.setattr(
+        "mutalaamcp.update.update_to_version",
+        lambda _settings, version, **kwargs: installs.append(
+            {"version": version, **kwargs}
+        )
+        or None,
+    )
+    monkeypatch.setattr(native_service, "__version__", "1.0.0")
+
+    assert native_service._check_and_apply_update(settings) is True
+    assert installs and installs[0]["version"] == "2.0.0"
+    assert installs[0]["integrity_manifest"] == offer.manifest
+
+    installs.clear()
+    monkeypatch.setattr(native_service, "__version__", "2.0.0")
+    assert native_service._check_and_apply_update(settings) is False
+    assert installs == []
