@@ -61,3 +61,4 @@ _site/
 /marketing/*/png-2x/
 /marketing/*/source/*.svg
 /marketing/*/source/compose.cjs
+/marketing/.render/

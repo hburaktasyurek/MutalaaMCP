@@ -1,0 +1,62 @@
+{
+  "generator": "source/compose.cjs — tamamen vektör kompozisyon; parçalar ../../instagram-2026-09-seri-2/source/compose.cjs modülünden alınır",
+  "platform": "X (Twitter) — akışta kırpılmayan 1600 × 900 yatay kart",
+  "fonts": {
+    "display": "Newsreader (değişken TTF, wght 500; italik sahne metinleri Newsreader Italic) — source/fonts/",
+    "support": "Helvetica Neue (sistem)",
+    "note": "Render aşamasında resvg fontFiles=source/fonts/*.ttf; MUTALAA_FONTS ile dış klasör verilebilir."
+  },
+  "brand_provenance": "Alt marka satırı yerine sol üstte 'm. Mütalaa MCP' bloğu ve sol altta mutalaa.tr imzası; m. işareti docs/assets/mutalaa-mark.svg içeriğinin vektör çizimidir. HB GLOBAL ve imza grupları yatay düzene taşınmadı.",
+  "assets": [
+    {
+      "name": "01-soz-ucar-x",
+      "width": 1600,
+      "height": 900,
+      "bg": "#faf8f3",
+      "headline": [
+        "Söz uçar,",
+        "kaynak kalır."
+      ],
+      "support": [
+        "Yanıt yapay zekâdan, kaynak Mütalaa’dan.",
+        "Mevzuat ve yargı kararları, resmî bağlantılarıyla."
+      ],
+      "scene": "Sol sütunda marka bloğu, başlık ve alt metin; sağda yukarı savrulan iki silik konuşma balonu ve 'mevzuat.adalet.gov.tr' bağlantısı ile 'Resmî kaynak' etiketi taşıyan pirinç mühürlü belge."
+    },
+    {
+      "name": "02-oyle-dediler-x",
+      "width": 1600,
+      "height": 900,
+      "bg": "#141b29",
+      "headline": [
+        "Öyle dediler."
+      ],
+      "support": [
+        "Bir de kaynağına bakın."
+      ],
+      "quotes": [
+        "“Aidatı kiracı öder.”",
+        "“Değişim yapmayız.”",
+        "“Yargıtay’ın kararı böyle.”"
+      ],
+      "scene": "Sol sütunda başlık; ortada zarf, fiş ve klasör simgeli üç krem iddia balonu dikey dizilir; her biri pirinç eğriyle sağdaki 'mevzuat.adalet.gov.tr' bağlantılı resmî belgeye bağlanır."
+    },
+    {
+      "name": "03-ucretsiz-x",
+      "width": 1600,
+      "height": 900,
+      "bg": "#faf8f3",
+      "headline": [
+        "Ne ücret,",
+        "ne aracı,",
+        "ne sır."
+      ],
+      "support": [
+        "Ücretsiz ve açık kaynaklı araç bilgisayarınızda çalışır;",
+        "sorgularınız aracısız, doğrudan resmî kaynaklara gider."
+      ],
+      "footnote": "Yapay zekâ uygulamanızın ücretleri geçerli olabilir.",
+      "scene": "Sol sütunda üç satırlı başlık; sağda dizüstü bilgisayar ('bilgisayarınız') ile sütunlu kurum binası ('adalet.gov.tr') arasında doğrudan pirinç ok; altta kesikli dolambaçlı yol ve iptal işareti."
+    }
+  ]
+}

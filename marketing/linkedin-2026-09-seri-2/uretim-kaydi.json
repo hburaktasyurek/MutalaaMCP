@@ -1,0 +1,65 @@
+{
+  "generator": "source/compose.cjs — tamamen vektör kompozisyon; gönderi gövdeleri ../../instagram-2026-09-seri-2/source/compose.cjs modülünden aynen alınır (1080 gövde 1200 kareye 60px sağa, -70px yukarı ötelenir)",
+  "platform": "LinkedIn — akışta kırpılmayan 1200 × 1200 kare kart",
+  "fonts": {
+    "display": "Newsreader (değişken TTF, wght 500; italik sahne metinleri Newsreader Italic) — source/fonts/",
+    "support": "Helvetica Neue (sistem)",
+    "note": "Render aşamasında resvg fontFiles=source/fonts/*.ttf; MUTALAA_FONTS ile dış klasör verilebilir."
+  },
+  "brand_provenance": "Alt marka satırı yerine 'm. Mütalaa MCP — mutalaa.tr' imza satırı; m. işareti docs/assets/mutalaa-mark.svg içeriğinin vektör çizimidir. HB GLOBAL ve imza grupları bu sette yer almaz.",
+  "assets": [
+    {
+      "name": "01-soz-ucar-linkedin",
+      "width": 1200,
+      "height": 1200,
+      "bg": "#faf8f3",
+      "productRowY": 1090,
+      "headline": [
+        "Söz uçar,",
+        "kaynak kalır."
+      ],
+      "support": [
+        "Yanıt yapay zekâdan, kaynak Mütalaa’dan.",
+        "Mevzuat ve yargı kararları, resmî bağlantılarıyla."
+      ],
+      "scene": "Instagram gönderi kompozisyonunun kare uyarlaması: üç konuşma balonu solda yükselip silikleşir; sağda 'mevzuat.adalet.gov.tr' bağlantısı ve 'Resmî kaynak' etiketi taşıyan pirinç mühürlü belge."
+    },
+    {
+      "name": "02-oyle-dediler-linkedin",
+      "width": 1200,
+      "height": 1200,
+      "bg": "#141b29",
+      "productRowY": 1090,
+      "headline": [
+        "Öyle dediler."
+      ],
+      "support": [
+        "Bir de kaynağına bakın."
+      ],
+      "quotes": [
+        "“Aidatı kiracı öder.”",
+        "“Değişim yapmayız.”",
+        "“Yargıtay’ın kararı böyle.”"
+      ],
+      "scene": "Instagram gönderi kompozisyonunun kare uyarlaması: üç iddia balonu pirinç eğrilerle alttaki 'mevzuat.adalet.gov.tr' bağlantılı tek resmî belgeye bağlanır."
+    },
+    {
+      "name": "03-ucretsiz-linkedin",
+      "width": 1200,
+      "height": 1200,
+      "bg": "#faf8f3",
+      "productRowY": 1090,
+      "headline": [
+        "Ne ücret,",
+        "ne aracı,",
+        "ne sır."
+      ],
+      "support": [
+        "Ücretsiz ve açık kaynaklı araç bilgisayarınızda çalışır;",
+        "sorgularınız aracısız, doğrudan resmî kaynaklara gider."
+      ],
+      "footnote": "Yapay zekâ uygulamanızın ücretleri geçerli olabilir.",
+      "scene": "Instagram gönderi kompozisyonunun kare uyarlaması: dizüstü bilgisayar ('bilgisayarınız') ile sütunlu kurum binası ('adalet.gov.tr') arasında doğrudan pirinç ok; altta kesikli dolambaçlı yol ve iptal işareti."
+    }
+  ]
+}

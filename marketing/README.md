@@ -7,6 +7,8 @@ Logo, imza ve görsel kimlik bütün kanallarda ortak kullanılır. Her kanalın
 | [Ortak marka varlıkları](brand/README.md) | HB GLOBAL ve kişisel imzanın siyah/beyaz vektörleri; bütün kanallar buradan alır. |
 | [Instagram · Eylül 2026](instagram-2026-09/README.md) | Üç gönderi, üç hikâye, kaynak kompozisyonlar ve paylaşım metinleri. |
 | [Instagram · Eylül 2026 · Seri 2](instagram-2026-09-seri-2/README.md) | “Söz uçar, kaynak kalır.” / “Öyle dediler.” / “Ne ücret, ne aracı, ne sır.” — tamamen vektör üç gönderi, üç hikâye. |
+| [X · Eylül 2026 · Seri 2](x-2026-09-seri-2/README.md) | Aynı üç mesajın X uyarlaması — 1600 × 900 yatay kartlar. |
+| [LinkedIn · Eylül 2026 · Seri 2](linkedin-2026-09-seri-2/README.md) | Aynı üç mesajın LinkedIn uyarlaması — 1200 × 1200 kare kartlar. |
 
 Renk, tipografi ve malzeme dili için [DESIGN.md](DESIGN.md); ürün anlatımı ve iddialar için [PRODUCT.md](PRODUCT.md) esas alınır. Bu belgeler bütün pazarlama kanallarının ortak bağlamıdır. Mütalaa'nın m. işaretinin mevcut kaynak dosyası, yazılım deposundaki `docs/assets/mutalaa-mark.svg` konumundadır.
 
