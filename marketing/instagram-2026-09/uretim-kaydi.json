@@ -1,0 +1,100 @@
+{
+  "generator": "Native SVG compatibility repair; existing Imagegen artwork retained",
+  "supplied_asset_sha256": {
+    "hb-global-black.svg": "67e8a4bb20b05fe3e55bbbe82a2322ac654390c37542a45303052b23cb49fead",
+    "hb-global-white.svg": "81cf0b8718261853640d311b9681d9c38b1503f208291473d2dcafb0e84cd1b2",
+    "hburaktasyurek-signature-white.svg": "130bd5fc7a6bde5134476528774a2b624a8d6572aa2a66385d4743edb3ec13c3"
+  },
+  "assets": [
+    {
+      "name": "01-arastirma-gonderi",
+      "width": 1080,
+      "height": 1350,
+      "footerTop": 1208,
+      "centerY": 1296,
+      "logoWidth": 300,
+      "signatureWidth": 365,
+      "logo": "../brand/hb-global-siyah.svg",
+      "signature": "../brand/hburaktasyurek-imza-siyah.svg",
+      "imagegenPrompt": "Edit the supplied Mütalaa MCP marketing artwork to add the user's co-branding footer.\nImage 1 is the EDIT TARGET. Preserve its exact Turkish headline, every supporting line and label, existing Mütalaa MCP / m. signature, mutalaa.tr address, palette, type character and main paper/laptop/book illustration. Do not rewrite the copy or change its meaning.\nImage 2 is the user's LAYOUT EXAMPLE ONLY: observe the bottom arrangement of HB GLOBAL on the left and H. Burak Taşyürek's handwritten signature on the right. Do not import its different headline, law symbols or product scene.\nImage 3 is the exact FOOTER ASSET containing the supplied HB GLOBAL logo and signature. Integrate this paired footer once at the bottom in the placement described below. Keep the mark and signature flat black, crisp, undistorted and balanced horizontally, never modeled in 3D.\nOutput 4:5 portrait, ideally 1080 × 1350. Carefully compact the EXISTING composition into the upper 1150px; retain large legible display type, the existing main scene, all source labels, every support sentence and the Mütalaa signature/URL. Main Mütalaa signature and URL should finish by y=1120, giving breathing room before the new footer. Create a clean full-width warm ivory #FAF8F3 bottom band at y=1150..1350. Place Image 3 there exactly at x=0,y=1150,width=1080,height=200. The two new marks should be clear, modest and visually subordinate to the headline. Preserve the 4:5 format rather than lengthening the poster.\nKeep the main cream paper poster and the new warm ivory footer harmonious. Retain the original main artwork's natural light and textures; the footer itself stays flat.\n\nDo not add invented legal advice, extra branding, a sponsor label, a partnership claim, other words, numbers, legal seals, a mockup frame or social app UI. This is a narrow co-branding edit of an approved campaign, not a redesign.",
+      "background_sha256": "183cc3507c2bad85cd07a4a3d7cfd49b796cbf0f33220b1d67d656326e761fe2",
+      "composition": "Existing product raster retained. Logo and signature embedded as native SVG paths with explicit fills and flattened transforms. Both signature variants use the supplied white vector geometry. PNG export: 4x resvg, Lanczos3 downsample to 1x and 2x."
+    },
+    {
+      "name": "02-resmi-kaynak-gonderi",
+      "width": 1080,
+      "height": 1350,
+      "footerTop": 1250,
+      "centerY": 1296,
+      "logoWidth": 300,
+      "signatureWidth": 365,
+      "logo": "../brand/hb-global-beyaz.svg",
+      "signature": "../brand/hburaktasyurek-imza-beyaz.svg",
+      "imagegenPrompt": "Edit the supplied Mütalaa MCP marketing artwork to add the user's co-branding footer.\nImage 1 is the EDIT TARGET. Preserve its exact Turkish headline, every supporting line and label, existing Mütalaa MCP / m. signature, mutalaa.tr address, palette, type character and main paper/laptop/book illustration. Do not rewrite the copy or change its meaning.\nImage 2 is the user's LAYOUT EXAMPLE ONLY: observe the bottom arrangement of HB GLOBAL on the left and H. Burak Taşyürek's handwritten signature on the right. Do not import its different headline, law symbols or product scene.\nImage 3 is the exact FOOTER ASSET containing the supplied HB GLOBAL logo and signature. Integrate this paired footer once at the bottom in the placement described below. Keep the mark and signature flat white, crisp, undistorted and balanced horizontally, never modeled in 3D.\nOutput 4:5 portrait, ideally 1080 × 1350. Carefully compact the EXISTING composition into the upper 1150px; retain large legible display type, the existing main scene, all source labels, every support sentence and the Mütalaa signature/URL. Main Mütalaa signature and URL should finish by y=1120, giving breathing room before the new footer. Create a clean full-width deep navy #141B29 bottom band at y=1150..1350. Place Image 3 there exactly at x=0,y=1150,width=1080,height=200. The two new marks should be clear, modest and visually subordinate to the headline. Preserve the 4:5 format rather than lengthening the poster.\nKeep the entire poster deep navy with cream type. The supplied partner logo and signature are the WHITE versions. Preserve those white SVG-style shapes on the deep navy footer. Do not add an ivory band, recolor the upper art, or place black marks on navy.\n\nDo not add invented legal advice, extra branding, a sponsor label, a partnership claim, other words, numbers, legal seals, a mockup frame or social app UI. This is a narrow co-branding edit of an approved campaign, not a redesign.",
+      "background_sha256": "115c7ba0a10c2db8e21ffec5f1c960f7025ceb63ce1b31079e61174e33568bf1",
+      "composition": "Existing product raster retained. Logo and signature embedded as native SVG paths with explicit fills and flattened transforms. Both signature variants use the supplied white vector geometry. PNG export: 4x resvg, Lanczos3 downsample to 1x and 2x."
+    },
+    {
+      "name": "03-ucretsiz-gonderi",
+      "width": 1080,
+      "height": 1350,
+      "footerTop": 1230,
+      "centerY": 1296,
+      "logoWidth": 300,
+      "signatureWidth": 365,
+      "logo": "../brand/hb-global-siyah.svg",
+      "signature": "../brand/hburaktasyurek-imza-siyah.svg",
+      "imagegenPrompt": "Edit the supplied Mütalaa MCP marketing artwork to add the user's co-branding footer.\nImage 1 is the EDIT TARGET. Preserve its exact Turkish headline, every supporting line and label, existing Mütalaa MCP / m. signature, mutalaa.tr address, palette, type character and main paper/laptop/book illustration. Do not rewrite the copy or change its meaning.\nImage 2 is the user's LAYOUT EXAMPLE ONLY: observe the bottom arrangement of HB GLOBAL on the left and H. Burak Taşyürek's handwritten signature on the right. Do not import its different headline, law symbols or product scene.\nImage 3 is the exact FOOTER ASSET containing the supplied HB GLOBAL logo and signature. Integrate this paired footer once at the bottom in the placement described below. Keep the mark and signature flat black, crisp, undistorted and balanced horizontally, never modeled in 3D.\nOutput 4:5 portrait, ideally 1080 × 1350. Carefully compact the EXISTING composition into the upper 1150px; retain large legible display type, the existing main scene, all source labels, every support sentence and the Mütalaa signature/URL. Main Mütalaa signature and URL should finish by y=1120, giving breathing room before the new footer. Create a clean full-width warm ivory #FAF8F3 bottom band at y=1150..1350. Place Image 3 there exactly at x=0,y=1150,width=1080,height=200. The two new marks should be clear, modest and visually subordinate to the headline. Preserve the 4:5 format rather than lengthening the poster.\nKeep the main cream paper poster and the new warm ivory footer harmonious. Retain the original main artwork's natural light and textures; the footer itself stays flat.\nRetain the qualification exactly and legibly above the footer: “Yapay zekâ uygulamanızın ücretleri geçerli olabilir.”\nDo not add invented legal advice, extra branding, a sponsor label, a partnership claim, other words, numbers, legal seals, a mockup frame or social app UI. This is a narrow co-branding edit of an approved campaign, not a redesign.",
+      "background_sha256": "4bb12e8a132373436a3722755c734f1066d761e97e0615fa53739f89f0baaa58",
+      "composition": "Existing product raster retained. Logo and signature embedded as native SVG paths with explicit fills and flattened transforms. Both signature variants use the supplied white vector geometry. PNG export: 4x resvg, Lanczos3 downsample to 1x and 2x."
+    },
+    {
+      "name": "01-arastirma-hikaye",
+      "width": 1080,
+      "height": 1920,
+      "footerTop": 1590,
+      "centerY": 1660,
+      "logoWidth": 340,
+      "signatureWidth": 400,
+      "logo": "../brand/hb-global-siyah.svg",
+      "signature": "../brand/hburaktasyurek-imza-siyah.svg",
+      "imagegenPrompt": "Edit the supplied Mütalaa MCP marketing artwork to add the user's co-branding footer.\nImage 1 is the EDIT TARGET. Preserve its exact Turkish headline, every supporting line and label, existing Mütalaa MCP / m. signature, mutalaa.tr address, palette, type character and main paper/laptop/book illustration. Do not rewrite the copy or change its meaning.\nImage 2 is the user's LAYOUT EXAMPLE ONLY: observe the bottom arrangement of HB GLOBAL on the left and H. Burak Taşyürek's handwritten signature on the right. Do not import its different headline, law symbols or product scene.\nImage 3 is the exact FOOTER ASSET containing the supplied HB GLOBAL logo and signature. Integrate this paired footer once at the bottom in the placement described below. Keep the mark and signature flat black, crisp, undistorted and balanced horizontally, never modeled in 3D.\nOutput 9:16 portrait, ideally 1080 × 1920. Recompose the EXISTING headline, illustration, support and Mütalaa signature into the region x=70..1010, y=285..1420, leaving the top 250px quiet for Story UI. Keep all existing text clearly legible. Reflow or slightly reduce the existing artwork to fit; preserve its visual identity and exact copy. Make the full-width footer from y=1480 to the bottom a clean uniform warm ivory #FAF8F3. Place Image 3 as the paired co-branding row at x=0, y=1510, width=1080, height=200. Below y=1710 leave the ivory ground entirely EMPTY: no text, logo, button or instructions. This gives the user room for Instagram's actual link sticker and bottom UI. Do not draw the link sticker. The Mütalaa identity belongs above the footer and the HB GLOBAL/signature row only inside the footer.\nKeep the main cream paper poster and the new warm ivory footer harmonious. Retain the original main artwork's natural light and textures; the footer itself stays flat.\n\nDo not add invented legal advice, extra branding, a sponsor label, a partnership claim, other words, numbers, legal seals, a mockup frame or social app UI. This is a narrow co-branding edit of an approved campaign, not a redesign.",
+      "background_sha256": "dadeefe9e5e879725b3d8aa092b03cbb3af6a2d092808fcc400e3ba898e3023c",
+      "composition": "Existing product raster retained. Logo and signature embedded as native SVG paths with explicit fills and flattened transforms. Both signature variants use the supplied white vector geometry. PNG export: 4x resvg, Lanczos3 downsample to 1x and 2x."
+    },
+    {
+      "name": "02-resmi-kaynak-hikaye",
+      "width": 1080,
+      "height": 1920,
+      "footerTop": 1590,
+      "centerY": 1660,
+      "logoWidth": 340,
+      "signatureWidth": 400,
+      "logo": "../brand/hb-global-beyaz.svg",
+      "signature": "../brand/hburaktasyurek-imza-beyaz.svg",
+      "imagegenPrompt": "Edit the supplied Mütalaa MCP marketing artwork to add the user's co-branding footer.\nImage 1 is the EDIT TARGET. Preserve its exact Turkish headline, every supporting line and label, existing Mütalaa MCP / m. signature, mutalaa.tr address, palette, type character and main paper/laptop/book illustration. Do not rewrite the copy or change its meaning.\nImage 2 is the user's LAYOUT EXAMPLE ONLY: observe the bottom arrangement of HB GLOBAL on the left and H. Burak Taşyürek's handwritten signature on the right. Do not import its different headline, law symbols or product scene.\nImage 3 is the exact FOOTER ASSET containing the supplied HB GLOBAL logo and signature. Integrate this paired footer once at the bottom in the placement described below. Keep the mark and signature flat white, crisp, undistorted and balanced horizontally, never modeled in 3D.\nOutput 9:16 portrait, ideally 1080 × 1920. Recompose the EXISTING headline, illustration, support and Mütalaa signature into the region x=70..1010, y=285..1420, leaving the top 250px quiet for Story UI. Keep all existing text clearly legible. Reflow or slightly reduce the existing artwork to fit; preserve its visual identity and exact copy. Make the full-width footer from y=1480 to the bottom a clean uniform deep navy #141B29. Place Image 3 as the paired co-branding row at x=0, y=1510, width=1080, height=200. Below y=1710 leave the navy ground entirely EMPTY: no text, logo, button or instructions. This gives the user room for Instagram's actual link sticker and bottom UI. Do not draw the link sticker. The Mütalaa identity belongs above the footer and the HB GLOBAL/signature row only inside the footer.\nKeep the entire poster deep navy with cream type. The supplied partner logo and signature are the WHITE versions. Preserve those white SVG-style shapes on the deep navy footer. Do not add an ivory band, recolor the upper art, or place black marks on navy.\n\nDo not add invented legal advice, extra branding, a sponsor label, a partnership claim, other words, numbers, legal seals, a mockup frame or social app UI. This is a narrow co-branding edit of an approved campaign, not a redesign.",
+      "background_sha256": "88e03980e193554e3d9fa9ad1443d161efc8a4798f10c015bc8bb182cb832367",
+      "composition": "Existing product raster retained. Logo and signature embedded as native SVG paths with explicit fills and flattened transforms. Both signature variants use the supplied white vector geometry. PNG export: 4x resvg, Lanczos3 downsample to 1x and 2x."
+    },
+    {
+      "name": "03-ucretsiz-hikaye",
+      "width": 1080,
+      "height": 1920,
+      "footerTop": 1590,
+      "centerY": 1660,
+      "logoWidth": 340,
+      "signatureWidth": 400,
+      "logo": "../brand/hb-global-siyah.svg",
+      "signature": "../brand/hburaktasyurek-imza-siyah.svg",
+      "imagegenPrompt": "Edit the supplied Mütalaa MCP marketing artwork to add the user's co-branding footer.\nImage 1 is the EDIT TARGET. Preserve its exact Turkish headline, every supporting line and label, existing Mütalaa MCP / m. signature, mutalaa.tr address, palette, type character and main paper/laptop/book illustration. Do not rewrite the copy or change its meaning.\nImage 2 is the user's LAYOUT EXAMPLE ONLY: observe the bottom arrangement of HB GLOBAL on the left and H. Burak Taşyürek's handwritten signature on the right. Do not import its different headline, law symbols or product scene.\nImage 3 is the exact FOOTER ASSET containing the supplied HB GLOBAL logo and signature. Integrate this paired footer once at the bottom in the placement described below. Keep the mark and signature flat black, crisp, undistorted and balanced horizontally, never modeled in 3D.\nOutput 9:16 portrait, ideally 1080 × 1920. Recompose the EXISTING headline, illustration, support and Mütalaa signature into the region x=70..1010, y=285..1420, leaving the top 250px quiet for Story UI. Keep all existing text clearly legible. Reflow or slightly reduce the existing artwork to fit; preserve its visual identity and exact copy. Make the full-width footer from y=1480 to the bottom a clean uniform warm ivory #FAF8F3. Place Image 3 as the paired co-branding row at x=0, y=1510, width=1080, height=200. Below y=1710 leave the ivory ground entirely EMPTY: no text, logo, button or instructions. This gives the user room for Instagram's actual link sticker and bottom UI. Do not draw the link sticker. The Mütalaa identity belongs above the footer and the HB GLOBAL/signature row only inside the footer.\nKeep the main cream paper poster and the new warm ivory footer harmonious. Retain the original main artwork's natural light and textures; the footer itself stays flat.\nRetain the qualification exactly and legibly above the footer: “Yapay zekâ uygulamanızın ücretleri geçerli olabilir.”\nDo not add invented legal advice, extra branding, a sponsor label, a partnership claim, other words, numbers, legal seals, a mockup frame or social app UI. This is a narrow co-branding edit of an approved campaign, not a redesign.",
+      "background_sha256": "e4f492bf6f8c0993e1f582389231f06d283c0a6b2c6c6cd4bcfbb30eef8fb6f0",
+      "composition": "Existing product raster retained. Logo and signature embedded as native SVG paths with explicit fills and flattened transforms. Both signature variants use the supplied white vector geometry. PNG export: 4x resvg, Lanczos3 downsample to 1x and 2x."
+    }
+  ],
+  "shared_brand_asset_sha256": {
+    "hb-global-beyaz.svg": "71c8da9a687ec7403b25bc1cb50cd278dfe73acee73afcc6c789687b47cc4786",
+    "hb-global-siyah.svg": "8f1c8fe8125b36f12a154562fd92f9597dd64d9880a474e70d048ce07aead2c7",
+    "hburaktasyurek-imza-beyaz.svg": "31fd1a7e49afb3b8839c087d284ecb67994db05869e08fdc33d5e1ed7d8b9dca",
+    "hburaktasyurek-imza-siyah.svg": "203d36ff471ccfa2f8f702f04d21dd26094d66c8e2e02ec4383e83f239b3b1f1"
+  }
+}

@@ -1,0 +1,388 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-12T07:58:14.742184+00:00",
+  "title": "Design System: Mütalaa MCP",
+  "extensions": {
+    "colorMeta": {
+      "brass": {
+        "role": "primary",
+        "displayName": "Pirinç",
+        "tonalRamp": [
+          "oklch(15.00% 0.1079 75.45)",
+          "oklch(26.43% 0.1079 75.45)",
+          "oklch(37.86% 0.1079 75.45)",
+          "oklch(49.29% 0.1079 75.45)",
+          "oklch(60.71% 0.1079 75.45)",
+          "oklch(72.14% 0.1079 75.45)",
+          "oklch(83.57% 0.1079 75.45)",
+          "oklch(95.00% 0.1079 75.45)"
+        ]
+      },
+      "brass-soft": {
+        "role": "primary",
+        "displayName": "Açık pirinç",
+        "tonalRamp": [
+          "oklch(15.00% 0.1048 77.51)",
+          "oklch(26.43% 0.1048 77.51)",
+          "oklch(37.86% 0.1048 77.51)",
+          "oklch(49.29% 0.1048 77.51)",
+          "oklch(60.71% 0.1048 77.51)",
+          "oklch(72.14% 0.1048 77.51)",
+          "oklch(83.57% 0.1048 77.51)",
+          "oklch(95.00% 0.1048 77.51)"
+        ]
+      },
+      "brass-surface": {
+        "role": "primary",
+        "displayName": "Pirinç kâğıdı",
+        "tonalRamp": [
+          "oklch(15.00% 0.0246 83.42)",
+          "oklch(26.43% 0.0246 83.42)",
+          "oklch(37.86% 0.0246 83.42)",
+          "oklch(49.29% 0.0246 83.42)",
+          "oklch(60.71% 0.0246 83.42)",
+          "oklch(72.14% 0.0246 83.42)",
+          "oklch(83.57% 0.0246 83.42)",
+          "oklch(95.00% 0.0246 83.42)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Sıcak kâğıt",
+        "tonalRamp": [
+          "oklch(15.00% 0.0070 88.64)",
+          "oklch(26.43% 0.0070 88.64)",
+          "oklch(37.86% 0.0070 88.64)",
+          "oklch(49.29% 0.0070 88.64)",
+          "oklch(60.71% 0.0070 88.64)",
+          "oklch(72.14% 0.0070 88.64)",
+          "oklch(83.57% 0.0070 88.64)",
+          "oklch(95.00% 0.0070 88.64)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Beyaz yüzey",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 0.00)",
+          "oklch(26.43% 0.0000 0.00)",
+          "oklch(37.86% 0.0000 0.00)",
+          "oklch(49.29% 0.0000 0.00)",
+          "oklch(60.71% 0.0000 0.00)",
+          "oklch(72.14% 0.0000 0.00)",
+          "oklch(83.57% 0.0000 0.00)",
+          "oklch(95.00% 0.0000 0.00)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Lacivert mürekkep",
+        "tonalRamp": [
+          "oklch(15.00% 0.0364 263.63)",
+          "oklch(26.43% 0.0364 263.63)",
+          "oklch(37.86% 0.0364 263.63)",
+          "oklch(49.29% 0.0364 263.63)",
+          "oklch(60.71% 0.0364 263.63)",
+          "oklch(72.14% 0.0364 263.63)",
+          "oklch(83.57% 0.0364 263.63)",
+          "oklch(95.00% 0.0364 263.63)"
+        ]
+      },
+      "slate": {
+        "role": "neutral",
+        "displayName": "Arduvaz metin",
+        "tonalRamp": [
+          "oklch(15.00% 0.0355 266.85)",
+          "oklch(26.43% 0.0355 266.85)",
+          "oklch(37.86% 0.0355 266.85)",
+          "oklch(49.29% 0.0355 266.85)",
+          "oklch(60.71% 0.0355 266.85)",
+          "oklch(72.14% 0.0355 266.85)",
+          "oklch(83.57% 0.0355 266.85)",
+          "oklch(95.00% 0.0355 266.85)"
+        ]
+      },
+      "mist": {
+        "role": "neutral",
+        "displayName": "Soluk not",
+        "tonalRamp": [
+          "oklch(15.00% 0.0237 265.68)",
+          "oklch(26.43% 0.0237 265.68)",
+          "oklch(37.86% 0.0237 265.68)",
+          "oklch(49.29% 0.0237 265.68)",
+          "oklch(60.71% 0.0237 265.68)",
+          "oklch(72.14% 0.0237 265.68)",
+          "oklch(83.57% 0.0237 265.68)",
+          "oklch(95.00% 0.0237 265.68)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Sıcak nötr",
+        "tonalRamp": [
+          "oklch(15.00% 0.0115 84.58)",
+          "oklch(26.43% 0.0115 84.58)",
+          "oklch(37.86% 0.0115 84.58)",
+          "oklch(49.29% 0.0115 84.58)",
+          "oklch(60.71% 0.0115 84.58)",
+          "oklch(72.14% 0.0115 84.58)",
+          "oklch(83.57% 0.0115 84.58)",
+          "oklch(95.00% 0.0115 84.58)"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "İnce sınır",
+        "tonalRamp": [
+          "oklch(15.00% 0.0128 86.83)",
+          "oklch(26.43% 0.0128 86.83)",
+          "oklch(37.86% 0.0128 86.83)",
+          "oklch(49.29% 0.0128 86.83)",
+          "oklch(60.71% 0.0128 86.83)",
+          "oklch(72.14% 0.0128 86.83)",
+          "oklch(83.57% 0.0128 86.83)",
+          "oklch(95.00% 0.0128 86.83)"
+        ]
+      },
+      "ink-bg": {
+        "role": "neutral",
+        "displayName": "Derin lacivert",
+        "tonalRamp": [
+          "oklch(15.00% 0.0295 263.69)",
+          "oklch(26.43% 0.0295 263.69)",
+          "oklch(37.86% 0.0295 263.69)",
+          "oklch(49.29% 0.0295 263.69)",
+          "oklch(60.71% 0.0295 263.69)",
+          "oklch(72.14% 0.0295 263.69)",
+          "oklch(83.57% 0.0295 263.69)",
+          "oklch(95.00% 0.0295 263.69)"
+        ]
+      },
+      "on-dark": {
+        "role": "neutral",
+        "displayName": "Koyu zeminde kâğıt",
+        "tonalRamp": [
+          "oklch(15.00% 0.0112 89.73)",
+          "oklch(26.43% 0.0112 89.73)",
+          "oklch(37.86% 0.0112 89.73)",
+          "oklch(49.29% 0.0112 89.73)",
+          "oklch(60.71% 0.0112 89.73)",
+          "oklch(72.14% 0.0112 89.73)",
+          "oklch(83.57% 0.0112 89.73)",
+          "oklch(95.00% 0.0112 89.73)"
+        ]
+      },
+      "ok": {
+        "role": "status",
+        "displayName": "Durum yeşili",
+        "tonalRamp": [
+          "oklch(15.00% 0.0845 157.79)",
+          "oklch(26.43% 0.0845 157.79)",
+          "oklch(37.86% 0.0845 157.79)",
+          "oklch(49.29% 0.0845 157.79)",
+          "oklch(60.71% 0.0845 157.79)",
+          "oklch(72.14% 0.0845 157.79)",
+          "oklch(83.57% 0.0845 157.79)",
+          "oklch(95.00% 0.0845 157.79)"
+        ]
+      },
+      "ink-hover": {
+        "role": "neutral",
+        "displayName": "Eylem laciverti",
+        "tonalRamp": [
+          "oklch(15.00% 0.0340 263.97)",
+          "oklch(26.43% 0.0340 263.97)",
+          "oklch(37.86% 0.0340 263.97)",
+          "oklch(49.29% 0.0340 263.97)",
+          "oklch(60.71% 0.0340 263.97)",
+          "oklch(72.14% 0.0340 263.97)",
+          "oklch(83.57% 0.0340 263.97)",
+          "oklch(95.00% 0.0340 263.97)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "display",
+        "purpose": "Web ana başlığı."
+      },
+      "headline": {
+        "displayName": "headline",
+        "purpose": "Web bölüm başlığı."
+      },
+      "title": {
+        "displayName": "title",
+        "purpose": "Mevcut fayda kartı başlığı."
+      },
+      "body": {
+        "displayName": "body",
+        "purpose": "Web paragrafları."
+      },
+      "button": {
+        "displayName": "button",
+        "purpose": "Eylem metni."
+      },
+      "label": {
+        "displayName": "label",
+        "purpose": "Statik kaynak türü etiketi."
+      },
+      "source-number": {
+        "displayName": "source-number",
+        "purpose": "Kaynak sıra numarası."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-1",
+        "value": "0 1px 2px rgb(20 27 41 / 5%)",
+        "purpose": "Küçük kartlar ve ikincil eylem."
+      },
+      {
+        "name": "shadow-3",
+        "value": "0 18px 48px rgb(20 27 41 / 13%)",
+        "purpose": "Araştırma önizlemesi ve koyu durum paneli."
+      },
+      {
+        "name": "button-primary",
+        "value": "0 7px 18px rgb(27 36 54 / 16%)",
+        "purpose": "Birincil eylemin varsayılan gölgesi."
+      },
+      {
+        "name": "button-primary-hover",
+        "value": "0 10px 24px rgb(27 36 54 / 20%)",
+        "purpose": "Birincil eylemin üzerine gelme gölgesi."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.32, 0.08, 0.24, 1)",
+        "purpose": "Mevcut etkileşim geçişlerinin eğrisi."
+      },
+      {
+        "name": "interactive-duration",
+        "value": "180ms",
+        "purpose": "Eylem ve gezinme geçişleri."
+      },
+      {
+        "name": "button-hover-lift",
+        "value": "translateY(-1px)",
+        "purpose": "Eylemin üzerine gelme hareketi."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "transition-duration: 0.01ms !important; scroll-behavior: auto !important;",
+        "purpose": "prefers-reduced-motion: reduce durumundaki mevcut davranış."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stack-content",
+        "value": "960px"
+      },
+      {
+        "name": "compact-layout",
+        "value": "720px"
+      },
+      {
+        "name": "narrow-actions",
+        "value": "520px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "docs/index.html ve ../docs/assets/site.css içindeki mevcut eylem varyantı.",
+      "html": "<a class=\"ds-button-primary\" href=\"#yapay-zekanla-kur\">Yapay zekânla kur</a>",
+      "css": ".ds-button-primary{display:inline-flex;align-items:center;justify-content:center;gap:0.45rem;min-height:3rem;padding:0.7rem 1.1rem;border:1px solid transparent;border-radius:var(--radius-sm, 6px);font-family:\"Helvetica Neue\", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;font-size:0.92rem;font-weight:700;line-height:1.2;text-align:center;text-decoration:none;transition:transform 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),color 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),border-color 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),background-color 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),box-shadow 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1));color:#fff;background:var(--ink, #1b2436);box-shadow:0 7px 18px rgb(27 36 54 / 16%);}.ds-button-primary:hover{transform:translateY(-1px);color:#fff;background:#30394b;box-shadow:0 10px 24px rgb(27 36 54 / 20%);}.ds-button-primary:focus-visible{outline: 3px solid var(--brass, #b5853b); outline-offset: 3px;}@media(max-width:520px){.ds-button-primary{width:100%;min-height:3.15rem;}}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition-duration:0.01ms !important;}}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "docs/index.html ve ../docs/assets/site.css içindeki mevcut eylem varyantı.",
+      "html": "<a class=\"ds-button-secondary\" href=\"https://mutalaa.tr/\">Mütalaa’yı ziyaret et</a>",
+      "css": ".ds-button-secondary{display:inline-flex;align-items:center;justify-content:center;gap:0.45rem;min-height:3rem;padding:0.7rem 1.1rem;border:1px solid transparent;border-radius:var(--radius-sm, 6px);font-family:\"Helvetica Neue\", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;font-size:0.92rem;font-weight:700;line-height:1.2;text-align:center;text-decoration:none;transition:transform 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),color 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),border-color 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),background-color 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),box-shadow 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1));color:var(--ink, #1b2436);border-color:var(--hairline, #e7e3da);background:var(--surface, #ffffff);box-shadow:var(--shadow-1, 0 1px 2px rgb(20 27 41 / 5%));}.ds-button-secondary:hover{transform:translateY(-1px);border-color:var(--brass, #b5853b);background:#fffdf9;}.ds-button-secondary:focus-visible{outline: 3px solid var(--brass, #b5853b); outline-offset: 3px;}@media(max-width:520px){.ds-button-secondary{width:100%;min-height:3.15rem;}}@media(prefers-reduced-motion:reduce){.ds-button-secondary{transition-duration:0.01ms !important;}}"
+    },
+    {
+      "name": "Light Button",
+      "kind": "button",
+      "refersTo": "button-light",
+      "description": "docs/index.html ve ../docs/assets/site.css içindeki mevcut eylem varyantı.",
+      "html": "<a class=\"ds-button-light\" href=\"https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/client-setup/README.md\">Adım adım kurulum rehberi</a>",
+      "css": ".ds-button-light{display:inline-flex;align-items:center;justify-content:center;gap:0.45rem;min-height:3rem;padding:0.7rem 1.1rem;border:1px solid transparent;border-radius:var(--radius-sm, 6px);font-family:\"Helvetica Neue\", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;font-size:0.92rem;font-weight:700;line-height:1.2;text-align:center;text-decoration:none;transition:transform 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),color 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),border-color 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),background-color 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),box-shadow 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1));color:var(--ink, #1b2436);background:#fff;}.ds-button-light:hover{transform:translateY(-1px);color:var(--ink, #1b2436);background:#f5f1e8;}.ds-button-light:focus-visible{outline: 3px solid var(--brass, #b5853b); outline-offset: 3px;}@media(max-width:520px){.ds-button-light{width:100%;min-height:3.15rem;}}@media(prefers-reduced-motion:reduce){.ds-button-light{transition-duration:0.01ms !important;}}"
+    },
+    {
+      "name": "Setup Text Field",
+      "kind": "input",
+      "refersTo": "setup-prompt",
+      "description": "Mevcut salt okunur kurulum alanı; örnek metin kısaltılmıştır. Kaynak: docs/index.html, ../docs/assets/site.css.",
+      "html": "<label class=\"ds-prompt-label\" for=\"ds-setup-prompt\">Yapay zekânıza vereceğiniz metin</label><textarea class=\"ds-setup-prompt\" id=\"ds-setup-prompt\" readonly spellcheck=\"false\">Bilgisayarıma Mütalaa MCP’yi kurmama yardımcı ol.</textarea>",
+      "css": ".ds-prompt-label{display:block;margin-bottom:0.75rem;font-family:\"Helvetica Neue\", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;font-size:1rem;line-height:1.65;font-weight:600;color:var(--ink, #1b2436);}.ds-setup-prompt{display:block;width:100%;min-height:20rem;padding:1.25rem;border:1px solid var(--hairline, #e7e3da);border-radius:var(--radius-lg, 10px);background:var(--surface, #ffffff);color:var(--ink, #1b2436);font-family:\"Helvetica Neue\", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;font-size:1rem;font-weight:400;line-height:1.6;resize:vertical;}.ds-setup-prompt:focus-visible{outline:2px solid var(--brass, #b5853b);outline-offset:3px;}"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "navigation-link",
+      "description": "Mevcut ana gezinme ve mobil görünürlüğü. Kaynak: docs/index.html, ../docs/assets/site.css.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Ana gezinme\"><a href=\"#ne-ise-yarar\">Ne işe yarar?</a><a href=\"#nasil-kullanilir\">Nasıl kullanılır?</a><a href=\"#yayin\">Yayın durumu</a><a href=\"en/\" lang=\"en\">English</a><a class=\"ds-nav-cta\" href=\"https://github.com/hburaktasyurek/MutalaaMCP\">GitHub</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;justify-content:flex-end;gap:0.15rem;font-family:\"Helvetica Neue\", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;font-size:0.88rem;line-height:1.65;}.ds-nav a{min-height:2.75rem;display:inline-flex;align-items:center;padding:0.55rem 0.75rem;color:var(--slate, #586176);border-radius:var(--radius-sm, 6px);text-decoration:none;transition:color 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1)),background-color 180ms var(--ease, cubic-bezier(0.32, 0.08, 0.24, 1));}.ds-nav a:hover{color:var(--ink, #1b2436);background:var(--muted, #f3efe7);}.ds-nav a:focus-visible{outline: 3px solid var(--brass, #b5853b); outline-offset: 3px;}.ds-nav .ds-nav-cta{margin-left:0.35rem;padding-inline:0.95rem;color:#fff;background:var(--ink, #1b2436);font-weight:700;}.ds-nav .ds-nav-cta:hover{color:#fff;background:#30394b;}@media(max-width:960px){.ds-nav{flex:1 1 auto;}}@media(max-width:720px){.ds-nav{width:100%;flex:1 0 100%;justify-content:flex-start;overflow-x:auto;padding-bottom:0.15rem;scrollbar-width:thin;}.ds-nav a{flex:0 0 auto;}.ds-nav a:nth-child(-n + 3){display:none;}.ds-nav .ds-nav-cta{margin-left:auto;}}@media(prefers-reduced-motion:reduce){.ds-nav a{transition-duration:0.01ms !important;}}"
+    },
+    {
+      "name": "Source Chip",
+      "kind": "chip",
+      "refersTo": "source-chip",
+      "description": "Mevcut statik kaynak türü etiketi; etkileşim durumu yoktur. Kaynak: docs/index.html, ../docs/assets/site.css.",
+      "html": "<span class=\"ds-source-chip\">Mevzuat</span>",
+      "css": ".ds-source-chip{display:inline-flex;align-items:center;min-height:2rem;padding:0.3rem 0.65rem;color:var(--slate, #586176);border:1px solid var(--hairline, #e7e3da);border-radius:999px;background:var(--paper, #faf8f3);font-family:\"Helvetica Neue\", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;font-size:0.7rem;font-weight:650;line-height:1.65;}"
+    },
+    {
+      "name": "Benefit Card",
+      "kind": "card",
+      "refersTo": "benefit-card",
+      "description": "Mevcut fayda kartının yüzeyi, numarası, başlığı ve paragrafı. Kaynak: docs/index.html, ../docs/assets/site.css.",
+      "html": "<article class=\"ds-benefit-card\"><span class=\"ds-card-number\">01</span><h3>Karar ve mevzuat arayın</h3><p>Yargı kararlarını, kanunları ve Anayasa Mahkemesi kararlarını aynı konuşma içinden arayın.</p></article>",
+      "css": ".ds-benefit-card{min-width:0;min-height:17rem;padding:1.6rem;border:1px solid var(--hairline, #e7e3da);border-radius:var(--radius-xl, 12px);background:var(--surface, #ffffff);box-shadow:var(--shadow-1, 0 1px 2px rgb(20 27 41 / 5%));color:var(--ink, #1b2436);font-family:\"Helvetica Neue\", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;font-size:1rem;line-height:1.65;}.ds-card-number{display:block;margin-bottom:3.8rem;color:var(--brass, #b5853b);font-family:ui-monospace, \"SF Mono\", Menlo, Consolas, monospace;font-size:0.73rem;font-weight:800;letter-spacing:0.08em;}.ds-benefit-card h3{margin:0 0 0.7rem;font-family:\"Newsreader\", Georgia, \"Times New Roman\", serif;font-size:1.55rem;font-weight:500;line-height:1.25;letter-spacing:-0.015em;}.ds-benefit-card p{margin:0;color:var(--slate, #586176);}@media(max-width:720px){.ds-benefit-card{min-height:0;}.ds-card-number{margin-bottom:2.5rem;}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Kâğıt, mürekkep ve pirinç",
+    "overview": "Bu ad, mevcut kimliğin malzemelerini tarif eder. Sıcak kâğıt zemin, lacivert mürekkep, pirinç ayrıntılar ve serif başlıklar hukuk araştırmasını sakin, okunabilir bir yayın diliyle anlatır. Web yüzeyinde ölçülü kartlar ve ince sınırlar; pazarlama görsellerinde kâğıt dokusu, metal bağlantılar ve yumuşak gölgeler kullanılır.\n\nBu kayıt mevcut sistemi belgeler; yeni bir marka veya font seçimi değildir. Web için ölçü ve font otoritesi ../docs/assets/site.css ile ../docs/assets/fonts/fonts.css; işaret otoritesi ../docs/assets/mutalaa-mark.svg; raster malzeme referansı ../docs/assets/social/mutalaa-mcp-tanitim.png dosyasıdır. PRODUCT.md içindeki Mütalaa adı, m. işareti ve Türkçe dil taahhüdü korunur.",
+    "keyCharacteristics": [
+      "Krem ve lacivert yüzeyler üzerinde kontrollü pirinç vurgular.",
+      "Büyük serif başlıklar, sade sans serif açıklamalar.",
+      "İnce sınırlar, yumuşak gölgeler ve ölçülü köşe yuvarlaklığı."
+    ],
+    "rules": [
+      {
+        "name": "Pirinç Vurgu",
+        "body": "Pirinç; marka noktası, ince bağlantılar, odak halkaları ve küçük vurguların rengidir. Uzun gövde metinlerinin mevcut ana rengi mürekkeptir.",
+        "section": "colors"
+      },
+      {
+        "name": "Başlık ve Gövde",
+        "body": "Web başlıklarında Newsreader, açıklama ve etkileşim metinlerinde mevcut Helvetica yığını kullanılır. Raster referansların serif karakteri korunur; piksel görselinden kesin font ailesi veya CSS ölçüsü türetilmez.",
+        "section": "typography"
+      },
+      {
+        "name": "Yumuşak Derinlik",
+        "body": "Derinlik ince sınırlar, tonal yüzeyler ve dağınık gölgelerle kurulur. Kâğıt ve metalin fiziksel gölgeleri mevcut pazarlama dilinin parçasıdır.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do mevcut m. işaretinin biçimini ve oranını koru; kaynak olarak ../docs/assets/mutalaa-mark.svg dosyasını kullan.",
+      "Do web renklerini, font yığınlarını ve bileşen ölçülerini kaynak CSS ile eşleştir.",
+      "Do Türkçe karakterleri, görseldeki metnin okunabilirliğini ve açık/koyu zemin ayrımını kontrol et.",
+      "Do her kanalın yerleşim ve dışa aktarma kurallarını ilgili yüzey notunda tut."
+    ],
+    "donts": [
+      "Don't bu kampanya uyarlamasını font veya marka değişikliği olarak yorumla.",
+      "Don't raster piksel renklerini ve harf biçimlerini web tokenlarının yeni kesin değerleri olarak kaydet.",
+      "Don't tek bir kampanyanın kompozisyonunu tüm siteye zorunlu şablon yap."
+    ]
+  }
+}

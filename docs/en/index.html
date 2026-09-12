@@ -17,9 +17,15 @@
   <meta property="og:title" content="MutalaaMCP — Turkish legal research in your AI app">
   <meta property="og:description" content="Research decisions and legislation from your AI app, then open the official source behind each result.">
   <meta property="og:url" content="https://hburaktasyurek.github.io/MutalaaMCP/en/">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://hburaktasyurek.github.io/MutalaaMCP/assets/social/mutalaa-mcp-tanitim.png">
+  <meta property="og:image:width" content="1536">
+  <meta property="og:image:height" content="1024">
+  <meta property="og:image:alt" content="Mütalaa MCP — Turkish legal sources in your AI app. Free, open source, and local.">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="MutalaaMCP — Turkish legal research in your AI app">
   <meta name="twitter:description" content="Research decisions and legislation from your AI app, then open the official source behind each result.">
+  <meta name="twitter:image" content="https://hburaktasyurek.github.io/MutalaaMCP/assets/social/mutalaa-mcp-tanitim.png">
+  <meta name="twitter:image:alt" content="Mütalaa MCP — Turkish legal sources in your AI app.">
   <title>MutalaaMCP — Turkish legal research in your AI app</title>
   <link rel="icon" href="../assets/mutalaa-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/fonts/fonts.css">
@@ -38,6 +44,7 @@
         <a href="#what-it-does">What it does</a>
         <a href="#how-to-use">How to use it</a>
         <a href="#release">Release status</a>
+        <a href="#faq">FAQ</a>
         <a href="../" lang="tr" hreflang="tr">Türkçe</a>
         <a class="nav-cta" href="https://github.com/hburaktasyurek/MutalaaMCP">GitHub <span aria-hidden="true">↗</span></a>
       </nav>
@@ -62,7 +69,7 @@
           <a class="hero-github" href="https://github.com/hburaktasyurek/MutalaaMCP">Explore the source on GitHub <span aria-hidden="true">↗</span></a>
         </div>
 
-        <div class="research-preview" aria-label="Example legal research result">
+        <div class="research-preview" role="group" aria-label="Example legal research result">
           <div class="preview-topbar">
             <span class="preview-brand"><img src="../assets/mutalaa-mark.svg" alt="" width="30" height="17"> Research</span>
             <span class="preview-local"><span aria-hidden="true"></span> On your computer</span>
@@ -91,13 +98,13 @@
       </div>
     </section>
 
-    <div class="trust-strip" aria-label="MutalaaMCP core qualities">
-      <div class="shell trust-list">
-        <span><strong>Free</strong> local use</span>
-        <span><strong>Runs</strong> on your computer</span>
-        <span><strong>Open-source</strong> project</span>
-        <span><strong>Direct links</strong> to official sources</span>
-      </div>
+    <div class="trust-strip">
+      <ul class="shell trust-list" aria-label="MutalaaMCP core qualities">
+        <li><strong>Free</strong> local use</li>
+        <li><strong>Runs</strong> on your computer</li>
+        <li><strong>Open-source</strong> project</li>
+        <li><strong>Direct links</strong> to official sources</li>
+      </ul>
     </div>
 
     <section class="section section-muted" id="install-with-ai" aria-labelledby="ai-setup-title">
@@ -124,7 +131,7 @@ Finally, verify the connection with a real Mütalaa tool call: find the Turkish 
 
 Briefly state what is complete and what I still need to do. Do not claim the installation is verified until a tool call succeeds.</textarea>
         <div class="hero-actions">
-          <button class="button button-primary" type="button" id="copy-setup" hidden data-success="Copied. Paste it into your AI app." data-failure="Could not copy automatically. Select and copy the text manually.">Copy setup prompt</button>
+          <button class="button button-primary" type="button" id="copy-setup" hidden data-label-copied="Copied" data-success="Copied. Paste it into your AI app." data-failure="Could not copy automatically. Select and copy the text manually.">Copy setup prompt</button>
           <a class="button button-secondary" href="https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/client-setup/README.en.md">Install manually</a>
         </div>
         <p id="copy-status" role="status" aria-live="polite"></p>
@@ -236,7 +243,7 @@ Briefly state what is complete and what I still need to do. Do not claim the ins
         <div class="faq-list">
           <details open><summary>Can I install it today?</summary><p>Yes. The installation guide uses the GitHub release package. uv prepares the required Python environment.</p></details>
           <details><summary>Does it cost anything?</summary><p>Local MutalaaMCP use is free and open source. The AI app you use may have its own separate fees.</p></details>
-          <details><summary>Does it work with ChatGPT Desktop?</summary><p>The guide covers in-app sign-in for desktop versions supporting local HTTP MCP and OAuth. Availability depends on your app version and account; a remote-only connection screen cannot use this local address.</p></details>
+          <details><summary>Does it work with ChatGPT Desktop?</summary><p>It depends on your app version and account. The guide walks through in-app sign-in for desktop versions that support it; a remote-only connection screen cannot use this local address.</p></details>
           <details><summary>Does my research stay entirely offline?</summary><p>No. The tool runs on your computer, but it reaches official sources over the internet to find decisions and legislation.</p></details>
         </div>
       </div>

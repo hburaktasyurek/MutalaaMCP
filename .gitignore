@@ -46,3 +46,18 @@ htmlcov/
 
 # Staged GitHub Pages output
 _site/
+
+# Local design review and generation artifacts
+**/.impeccable/review/
+**/.impeccable/provenance/
+**/.impeccable/config.local.json
+
+# Marketing release assets and local composition inputs
+/marketing/*.zip
+/marketing/brand/originals/
+/marketing/*/*.png
+!/marketing/*/onizleme.png
+!/marketing/brand/*.png
+/marketing/*/png-2x/
+/marketing/*/source/*.svg
+/marketing/*/source/compose.cjs

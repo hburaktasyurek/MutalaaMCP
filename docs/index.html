@@ -17,9 +17,15 @@
   <meta property="og:title" content="MutalaaMCP — Hukuk araştırması, kullandığınız yapay zekâda">
   <meta property="og:description" content="Kararları ve mevzuatı kullandığınız yapay zekâ uygulamasından araştırın; dayanağı resmî kaynağında görün.">
   <meta property="og:url" content="https://hburaktasyurek.github.io/MutalaaMCP/">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://hburaktasyurek.github.io/MutalaaMCP/assets/social/mutalaa-mcp-tanitim.png">
+  <meta property="og:image:width" content="1536">
+  <meta property="og:image:height" content="1024">
+  <meta property="og:image:alt" content="Mütalaa MCP — Türk hukuk kaynakları, kullandığınız yapay zekâda. Ücretsiz, açık kaynak ve yerel çalışma.">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="MutalaaMCP — Hukuk araştırması, kullandığınız yapay zekâda">
   <meta name="twitter:description" content="Kararları ve mevzuatı kullandığınız yapay zekâ uygulamasından araştırın; dayanağı resmî kaynağında görün.">
+  <meta name="twitter:image" content="https://hburaktasyurek.github.io/MutalaaMCP/assets/social/mutalaa-mcp-tanitim.png">
+  <meta name="twitter:image:alt" content="Mütalaa MCP — Türk hukuk kaynakları, kullandığınız yapay zekâda.">
   <title>MutalaaMCP — Hukuk araştırması, kullandığınız yapay zekâda</title>
   <link rel="icon" href="assets/mutalaa-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/fonts/fonts.css">
@@ -38,6 +44,7 @@
         <a href="#ne-ise-yarar">Ne işe yarar?</a>
         <a href="#nasil-kullanilir">Nasıl kullanılır?</a>
         <a href="#yayin">Yayın durumu</a>
+        <a href="#sss">SSS</a>
         <a href="en/" lang="en" hreflang="en">English</a>
         <a class="nav-cta" href="https://github.com/hburaktasyurek/MutalaaMCP">GitHub <span aria-hidden="true">↗</span></a>
       </nav>
@@ -62,7 +69,7 @@
           <a class="hero-github" href="https://github.com/hburaktasyurek/MutalaaMCP">Kaynak kodu GitHub'da incele <span aria-hidden="true">↗</span></a>
         </div>
 
-        <div class="research-preview" aria-label="Örnek hukuk araştırması görünümü">
+        <div class="research-preview" role="group" aria-label="Örnek hukuk araştırması görünümü">
           <div class="preview-topbar">
             <span class="preview-brand"><img src="assets/mutalaa-mark.svg" alt="" width="30" height="17"> Araştırma</span>
             <span class="preview-local"><span aria-hidden="true"></span> Bilgisayarınızda</span>
@@ -91,13 +98,13 @@
       </div>
     </section>
 
-    <div class="trust-strip" aria-label="MutalaaMCP temel özellikleri">
-      <div class="shell trust-list">
-        <span><strong>Ücretsiz</strong> yerel kullanım</span>
-        <span><strong>Bilgisayarınızda</strong> çalışan araç</span>
-        <span><strong>Açık kaynak</strong> proje</span>
-        <span><strong>Resmî kaynağa</strong> doğrudan bağlantı</span>
-      </div>
+    <div class="trust-strip">
+      <ul class="shell trust-list" aria-label="MutalaaMCP temel özellikleri">
+        <li><strong>Ücretsiz</strong> yerel kullanım</li>
+        <li><strong>Bilgisayarınızda</strong> çalışan araç</li>
+        <li><strong>Açık kaynak</strong> proje</li>
+        <li><strong>Resmî kaynağa</strong> doğrudan bağlantı</li>
+      </ul>
     </div>
 
     <section class="section section-muted" id="yapay-zekanla-kur" aria-labelledby="ai-setup-title">
@@ -124,7 +131,7 @@ Son olarak gerçek bir Mütalaa araç çağrısıyla Gelir Vergisi Kanunu’nu b
 
 Tamamlanan adımları ve benim yapmam gerekenleri kısaca belirt. Araç çağrısı başarılı olmadan kurulumun doğrulandığını söyleme.</textarea>
         <div class="hero-actions">
-          <button class="button button-primary" type="button" id="copy-setup" hidden data-success="Kopyalandı. Şimdi yapay zekânıza yapıştırın." data-failure="Otomatik kopyalanamadı. Metni seçip elle kopyalayın.">Kurulum metnini kopyala</button>
+          <button class="button button-primary" type="button" id="copy-setup" hidden data-label-copied="Kopyalandı" data-success="Kopyalandı. Şimdi yapay zekânıza yapıştırın." data-failure="Otomatik kopyalanamadı. Metni seçip elle kopyalayın.">Kurulum metnini kopyala</button>
           <a class="button button-secondary" href="https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/client-setup/README.md">Kendim kurmak istiyorum</a>
         </div>
         <p id="copy-status" role="status" aria-live="polite"></p>
@@ -236,7 +243,7 @@ Tamamlanan adımları ve benim yapmam gerekenleri kısaca belirt. Araç çağrı
         <div class="faq-list">
           <details open><summary>Bugün kurabilir miyim?</summary><p>Evet. Kurulum rehberi GitHub Release paketini kullanır. uv, gerekli Python ortamını hazırlar.</p></details>
           <details><summary>Kullanmak ücretli mi?</summary><p>MutalaaMCP'nin bilgisayarınızda çalışan yerel kullanımı ücretsiz ve açık kaynaklıdır. Kullandığınız yapay zekâ uygulamasının kendi ücretleri ayrıca geçerli olabilir.</p></details>
-          <details><summary>ChatGPT Desktop ile çalışır mı?</summary><p>Yerel HTTP MCP ve OAuth destekleyen masaüstü sürümleri için rehberde uygulama içi giriş anlatılır. Özellik erişimi uygulama sürümünüze ve hesabınıza bağlıdır; yalnız uzak bağlantı kabul eden bir ekranda yerel adres kullanılamaz.</p></details>
+          <details><summary>ChatGPT Desktop ile çalışır mı?</summary><p>Sürümünüze ve hesabınıza bağlıdır. Rehber, uygulama içinden girişi destekleyen masaüstü sürümleri için adımları anlatır; yalnızca uzak bağlantı kabul eden bir ekranda yerel adres kullanılamaz.</p></details>
           <details><summary>Araştırmam tamamen çevrimdışı mı kalır?</summary><p>Hayır. Araç bilgisayarınızda çalışır; karar ve mevzuatı bulmak için resmî kaynaklara internet üzerinden bağlanır.</p></details>
         </div>
       </div>
@@ -247,7 +254,7 @@ Tamamlanan adımları ve benim yapmam gerekenleri kısaca belirt. Araç çağrı
         <div>
           <p class="eyebrow">Geliştiriciler için</p>
           <h2 id="gelistirici-baslik">Teknik ayrıntılar GitHub'da.</h2>
-          <p>Kaynak kodu, katkı rehberini, lisansı ve açık sorunları proje deposunda bulabilirsiniz.</p>
+          <p>Kaynak kodunu, katkı rehberini, lisansı ve açık sorunları proje deposunda bulabilirsiniz.</p>
         </div>
         <a class="button button-secondary" href="https://github.com/hburaktasyurek/MutalaaMCP">GitHub deposunu aç <span aria-hidden="true">↗</span></a>
       </div>
