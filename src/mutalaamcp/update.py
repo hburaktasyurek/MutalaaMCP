@@ -38,6 +38,7 @@ _PACKAGE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 _CANDIDATE_HEALTH_TIMEOUT_SECONDS = 30.0
+_RUNTIME_READY_FILE_ENV = "MUTALAAMCP_RUNTIME_READY_FILE"
 
 
 class UpdateError(RuntimeError):
@@ -136,7 +137,9 @@ def fetch_update_offer(client: httpx.Client, url: str) -> UpdateOffer:
     manifest_url = _validated_https_url(url, "güncelleme bildirim adresi")
     try:
         with client.stream("GET", manifest_url, follow_redirects=True) as response:
-            if response.url.scheme != "https":
+            hop_schemes = [hop.url.scheme for hop in response.history]
+            hop_schemes.append(response.url.scheme)
+            if any(scheme != "https" for scheme in hop_schemes):
                 raise UpdateError(
                     "Güncelleme bildirimi HTTPS olmayan bir adrese yönlendirildi."
                 )
@@ -374,7 +377,11 @@ def install_candidate(
     candidate_root.parent.mkdir(parents=True, exist_ok=True)
     # Use the real base interpreter, not a (possibly disposable) venv python.
     interpreter = getattr(sys, "_base_executable", sys.executable)
-    _run_uv(uv, ["venv", "--python", interpreter, str(candidate_root)])
+    _run_uv(
+        uv,
+        ["venv", "--python", interpreter, str(candidate_root)],
+        env=_isolated_uv_environment(),
+    )
     python = _candidate_python(candidate_root)
     requirements = _write_hashed_requirements(candidate_root, verified_manifest)
     try:
@@ -633,6 +640,9 @@ def _candidate_environment(
     settings: Settings, cache_dir: Path, data_dir: Path
 ) -> dict[str, str]:
     environment = dict(os.environ)
+    # A selector-spawned process carries a consumed readiness marker path;
+    # leaking it into the health-check child makes its own signal fail.
+    environment.pop(_RUNTIME_READY_FILE_ENV, None)
     for field, value in settings.model_dump(mode="json").items():
         key = f"MUTALAAMCP_{field.upper()}"
         if value is None:
@@ -698,6 +708,11 @@ def update_to_version(
     )
     if previous.version == version:
         return UpdateResult(previous=previous, active=previous)
+    if not is_newer_version(version, previous.version):
+        raise UpdateError(
+            f"Etkin sürüm {previous.version}, kanaldaki {version} sürümünden "
+            "yeni veya karşılaştırılamıyor; yalnızca daha yeni sürümler uygulanır."
+        )
     verified_manifest = _validate_update_manifest(version, integrity_manifest)
     uv = uv_executable if uv_executable is not None else resolve_uv(settings)
     uv = _absolute_executable(uv, "uv çalıştırılabilir dosyası")
