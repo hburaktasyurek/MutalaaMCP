@@ -1126,19 +1126,29 @@ def test_stable_launcher_forwards_serve_http_through_candidate_rollback(
 def test_service_targets_selector_only_when_registration_uses_it(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(sys, "platform", "darwin")
-    home = tmp_path / "home"
-    monkeypatch.setattr(Path, "home", classmethod(lambda _cls: home))
     settings = _settings(tmp_path)
-    selector = settings.data_dir / "mutalaamcp"
-    selector.parent.mkdir(parents=True)
-    selector.write_text("#selector\n", encoding="utf-8")
-    plist_dir = home / "Library" / "LaunchAgents"
-    plist_dir.mkdir(parents=True)
-    plist = plist_dir / "tr.mutalaa.mcp.plist"
+    on_nt = os.name == "nt"
+    if not on_nt:
+        monkeypatch.setattr(sys, "platform", "darwin")
+    selector = settings.data_dir / ("mutalaamcp.cmd" if on_nt else "mutalaamcp")
+    selector.parent.mkdir(parents=True, exist_ok=True)
+    selector.write_text("selector\n", encoding="utf-8")
 
     assert native_service.service_targets_selector(settings) is False
 
+    if on_nt:
+        wrapper = settings.data_dir / "native-service.cmd"
+        wrapper.write_text(f'"{selector.resolve()}" serve-http\n', encoding="utf-8")
+        assert native_service.service_targets_selector(settings) is True
+        wrapper.write_text('"C:\\other\\mutalaamcp.cmd" serve-http\n', encoding="utf-8")
+        assert native_service.service_targets_selector(settings) is False
+        return
+
+    home = tmp_path / "home"
+    monkeypatch.setattr(Path, "home", classmethod(lambda _cls: home))
+    plist_dir = home / "Library" / "LaunchAgents"
+    plist_dir.mkdir(parents=True)
+    plist = plist_dir / "tr.mutalaa.mcp.plist"
     plist.write_bytes(
         plistlib.dumps(
             {
@@ -1219,7 +1229,9 @@ def test_native_service_ready_accepts_a_newer_service_version(
 def test_native_service_install_registers_selector_and_pins_absolute_uv(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(sys, "platform", "darwin")
+    on_nt = os.name == "nt"
+    if not on_nt:
+        monkeypatch.setattr(sys, "platform", "darwin")
     home = tmp_path / "home"
     monkeypatch.setattr(Path, "home", classmethod(lambda _cls: home))
     launched: list[list[str]] = []
@@ -1233,35 +1245,59 @@ def test_native_service_install_registers_selector_and_pins_absolute_uv(
         ),
     )
     monkeypatch.setattr(native_service, "native_service_ready", lambda _settings: True)
-    uv = _fake_executable(tmp_path / "uv-bin" / "uv")
+    uv = tmp_path / "uv-bin" / "uv"
+    uv.parent.mkdir(parents=True)
+    uv.write_text("uv\n", encoding="utf-8")
+    uv.chmod(0o755)
     settings = _settings(tmp_path, uv_executable=uv)
     selector = _fake_executable(settings.data_dir / "mutalaamcp")
 
     native_service.install_native_service(settings, str(selector))
 
-    plist_path = home / "Library" / "LaunchAgents" / "tr.mutalaa.mcp.plist"
-    payload = plistlib.loads(plist_path.read_bytes())
-    assert payload["ProgramArguments"] == [str(selector), "serve-http"]
-    environment = payload["EnvironmentVariables"]
-    assert environment["MUTALAAMCP_UV_EXECUTABLE"] == str(uv)
-    assert environment["MUTALAAMCP_UPDATE_MANIFEST_URL"] == (
-        settings.update_manifest_url
-    )
-    assert payload["KeepAlive"] is True
-    assert launched and any("bootstrap" in call for call in launched)
+    if on_nt:
+        wrapper = (settings.data_dir / "native-service.cmd").read_text(encoding="utf-8")
+        assert f"MUTALAAMCP_UV_EXECUTABLE={uv}" in wrapper
+        assert (
+            f"MUTALAAMCP_UPDATE_MANIFEST_URL={settings.update_manifest_url}" in wrapper
+        )
+        assert str(selector) in wrapper
+        assert "serve-http" in wrapper
+        assert launched and any("/Create" in call for call in launched)
+    else:
+        plist_path = home / "Library" / "LaunchAgents" / "tr.mutalaa.mcp.plist"
+        payload = plistlib.loads(plist_path.read_bytes())
+        assert payload["ProgramArguments"] == [str(selector), "serve-http"]
+        environment = payload["EnvironmentVariables"]
+        assert environment["MUTALAAMCP_UV_EXECUTABLE"] == str(uv)
+        assert environment["MUTALAAMCP_UPDATE_MANIFEST_URL"] == (
+            settings.update_manifest_url
+        )
+        assert payload["KeepAlive"] is True
+        assert launched and any("bootstrap" in call for call in launched)
 
-    # A PATH entry is pinned unresolved: a resolved versioned path such as a
+    # A PATH entry is pinned verbatim: resolving a versioned path such as a
     # brew Cellar binary would die on the next tool upgrade.
-    link_dir = tmp_path / "pathbin"
-    link_dir.mkdir()
-    link = link_dir / "uv"
-    link.symlink_to(uv)
+    pathbin = tmp_path / "pathbin"
+    pathbin.mkdir()
+    path_uv = pathbin / "uv"
+    path_uv.write_text("uv\n", encoding="utf-8")
+    path_uv.chmod(0o755)
+    unresolved = pathbin / ".." / "pathbin" / "uv"
     monkeypatch.setattr(
-        native_service, "shutil", SimpleNamespace(which=lambda _name: str(link))
+        native_service,
+        "shutil",
+        SimpleNamespace(which=lambda _name: str(unresolved)),
     )
-    native_service.install_native_service(_settings(tmp_path / "other"), str(selector))
-    environment = plistlib.loads(plist_path.read_bytes())["EnvironmentVariables"]
-    assert environment["MUTALAAMCP_UV_EXECUTABLE"] == str(link)
+    settings2 = _settings(tmp_path / "other")
+    native_service.install_native_service(settings2, str(selector))
+    if on_nt:
+        wrapper = (settings2.data_dir / "native-service.cmd").read_text(
+            encoding="utf-8"
+        )
+        assert f"MUTALAAMCP_UV_EXECUTABLE={unresolved}" in wrapper
+    else:
+        environment = plistlib.loads(plist_path.read_bytes())["EnvironmentVariables"]
+        assert environment["MUTALAAMCP_UV_EXECUTABLE"] == str(unresolved)
 
 
 def test_candidate_environment_drops_stale_readiness_marker(
