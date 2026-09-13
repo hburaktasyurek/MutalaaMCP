@@ -220,9 +220,7 @@ def install_native_service(settings: Settings, launcher: str) -> None:
     # path (e.g. a brew Cellar) dies on the next tool upgrade.
     raw_uv = settings.uv_executable or shutil.which("uv")
     uv_path = Path(raw_uv).expanduser() if raw_uv is not None else None
-    if uv_path is not None and uv_path.is_absolute() and os.access(
-        uv_path, os.X_OK
-    ):
+    if uv_path is not None and uv_path.is_absolute() and os.access(uv_path, os.X_OK):
         environment["MUTALAAMCP_UV_EXECUTABLE"] = str(uv_path)
     else:
         try:

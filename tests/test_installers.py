@@ -149,9 +149,7 @@ def test_update_manifest_binds_the_wheel_and_locked_dependencies(
             "marker": "sys_platform == 'win32'",
         }
     ]
-    monkeypatch.setattr(
-        manifest_builder, "_export_dependencies", lambda: dependencies
-    )
+    monkeypatch.setattr(manifest_builder, "_export_dependencies", lambda: dependencies)
     output = tmp_path / "update-manifest-v1.json"
 
     manifest_builder.build(wheel, output, f"v{__version__}")
