@@ -102,9 +102,7 @@ class Settings(BaseSettings):
 
     auth_base_url: str = Field(default=_DEFAULT_AUTH_BASE_URL, min_length=1)
     terms_base_url: str = Field(default=_DEFAULT_TERMS_BASE_URL, min_length=1)
-    update_manifest_url: str = Field(
-        default=_DEFAULT_UPDATE_MANIFEST_URL, min_length=1
-    )
+    update_manifest_url: str = Field(default=_DEFAULT_UPDATE_MANIFEST_URL, min_length=1)
     cache_dir: Path = Field(default_factory=_default_cache_dir)
     data_dir: Path = Field(default_factory=_default_data_dir)
     model_dir: Path = Field(default_factory=_default_model_dir)

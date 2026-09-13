@@ -135,9 +135,7 @@ def fetch_update_offer(client: httpx.Client, url: str) -> UpdateOffer:
 
     manifest_url = _validated_https_url(url, "güncelleme bildirim adresi")
     try:
-        with client.stream(
-            "GET", manifest_url, follow_redirects=True
-        ) as response:
+        with client.stream("GET", manifest_url, follow_redirects=True) as response:
             if response.url.scheme != "https":
                 raise UpdateError(
                     "Güncelleme bildirimi HTTPS olmayan bir adrese yönlendirildi."
@@ -169,6 +167,8 @@ def _parse_update_offer(payload: object) -> UpdateOffer:
     if payload.get("manifest_version") != 1:
         raise UpdateError("Güncelleme bildirimi sürümü desteklenmiyor.")
     version = payload.get("version")
+    if not isinstance(version, str):
+        raise UpdateError("Güncelleme bildirimi geçerli bir sürüm içermelidir.")
     _validate_target_version(version)
     index_url = payload.get("index_url")
     if not isinstance(index_url, str):
@@ -220,8 +220,10 @@ def _parse_package_integrity(value: object, label: str) -> PackageIntegrity:
 def _validated_https_url(value: object, label: str) -> str:
     """Require an HTTPS URL without credentials, query, or fragment."""
 
-    if not isinstance(value, str) or not value or any(
-        character.isspace() for character in value
+    if (
+        not isinstance(value, str)
+        or not value
+        or any(character.isspace() for character in value)
     ):
         raise UpdateError(f"{label} güvenilir bir HTTPS adresi gerektirir.")
     try:
@@ -281,8 +283,11 @@ async def auto_update_loop(
             if is_managed() and await asyncio.to_thread(check_and_apply):
                 on_updated()
                 return
-        except Exception:  # noqa: BLE001 -- update checks must never break serving
-            pass
+        except Exception as exc:  # noqa: BLE001 -- update checks must never break serving
+            print(
+                f"mutalaamcp güncelleme denetimi başarısız: {type(exc).__name__}",
+                file=sys.stderr,
+            )
         await sleep(interval_seconds)
 
 
@@ -475,7 +480,9 @@ def _validate_package_integrity(value: object, label: str) -> None:
         or len(value.marker) > 300
         or any(character in value.marker for character in "\r\n")
     ):
-        raise UpdateError(f"Bütünlük bildirimindeki {label} geçersiz bir işaretçi içeriyor.")
+        raise UpdateError(
+            f"Bütünlük bildirimindeki {label} geçersiz bir işaretçi içeriyor."
+        )
 
 
 def _normalized_package_name(name: str) -> str:

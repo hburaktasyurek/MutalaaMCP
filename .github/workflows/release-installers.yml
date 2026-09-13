@@ -36,6 +36,7 @@ jobs:
           RELEASE_TAG: ${{ inputs.tag }}
         run: |
           uv run python scripts/build_installers.py --wheel dist/*.whl --output dist --tag "$RELEASE_TAG"
+          uv run python scripts/build_update_manifest.py --wheel dist/*.whl --output dist/update-manifest-v1.json --tag "$RELEASE_TAG"
           rm dist/Mutalaa-macOS.zip
           cd dist
           sha256sum *.whl *.tar.gz *.cmd > SHA256SUMS.txt

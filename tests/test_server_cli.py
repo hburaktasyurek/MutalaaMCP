@@ -1119,9 +1119,7 @@ def test_update_installs_the_verified_channel_offer(
     monkeypatch.setattr(
         "mutalaamcp.update.fetch_update_offer", lambda _client, _url: offer
     )
-    monkeypatch.setattr(
-        "mutalaamcp.cli._launcher_path", lambda: "/stable/mutalaamcp"
-    )
+    monkeypatch.setattr("mutalaamcp.cli._launcher_path", lambda: "/stable/mutalaamcp")
     installs: list[dict[str, object]] = []
 
     def install(_settings, version, **kwargs):

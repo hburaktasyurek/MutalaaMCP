@@ -21,7 +21,8 @@ from types import SimpleNamespace
 import httpx
 import pytest
 
-from mutalaamcp import native_service, ocr as ocr_module
+from mutalaamcp import native_service
+from mutalaamcp import ocr as ocr_module
 from mutalaamcp.launcher import ensure_stable_launcher
 from mutalaamcp.ocr import (
     OcrArtifact,
@@ -870,13 +871,9 @@ def test_fetch_update_offer_requires_https_channel() -> None:
 
 def test_fetch_update_offer_rejects_non_ok_and_invalid_json() -> None:
     with pytest.raises(UpdateError, match="HTTP 404"):
-        fetch_update_offer(
-            _offer_client(b"{}", status=404), "https://releases.test/x"
-        )
+        fetch_update_offer(_offer_client(b"{}", status=404), "https://releases.test/x")
     with pytest.raises(UpdateError, match="geçerli JSON"):
-        fetch_update_offer(
-            _offer_client(b"{"), "https://releases.test/x"
-        )
+        fetch_update_offer(_offer_client(b"{"), "https://releases.test/x")
 
 
 @pytest.mark.parametrize(
@@ -938,9 +935,7 @@ def test_fetch_update_offer_rejects_unknown_manifest_version_and_duplicates() ->
 def test_fetch_update_offer_bounds_manifest_size() -> None:
     oversized = b" " * (262_144 + 1)
     with pytest.raises(UpdateError, match="boyutu"):
-        fetch_update_offer(
-            _offer_client(oversized), "https://releases.test/x"
-        )
+        fetch_update_offer(_offer_client(oversized), "https://releases.test/x")
 
 
 @pytest.mark.parametrize(
@@ -1079,7 +1074,9 @@ def test_stable_launcher_forwards_serve_http_through_candidate_rollback(
     backup = backup_cache(settings)
     assert backup is not None
     argv_record = tmp_path / "candidate-argv.json"
-    candidate_path = settings.version_root / ".candidate-2.0.0-http" / "bin" / "mutalaamcp"
+    candidate_path = (
+        settings.version_root / ".candidate-2.0.0-http" / "bin" / "mutalaamcp"
+    )
     candidate = _fake_python_executable(
         candidate_path,
         "\n".join(
@@ -1144,7 +1141,10 @@ def test_service_targets_selector_only_when_registration_uses_it(
 
     plist.write_bytes(
         plistlib.dumps(
-            {"Label": "tr.mutalaa.mcp", "ProgramArguments": [str(selector), "serve-http"]}
+            {
+                "Label": "tr.mutalaa.mcp",
+                "ProgramArguments": [str(selector), "serve-http"],
+            }
         )
     )
     assert native_service.service_targets_selector(settings) is True
@@ -1169,10 +1169,9 @@ def test_managed_update_check_applies_only_strictly_newer_offers(
     installs: list[dict[str, object]] = []
     monkeypatch.setattr(
         "mutalaamcp.update.update_to_version",
-        lambda _settings, version, **kwargs: installs.append(
-            {"version": version, **kwargs}
-        )
-        or None,
+        lambda _settings, version, **kwargs: (
+            installs.append({"version": version, **kwargs}) or None
+        ),
     )
     monkeypatch.setattr(native_service, "__version__", "1.0.0")
 
@@ -1189,9 +1188,7 @@ def test_managed_update_check_applies_only_strictly_newer_offers(
 def test_fetch_update_offer_rejects_redirects_off_https() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.scheme == "http":
-            return httpx.Response(
-                200, content=json.dumps(_offer_payload()).encode()
-            )
+            return httpx.Response(200, content=json.dumps(_offer_payload()).encode())
         return httpx.Response(
             302, headers={"location": "http://mirror.test/update.json"}
         )
@@ -1230,13 +1227,12 @@ def test_native_service_install_registers_selector_and_pins_absolute_uv(
         native_service,
         "subprocess",
         SimpleNamespace(
-            run=lambda args, **_kwargs: launched.append(list(args))
-            or SimpleNamespace(returncode=0)
+            run=lambda args, **_kwargs: (
+                launched.append(list(args)) or SimpleNamespace(returncode=0)
+            )
         ),
     )
-    monkeypatch.setattr(
-        native_service, "native_service_ready", lambda _settings: True
-    )
+    monkeypatch.setattr(native_service, "native_service_ready", lambda _settings: True)
     uv = _fake_executable(tmp_path / "uv-bin" / "uv")
     settings = _settings(tmp_path, uv_executable=uv)
     selector = _fake_executable(settings.data_dir / "mutalaamcp")

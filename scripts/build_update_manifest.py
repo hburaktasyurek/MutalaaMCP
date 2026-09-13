@@ -86,14 +86,10 @@ def _export_dependencies() -> list[dict[str, object]]:
 
 
 def build(wheel: Path, output: Path, tag: str) -> None:
-    version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"][
-        "version"
-    ]
+    version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
     if not re.fullmatch(r"\d+\.\d+\.\d+(?:(?:a|b|rc)\d+)?", version):
         raise SystemExit("Desteklenmeyen sürüm biçimi")
-    if tag != f"v{version}" or wheel.name != (
-        f"mutalaamcp-{version}-py3-none-any.whl"
-    ):
+    if tag != f"v{version}" or wheel.name != (f"mutalaamcp-{version}-py3-none-any.whl"):
         raise SystemExit("Etiket, paket sürümü ve wheel adı eşleşmelidir")
     digest = hashlib.sha256(wheel.read_bytes()).hexdigest()
     manifest = {
