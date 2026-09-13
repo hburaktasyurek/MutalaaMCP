@@ -138,6 +138,10 @@ def fetch_update_offer(client: httpx.Client, url: str) -> UpdateOffer:
         with client.stream(
             "GET", manifest_url, follow_redirects=True
         ) as response:
+            if response.url.scheme != "https":
+                raise UpdateError(
+                    "Güncelleme bildirimi HTTPS olmayan bir adrese yönlendirildi."
+                )
             if response.status_code != 200:
                 raise UpdateError(
                     "Güncelleme bildirimi beklenmeyen bir durum döndürdü "
@@ -363,7 +367,9 @@ def install_candidate(
     if not uv.is_absolute():
         raise UpdateError("uv çalıştırılabilir dosyasının yolu mutlak olmalıdır.")
     candidate_root.parent.mkdir(parents=True, exist_ok=True)
-    _run_uv(uv, ["venv", "--python", sys.executable, str(candidate_root)])
+    # Use the real base interpreter, not a (possibly disposable) venv python.
+    interpreter = getattr(sys, "_base_executable", sys.executable)
+    _run_uv(uv, ["venv", "--python", interpreter, str(candidate_root)])
     python = _candidate_python(candidate_root)
     requirements = _write_hashed_requirements(candidate_root, verified_manifest)
     try:

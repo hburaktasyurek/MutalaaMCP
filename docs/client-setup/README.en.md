@@ -120,19 +120,25 @@ For unresolved issues, use the [support guide](../../SUPPORT.en.md). Do not shar
 
 ## Update and uninstall
 
-To update, replace the package URL below with the new release wheel URL. Reusing the same URL reinstalls the same version. Update the skill separately.
+With the HTTP service installed, new releases are verified and installed automatically in the background; no action is needed. To update manually:
 
+```sh
+mutalaamcp service stop
+mutalaamcp update
+mutalaamcp service start
+```
 
-**For this guide’s uv installation**, stop the HTTP service or close your stdio client before updating:
+For stdio, close the app and run `mutalaamcp update`; the app launches the new version on its next start. Updates are verified against the SHA-256 digests published on the release channel.
+
+Upgrading from the first release (0.1.0): the service registration points at the old launcher, so reinstall once from the new release wheel and re-register the HTTP service:
 
 ```sh
 mutalaamcp service stop
 uv tool install --force --refresh --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.0/mutalaamcp-0.1.0-py3-none-any.whl"
-mutalaamcp setup --client codex --transport http
+mutalaamcp service start
 ```
 
-For stdio, skip the first service command and replace the final command with your own `setup --client ...`.
-Reopen the app. Update the skill separately if you installed it.
+Update the skill separately if you installed it.
 
 To uninstall, remove the MCP entry from your app, then run:
 

@@ -126,19 +126,25 @@ Sorun sürerse [destek rehberindeki](../../SUPPORT.md) bilgilerle bildirin; toke
 
 ## Güncelleme ve kaldırma
 
-Yeni sürüme geçerken aşağıdaki paket adresini yeni Release’in wheel adresiyle değiştirin. Aynı adres aynı sürümü yeniden kurar. Beceriyi ayrıca güncelleyin.
+HTTP hizmeti kuruluysa yeni sürümler arka planda doğrulanıp kendiliğinden kurulur; işlem gerekmez. El ile güncellemek isterseniz:
 
+```sh
+mutalaamcp service stop
+mutalaamcp update
+mutalaamcp service start
+```
 
-**Bu rehberdeki uv kurulumu için**, HTTP kullanıyorsanız hizmeti durdurun; stdio kullanıyorsanız uygulamayı kapatın:
+Stdio kullanıyorsanız uygulamayı kapatıp `mutalaamcp update` çalıştırın; uygulama bir sonraki açılışta yeni sürümü başlatır. Güncelleme, sürüm kanalında yayımlanan SHA-256 özetleriyle doğrulanır.
+
+İlk sürümden (0.1.0) geçiyorsanız hizmet kaydı eski başlatıcıya işaret ettiği için bir kez yeni Release’in wheel adresiyle yeniden kurun ve HTTP kullanıyorsanız hizmeti yeniden kaydedin:
 
 ```sh
 mutalaamcp service stop
 uv tool install --force --refresh --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.0/mutalaamcp-0.1.0-py3-none-any.whl"
-mutalaamcp setup --client codex --transport http
+mutalaamcp service start
 ```
 
-Stdio kullanıyorsanız ilk ve son hizmet adımı yerine kendi `setup --client ...` komutunuzu çalıştırın.
-Uygulamayı yeniden açın. Beceriyi ayrı kurduysanız onu da güncelleyin.
+Beceriyi ayrı kurduysanız onu da güncelleyin.
 
 Kaldırmak için önce uygulamadan MCP kaydını silin, ardından HTTP hizmetini kaldırın:
 
