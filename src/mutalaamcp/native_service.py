@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import os
 import plistlib
+import shutil
 import signal
 import subprocess
 import sys
@@ -56,19 +57,19 @@ def create_native_server(settings: Settings):
 
     @asynccontextmanager
     async def lifespan(mcp):
-        update_task: asyncio.Task[None] | None = None
         try:
             async with tool_lifespan(mcp) as context:
                 runtime = context["runtime"]
                 if isinstance(runtime, ToolRuntime):
                     provider.session = runtime.auth
                 update_task = asyncio.create_task(_auto_update_task(settings))
-                yield context
+                try:
+                    yield context
+                finally:
+                    update_task.cancel()
+                    with suppress(asyncio.CancelledError):
+                        await update_task
         finally:
-            if update_task is not None:
-                update_task.cancel()
-                with suppress(asyncio.CancelledError):
-                    await update_task
             await provider.aclose()
 
     server = create_server(lifespan_factory=lifespan, auth=provider)
@@ -213,6 +214,23 @@ def install_native_service(settings: Settings, launcher: str) -> None:
         "MUTALAAMCP_TERMS_BASE_URL": settings.terms_base_url,
         "MUTALAAMCP_UPDATE_MANIFEST_URL": settings.update_manifest_url,
     }
+    # launchd/Task Scheduler run with a stripped PATH; pin the absolute uv so
+    # the background self-update can resolve it when uv lives outside PATH.
+    # Prefer the PATH entry over the resolved binary: a resolved versioned
+    # path (e.g. a brew Cellar) dies on the next tool upgrade.
+    raw_uv = settings.uv_executable or shutil.which("uv")
+    uv_path = Path(raw_uv).expanduser() if raw_uv is not None else None
+    if uv_path is not None and uv_path.is_absolute() and os.access(
+        uv_path, os.X_OK
+    ):
+        environment["MUTALAAMCP_UV_EXECUTABLE"] = str(uv_path)
+    else:
+        try:
+            from mutalaamcp.update import UpdateError, resolve_uv
+
+            environment["MUTALAAMCP_UV_EXECUTABLE"] = str(resolve_uv(settings))
+        except UpdateError:
+            pass
     if sys.platform == "darwin":
         directory = Path.home() / "Library" / "LaunchAgents"
         directory.mkdir(parents=True, exist_ok=True)

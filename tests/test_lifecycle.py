@@ -16,6 +16,7 @@ import sys
 import tarfile
 from contextlib import closing
 from pathlib import Path
+from types import SimpleNamespace
 
 import httpx
 import pytest
@@ -271,7 +272,12 @@ def test_install_candidate_uses_fake_absolute_uv(tmp_path: Path) -> None:
         "Scripts/python.exe" if os.name == "nt" else "bin/python"
     )
     assert uv.is_absolute()
-    assert recorded[0] == ["venv", "--python", sys.executable, str(candidate_root)]
+    assert recorded[0] == [
+        "venv",
+        "--python",
+        getattr(sys, "_base_executable", sys.executable),
+        str(candidate_root),
+    ]
     assert recorded[1][:11] == [
         "pip",
         "install",
@@ -1178,3 +1184,85 @@ def test_managed_update_check_applies_only_strictly_newer_offers(
     monkeypatch.setattr(native_service, "__version__", "2.0.0")
     assert native_service._check_and_apply_update(settings) is False
     assert installs == []
+
+
+def test_fetch_update_offer_rejects_redirects_off_https() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.scheme == "http":
+            return httpx.Response(
+                200, content=json.dumps(_offer_payload()).encode()
+            )
+        return httpx.Response(
+            302, headers={"location": "http://mirror.test/update.json"}
+        )
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    with pytest.raises(UpdateError, match="HTTPS olmayan"):
+        fetch_update_offer(client, "https://releases.test/update.json")
+
+
+def test_native_service_ready_accepts_a_newer_service_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    settings = _settings(tmp_path)
+    response = SimpleNamespace(
+        status_code=200,
+        json=lambda: {
+            "service": "MutalaaMCP",
+            "version": "99.0.0",
+            "transport": "http",
+        },
+    )
+    monkeypatch.setattr(
+        native_service, "httpx", SimpleNamespace(get=lambda *_a, **_k: response)
+    )
+    assert native_service.native_service_ready(settings) is True
+
+
+def test_native_service_install_registers_selector_and_pins_absolute_uv(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(sys, "platform", "darwin")
+    home = tmp_path / "home"
+    monkeypatch.setattr(Path, "home", classmethod(lambda _cls: home))
+    launched: list[list[str]] = []
+    monkeypatch.setattr(
+        native_service,
+        "subprocess",
+        SimpleNamespace(
+            run=lambda args, **_kwargs: launched.append(list(args))
+            or SimpleNamespace(returncode=0)
+        ),
+    )
+    monkeypatch.setattr(
+        native_service, "native_service_ready", lambda _settings: True
+    )
+    uv = _fake_executable(tmp_path / "uv-bin" / "uv")
+    settings = _settings(tmp_path, uv_executable=uv)
+    selector = _fake_executable(settings.data_dir / "mutalaamcp")
+
+    native_service.install_native_service(settings, str(selector))
+
+    plist_path = home / "Library" / "LaunchAgents" / "tr.mutalaa.mcp.plist"
+    payload = plistlib.loads(plist_path.read_bytes())
+    assert payload["ProgramArguments"] == [str(selector), "serve-http"]
+    environment = payload["EnvironmentVariables"]
+    assert environment["MUTALAAMCP_UV_EXECUTABLE"] == str(uv)
+    assert environment["MUTALAAMCP_UPDATE_MANIFEST_URL"] == (
+        settings.update_manifest_url
+    )
+    assert payload["KeepAlive"] is True
+    assert launched and any("bootstrap" in call for call in launched)
+
+    # A PATH entry is pinned unresolved: a resolved versioned path such as a
+    # brew Cellar binary would die on the next tool upgrade.
+    link_dir = tmp_path / "pathbin"
+    link_dir.mkdir()
+    link = link_dir / "uv"
+    link.symlink_to(uv)
+    monkeypatch.setattr(
+        native_service, "shutil", SimpleNamespace(which=lambda _name: str(link))
+    )
+    native_service.install_native_service(_settings(tmp_path / "other"), str(selector))
+    environment = plistlib.loads(plist_path.read_bytes())["EnvironmentVariables"]
+    assert environment["MUTALAAMCP_UV_EXECUTABLE"] == str(link)
