@@ -12,6 +12,7 @@ import subprocess
 import sys
 import webbrowser
 from collections.abc import Mapping
+from contextlib import suppress
 from pathlib import Path
 from typing import Any, NoReturn, Protocol, runtime_checkable
 
@@ -744,6 +745,21 @@ def _confirm_ocr_install() -> bool:
         return False
 
 
+def _signal_readiness_probe() -> None:
+    """Answer a selector readiness probe even when another server holds the lock.
+
+    Reaching the lock check already proves the candidate runtime starts; a
+    missing signal would otherwise make the selector roll back a healthy update.
+    """
+
+    if os.environ.get("MUTALAAMCP_RUNTIME_READY_FILE") is None:
+        return
+    from mutalaamcp.tools import _signal_runtime_ready
+
+    with suppress(RuntimeError, OSError):
+        _signal_runtime_ready()
+
+
 @app.command()
 def serve() -> None:
     """Yerel stdio MCP sunucusunu çalıştır."""
@@ -753,6 +769,7 @@ def serve() -> None:
         with FileLock(settings.serve_lock_path):
             create_server().run(transport="stdio")
     except AlreadyRunning as exc:
+        _signal_readiness_probe()
         _fail(ErrorCode.ALREADY_RUNNING, str(exc))
     except typer.Exit:
         raise
@@ -810,6 +827,7 @@ def serve_http() -> None:
         with FileLock(settings.serve_lock_path):
             run_native_server(settings)
     except AlreadyRunning as exc:
+        _signal_readiness_probe()
         _fail(ErrorCode.ALREADY_RUNNING, str(exc))
 
 

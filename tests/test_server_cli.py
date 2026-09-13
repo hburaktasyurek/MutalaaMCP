@@ -1193,3 +1193,22 @@ def test_update_while_the_managed_service_runs_explains_the_lock(
 
     assert result.exit_code != 0
     assert "hizmet" in _cli_text(result).lower()
+
+
+def test_serve_signals_readiness_probe_when_lock_is_held(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # A candidate that loses the serve lock still proved it starts; without the
+    # signal the selector would roll back a healthy update on any collision.
+    marker = tmp_path / "data" / "runtime-ready.marker"
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    descriptor = os.open(marker, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    os.close(descriptor)
+    monkeypatch.setenv("MUTALAAMCP_RUNTIME_READY_FILE", str(marker))
+    lock = FileLock(tmp_path / "data" / "serve.lock")
+    lock.acquire()
+
+    result = runner.invoke(app, ["serve"])
+
+    assert result.exit_code == 1
+    assert marker.read_bytes() == b"ready\n"

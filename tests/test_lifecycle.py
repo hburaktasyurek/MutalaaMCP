@@ -1262,3 +1262,96 @@ def test_native_service_install_registers_selector_and_pins_absolute_uv(
     native_service.install_native_service(_settings(tmp_path / "other"), str(selector))
     environment = plistlib.loads(plist_path.read_bytes())["EnvironmentVariables"]
     assert environment["MUTALAAMCP_UV_EXECUTABLE"] == str(link)
+
+
+def test_candidate_environment_drops_stale_readiness_marker(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # A selector-spawned process carries a consumed marker path; leaking it into
+    # a health-check child would make every later self-update check fail.
+    from mutalaamcp.update import _candidate_environment
+
+    monkeypatch.setenv("MUTALAAMCP_RUNTIME_READY_FILE", str(tmp_path / "stale-marker"))
+    settings = _settings(tmp_path)
+
+    environment = _candidate_environment(
+        settings, tmp_path / "cache", tmp_path / "data"
+    )
+
+    assert "MUTALAAMCP_RUNTIME_READY_FILE" not in environment
+
+
+def test_fetch_update_offer_rejects_intermediate_http_hop() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/update.json":
+            return httpx.Response(302, headers={"location": "http://mirror.test/hop"})
+        if request.url.scheme == "http":
+            return httpx.Response(
+                302, headers={"location": "https://releases.test/final.json"}
+            )
+        return httpx.Response(200, content=json.dumps(_offer_payload()).encode())
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    with pytest.raises(UpdateError, match="HTTPS olmayan"):
+        fetch_update_offer(client, "https://releases.test/update.json")
+
+
+def test_update_to_version_refuses_a_channel_version_that_is_not_newer(
+    tmp_path: Path,
+) -> None:
+    settings = _settings(tmp_path)
+    old_launcher = _fake_executable(tmp_path / "old" / "mutalaamcp")
+    settings.active_version_state_path.parent.mkdir(parents=True, exist_ok=True)
+    settings.active_version_state_path.write_text(
+        json.dumps({"version": "2.0.0", "launcher": str(old_launcher)}),
+        encoding="utf-8",
+    )
+    original_state = settings.active_version_state_path.read_bytes()
+
+    with pytest.raises(UpdateError, match="yalnızca daha yeni sürümler"):
+        update_to_version(
+            settings,
+            "1.0.0",
+            current_launcher=old_launcher,
+            uv_executable=_fake_executable(tmp_path / "uv"),
+            integrity_manifest=_update_manifest("1.0.0"),
+        )
+
+    assert settings.active_version_state_path.read_bytes() == original_state
+
+
+def test_install_candidate_creates_venv_with_isolated_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    captured: list[dict[str, object]] = []
+    candidate_root = tmp_path / "candidate"
+
+    def fake_run_uv(_uv: Path, args: list[str], *, env: object = None) -> None:
+        captured.append({"args": list(args), "env": env})
+        if args[0] == "venv":
+            scripts = candidate_root / ("Scripts" if os.name == "nt" else "bin")
+            scripts.mkdir(parents=True)
+            names = (
+                ("python.exe", "mutalaamcp.exe")
+                if os.name == "nt"
+                else ("python", "mutalaamcp")
+            )
+            for name in names:
+                target = scripts / name
+                target.touch()
+                if os.name == "posix":
+                    target.chmod(0o755)
+
+    monkeypatch.setattr("mutalaamcp.update._run_uv", fake_run_uv)
+    monkeypatch.setenv("PIP_INDEX_URL", "https://ambient.test/simple")
+    uv = _fake_executable(tmp_path / "uv")
+
+    install_candidate(uv, "2.0.0", candidate_root, manifest=_update_manifest())
+
+    venv_env = captured[0]["env"]
+    assert isinstance(venv_env, dict)
+    assert venv_env["UV_NO_CONFIG"] == "1"
+    assert "PIP_INDEX_URL" not in venv_env
+    install_env = captured[1]["env"]
+    assert isinstance(install_env, dict)
+    assert "PIP_INDEX_URL" not in install_env
