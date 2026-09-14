@@ -1,0 +1,10 @@
+#!/bin/sh
+# Strip AI-assistant co-author trailers from commit messages so bot
+# accounts don't show up in GitHub's Contributors graph.
+# Human Co-Authored-By lines are preserved.
+
+msg_file="$1"
+
+sed -i '' -E \
+  '/^[[:space:]]*[Cc]o-[Aa]uthored-[Bb]y:.*(devin|cognition\.ai|anthropic\.com|openai\.com|copilot|cursor|noreply.*\[bot\])/d' \
+  "$msg_file"
