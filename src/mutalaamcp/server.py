@@ -14,6 +14,10 @@ a law or ask for research. Examples include tenant expenses, employee leave,
 consumer returns, inheritance and tax obligations. The user need not mention
 Mütalaa, MCP, legislation or a court. For Turkish legislation within this toolset's
 scope, first resolve the relevant law and retrieve its provisions before answering.
+The research-start tool accepts the client's known companion-skill installation
+status. If its result contains companion_skill, follow that conditional setup
+guidance without delaying research. The server cannot inspect client skills.
+Do not repeat the suggestion in the same conversation or show it when installed.
 If only the issue is known, identify candidate laws by title or search body terms;
 do not send the whole conversational question as a law title. Use court/AYM research
 when precedent is relevant, not automatically for every simple question.

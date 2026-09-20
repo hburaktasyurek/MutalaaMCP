@@ -48,7 +48,9 @@ Yerel HTTP MCP ve OAuth destekleyen uygulamalar için:
 mutalaamcp setup --client codex --transport http
 ```
 
-Komut arka planda çalışan kullanıcı hizmetini kurar. Yönetici parolası gerektiren sistem hizmeti oluşturmaz.
+Komut arka planda çalışan kullanıcı hizmetini kurar. Bu depodaki henüz yayımlanmamış
+`setup` güncellemesi Mütalaa becerisini de birlikte kurar; yukarıdaki `v0.1.0` indirmesinde
+bu davranışı varsaymayın. Eski sürümde [beceriyi ayrıca ekleyin](../mutalaa-skill.md). Yönetici parolası gerektiren sistem hizmeti oluşturmaz.
 Uygulamanızın MCP ekleme ekranında şu değerleri kullanın:
 
 | Alan | Değer |
@@ -95,7 +97,10 @@ Tarayıcıdaki giriş ve cihaz onayını tamamlayın. Sonra uygulamanızı seçi
 | Cherry Studio | `mutalaamcp setup --client cherry-studio` |
 
 Çıktıyı uygulamanızın MCP yapılandırmasına ekleyin. Witsy ve Cherry Studio için komut yolu ve `serve` değerini ayrı alanlara girin.
-`setup` uygulamanızın ayar dosyasını değiştirmez; çıktıyı panoya kopyalamayı dener.
+`setup` MCP ayar dosyanızı değiştirmez; çıktıyı panoya kopyalamayı dener.
+Bu depodaki `setup` güncellemesi Codex/Cursor için Mütalaa becerisini de kurar. Diğer istemciler için beceri ZIP
+paketinin yolunu gösterir; Claude Desktop’ta Customize > Skills üzerinden içe aktarın.
+[Birlikte kurulum ve diğer istemciler](../mutalaa-skill.md).
 Bu liste yapılandırma şablonlarını gösterir; her uygulama sürümünün doğrulandığı anlamına gelmez.
 Aynı kullanıcı için tek sunucu çalıştırın; HTTP ve stdio’yu birlikte başlatmayın.
 
@@ -106,7 +111,7 @@ Yeni sohbette:
 > Mütalaa kullanarak 193 sayılı Gelir Vergisi Kanunu’nu bul ve resmî kaynak bağlantısını ver.
 
 Çağrı kaydında `mutalaamcp` göründüğünü ve bir kaynak döndüğünü kontrol edin.
-Sonra [Mütalaa becerisini ekleyin](../mutalaa-skill.md) ve yeni sohbette “Aidat konusunda ev sahibi ve kiracının sorumlulukları nelerdir?” gibi bir soru deneyin.
+Kurulumun sunduğu [Mütalaa becerisini](../mutalaa-skill.md) doğrulayın veya gereken içe aktarmayı tamamlayın; yeni sohbette “Aidat konusunda ev sahibi ve kiracının sorumlulukları nelerdir?” gibi bir soru deneyin.
 Beceri araç seçimini destekler; modelin her zaman seçmesini garanti etmez.
 
 ## Sorun giderme
@@ -144,7 +149,8 @@ uv tool install --force --refresh --python 3.12 "https://github.com/hburaktasyur
 mutalaamcp service start
 ```
 
-Beceriyi ayrı kurduysanız onu da güncelleyin.
+Beceriyi güncellemek için güncel paketle istemcinizin `setup` adımını yeniden çalıştırın;
+içe aktarma kullanan uygulamalara yeni ZIP’i yükleyin. Eski paketler birlikte beceri kurulumunu desteklemeyebilir.
 
 Kaldırmak için önce uygulamadan MCP kaydını silin, ardından HTTP hizmetini kaldırın:
 

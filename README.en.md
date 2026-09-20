@@ -42,7 +42,7 @@ You need a **Mütalaa account**, an internet connection, and an **AI app that su
 
 1. Follow the [setup guide](docs/client-setup/README.en.md) for your computer. No repository clone or coding is required.
 2. Add Mütalaa to your app and sign in.
-3. Add the [Mütalaa skill](docs/mutalaa-skill.md) to help the app select the tools for natural legal questions.
+3. Check the [Mütalaa skill](docs/mutalaa-skill.md); add it separately if setup did not provide it, and complete any import your app requires.
 4. Try this in a new conversation:
 
    > Use Mütalaa to find Law No. 193, the Turkish Income Tax Law, and give its official source link.

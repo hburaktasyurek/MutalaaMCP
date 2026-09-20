@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 import tarfile
 import tomllib
 import zipfile
@@ -15,6 +17,7 @@ import pytest
 from mutalaamcp import __version__
 from mutalaamcp.cache.store import SCHEMA_VERSION
 from mutalaamcp.client_templates import SUPPORTED_CLIENTS, render_client_config
+from mutalaamcp.companion_skill import SKILL_NAME, bundled_skill
 
 ROOT = Path(__file__).parents[1]
 RELEASE_DIR = ROOT / "release"
@@ -354,6 +357,32 @@ def test_built_artifacts_exclude_developer_state_and_retain_release_resources(
         wheel_members = {
             member.filename for member in archive.infolist() if not member.is_dir()
         }
+        assert (
+            archive.read("mutalaamcp/skills/mutalaa-turk-hukuku/SKILL.md")
+            == (ROOT / "skills" / "mutalaa-turk-hukuku" / "SKILL.md").read_bytes()
+        )
+    assert "skills/mutalaa-turk-hukuku/SKILL.md" in source_members
+
+    # Loading from a wheel in isolation must not accidentally use the checkout
+    # fallback: a correct archive member alone does not prove runtime loading.
+    loaded = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-c",
+            (
+                "import sys; sys.path.insert(0, sys.argv[1]); "
+                "from mutalaamcp.companion_skill import bundled_skill; "
+                "sys.stdout.buffer.write(bundled_skill())"
+            ),
+            str(wheel_path),
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        check=True,
+        timeout=30,
+    )
+    assert loaded.stdout == bundled_skill()
 
     assert {
         "LICENSE",
@@ -384,3 +413,22 @@ def test_built_artifacts_exclude_developer_state_and_retain_release_resources(
         assert path.name not in _DEVELOPER_ARTIFACT_NAMES, member
         assert not path.name.endswith((".pyc", ".pyo")), member
         assert not any(part.endswith(".egg-info") for part in path.parts), member
+
+
+def test_skill_identity_and_discovery_contract_do_not_drift() -> None:
+    skill_path = ROOT / "skills" / SKILL_NAME / "SKILL.md"
+    skill = skill_path.read_text(encoding="utf-8")
+    frontmatter = dict(
+        line.split(": ", 1) for line in skill.split("---", 2)[1].strip().splitlines()
+    )
+    assert set(frontmatter) == {"name", "description"}
+    assert frontmatter["name"] == SKILL_NAME
+    assert 0 < len(frontmatter["description"]) <= 1024
+    contract = json.loads(
+        (ROOT / "contracts" / "tool-surface-v1.json").read_text(encoding="utf-8")
+    )
+    assert (
+        contract["$defs"]["CompanionSkill"]["properties"]["name"]["const"] == SKILL_NAME
+    )
+    # The bootstrap must stay independent of names in the changing tool catalog.
+    assert all(tool["name"] not in skill for tool in contract["tools"])

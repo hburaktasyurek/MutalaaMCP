@@ -475,7 +475,7 @@ def test_auth_login_health_rejects_wrong_tool_catalog(
     assert_no_tokens(result)
 
 
-def test_setup_prints_selected_config_without_writing_client_files(
+def test_setup_prints_config_and_installs_skill_without_changing_mcp_settings(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _patch_setup_prereqs(monkeypatch, tmp_path)
@@ -496,7 +496,73 @@ def test_setup_prints_selected_config_without_writing_client_files(
     assert rendered == [("cursor", str(tmp_path / "bin" / "mutalaamcp"))]
     assert not (tmp_path / "client-config.json").exists()
     assert not (tmp_path / "data" / "config.json").exists()
+    assert (
+        tmp_path / "home" / ".agents" / "skills" / "mutalaa-turk-hukuku" / "SKILL.md"
+    ).is_file()
     assert_no_tokens(result)
+
+
+def test_http_setup_installs_companion_skill(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _patch_setup_prereqs(monkeypatch, tmp_path)
+    services: list[str] = []
+    monkeypatch.setattr(
+        "mutalaamcp.native_service.install_native_service",
+        lambda settings, launcher: services.append(launcher),
+    )
+    monkeypatch.setattr("mutalaamcp.cli._copy_to_clipboard", lambda config: None)
+    result = runner.invoke(app, ["setup", "--client", "codex", "--transport", "http"])
+    assert result.exit_code == 0, _cli_text(result)
+    assert services == [str(tmp_path / "bin" / "mutalaamcp")]
+    assert "[mcp_servers.mutalaamcp]" in result.stdout
+    assert "Mütalaa becerisi kuruldu" not in result.stdout
+    assert (
+        tmp_path / "home" / ".agents" / "skills" / "mutalaa-turk-hukuku" / "SKILL.md"
+    ).is_file()
+
+
+def test_http_setup_checks_skill_before_mutating_service(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _patch_setup_prereqs(monkeypatch, tmp_path)
+    mutations: list[str] = []
+    monkeypatch.setattr(
+        "mutalaamcp.cli._prepare_stable_launcher",
+        lambda settings: mutations.append("launcher") or "launcher",
+    )
+    monkeypatch.setattr(
+        "mutalaamcp.native_service.install_native_service",
+        lambda settings, launcher: mutations.append("service"),
+    )
+    monkeypatch.setattr("mutalaamcp.cli._copy_to_clipboard", lambda config: None)
+
+    def fail_skill(*args: object) -> str:
+        raise OSError("skill directory is read-only")
+
+    monkeypatch.setattr("mutalaamcp.companion_skill.setup_companion_skill", fail_skill)
+    result = runner.invoke(app, ["setup", "--client", "codex", "--transport", "http"])
+    assert result.exit_code != 0
+    assert mutations == []
+    assert "[mcp_servers" not in result.stdout
+
+
+def test_unknown_setup_client_does_not_modify_launcher_or_skills(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _patch_setup_prereqs(monkeypatch, tmp_path)
+    mutations: list[str] = []
+    monkeypatch.setattr(
+        "mutalaamcp.cli._prepare_stable_launcher",
+        lambda settings: mutations.append("launcher") or "launcher",
+    )
+    monkeypatch.setattr(
+        "mutalaamcp.companion_skill.setup_companion_skill",
+        lambda *args: mutations.append("skill") or "skill",
+    )
+    result = runner.invoke(app, ["setup", "--client", "typo"])
+    assert result.exit_code != 0
+    assert mutations == []
 
 
 @pytest.mark.parametrize(

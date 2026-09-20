@@ -84,6 +84,7 @@ include = [
     "/src",
     "/contracts",
     "/release",
+    "/skills",
     "/README.md",
     "/README.en.md",
     "/LICENSE",
@@ -105,3 +106,4 @@ packages = ["src/mutalaamcp"]
 [tool.hatch.build.targets.wheel.force-include]
 "contracts/tool-surface-v1.json" = "mutalaamcp/contracts/tool-surface-v1.json"
 "release" = "mutalaamcp/release"
+"skills/mutalaa-turk-hukuku" = "mutalaamcp/skills/mutalaa-turk-hukuku"

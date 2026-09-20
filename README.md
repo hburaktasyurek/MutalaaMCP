@@ -42,7 +42,7 @@ Bir **Mütalaa hesabı**, internet bağlantısı ve **yerel MCP bağlantısını
 
 1. [Kurulum rehberinden](docs/client-setup/README.md) bilgisayarınıza uygun adımları izleyin. Depoyu klonlamanız veya kod yazmanız gerekmez.
 2. Uygulamanıza Mütalaa bağlantısını ekleyip hesabınızla giriş yapın.
-3. Doğal hukuk sorularında araç kullanımını kolaylaştırmak için [Mütalaa becerisini](docs/mutalaa-skill.md) ekleyin.
+3. [Mütalaa becerisini](docs/mutalaa-skill.md) kontrol edin; kurulum çıktısında beceri yoksa ayrıca ekleyin, uygulamanız içe aktarma istiyorsa tamamlayın.
 4. Yeni bir sohbette şunu deneyin:
 
    > Mütalaa kullanarak 193 sayılı Gelir Vergisi Kanunu’nu bul ve resmî kaynak bağlantısını ver.

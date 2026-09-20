@@ -886,8 +886,14 @@ async def test_research_start_is_honest_without_search_and_can_resolve_title() -
             )
         )
         assert guide["research_performed"] is False
+        assert guide["companion_skill"]["installation_status"] == "unknown"
         assert "initial_search" not in guide
         assert len(guide["tools"]) == 7
+        assert {tool["name"] for tool in guide["tools"]} == V1_TOOL_NAMES - {
+            "turk_hukuku_sorularinda_once_bu_araci_cagir"
+        }
+        for tool in guide["tools"]:
+            assert tool["description"] == _TOOL_CONTRACTS[tool["name"]]["description"]
         searched = _result_data(
             await client.call_tool(
                 "turk_hukuku_sorularinda_once_bu_araci_cagir",
@@ -896,6 +902,47 @@ async def test_research_start_is_honest_without_search_and_can_resolve_title() -
         )
         assert searched["research_performed"] is True
         assert searched["initial_search"]["ok"] is True
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status", ["installed", "missing", "unknown"])
+async def test_research_start_skill_status_does_not_block_research(status: str) -> None:
+    runtime = FakeRuntime()
+    async with Client(_server_with_runtime(runtime)) as client:
+        for title in (None, "Kat Mülkiyeti Kanunu"):
+            arguments = {"soru": "Aidatı kim öder?", "skill_durumu": status}
+            if title is not None:
+                arguments["mevzuat_adi"] = title
+            result = _result_data(
+                await client.call_tool(
+                    "turk_hukuku_sorularinda_once_bu_araci_cagir", arguments
+                )
+            )
+            assert result["ok"] is True
+            assert result["research_performed"] is (title is not None)
+            if status == "installed":
+                assert "companion_skill" not in result
+            else:
+                skill = result["companion_skill"]
+                assert skill["installation_status"] == status
+                assert skill["name"] == "mutalaa-turk-hukuku"
+                assert skill["source_url"].endswith("/skills/mutalaa-turk-hukuku")
+                assert skill["installation_guide_url"].endswith(
+                    "/docs/mutalaa-skill.md"
+                )
+    assert runtime.service_calls == 1
+
+
+@pytest.mark.asyncio
+async def test_research_start_rejects_invalid_skill_status_before_search() -> None:
+    runtime = FakeRuntime()
+    async with Client(_server_with_runtime(runtime)) as client:
+        result = await client.call_tool_mcp(
+            "turk_hukuku_sorularinda_once_bu_araci_cagir",
+            {"soru": "Aidatı kim öder?", "skill_durumu": "yes"},
+        )
+    assert result.structuredContent["error"]["code"] == ErrorCode.INVALID_PARAMS
+    assert runtime.service_calls == 0
 
 
 @pytest.mark.asyncio

@@ -43,7 +43,10 @@ For apps supporting local HTTP MCP and OAuth:
 mutalaamcp setup --client codex --transport http
 ```
 
-This installs a background service for your user. Add these values in your app’s MCP settings:
+This installs a background service for your user. The unreleased `setup` update in this
+checkout also installs the Mütalaa skill; do not assume the `v0.1.0` download above includes
+that behavior. With older packages, [add the skill separately](../mutalaa-skill.md).
+Add these values in your app’s MCP settings:
 
 | Field | Value |
 | --- | --- |
@@ -90,7 +93,10 @@ Complete browser sign-in and device approval, then choose your app:
 | Cherry Studio | `mutalaamcp setup --client cherry-studio` |
 
 Add the output to your app’s MCP configuration. Witsy and Cherry Studio use separate command-path and `serve` argument fields.
-`setup` attempts clipboard copying but does not edit your app’s settings.
+`setup` attempts clipboard copying but does not edit your app’s MCP settings.
+The `setup` update in this checkout also installs the skill for Codex/Cursor. For other clients it exports
+a skill ZIP; import it through Customize > Skills in Claude Desktop.
+See [combined setup and other clients](../mutalaa-skill.md).
 These are configuration templates, not a claim that every app version has been tested.
 Run one server per user; do not start HTTP and stdio together.
 
@@ -100,7 +106,7 @@ In a new conversation:
 
 > Use Mütalaa to find Law No. 193, the Turkish Income Tax Law, and give its official source link.
 
-Check for a `mutalaamcp` call and a returned source. Then [add the Mütalaa skill](../mutalaa-skill.md) and try a natural legal question in a new conversation.
+Check for a `mutalaamcp` call and a returned source. Verify the [bundled Mütalaa skill](../mutalaa-skill.md), complete any required import, and try a natural legal question in a new conversation.
 The skill helps tool selection; it does not guarantee it.
 
 ## Troubleshooting
@@ -138,7 +144,8 @@ uv tool install --force --refresh --python 3.12 "https://github.com/hburaktasyur
 mutalaamcp service start
 ```
 
-Update the skill separately if you installed it.
+Run your client’s `setup` step again with the updated package to update the skill;
+re-import the new ZIP in apps that require imports. Older packages may not bundle skill setup.
 
 To uninstall, remove the MCP entry from your app, then run:
 

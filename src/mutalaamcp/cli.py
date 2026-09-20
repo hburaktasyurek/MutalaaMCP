@@ -788,13 +788,23 @@ def setup(
         "stdio", "--transport", help="stdio veya uygulama içi OAuth için http (Codex)."
     ),
 ) -> None:
-    """Yerel başlatıcıyı hazırla ve seçilen istemci yapılandırmasını yazdır."""
+    """MCP bağlantısını hazırla ve Mütalaa becerisini birlikte kur veya paketle."""
+
+    from mutalaamcp.client_templates import SUPPORTED_CLIENTS
+    from mutalaamcp.companion_skill import setup_companion_skill
 
     settings = load_settings()
     try:
+        if client not in SUPPORTED_CLIENTS:
+            raise ValueError(f"Desteklenmeyen MCP istemcisi: {client!r}")
+        if transport not in {"stdio", "http"}:
+            raise ValueError("--transport stdio veya http olmalıdır.")
+        if transport == "http" and client != "codex":
+            raise ValueError("HTTP giriş akışı için --client codex seçin.")
+        # Validate and install the companion before modifying a running service
+        # or launcher. If MCP setup fails later, this status remains explicit.
+        _err(setup_companion_skill(client, settings.data_dir))
         if transport == "http":
-            if client != "codex":
-                raise ValueError("HTTP giriş akışı için --client codex seçin.")
             from mutalaamcp.native_service import install_native_service
 
             install_native_service(settings, _prepare_stable_launcher(settings))
@@ -803,8 +813,6 @@ def setup(
             _copy_to_clipboard(config)
             _err("Uygulamada MutalaaMCP için Kimliği Doğrula seçin.")
             return
-        if transport != "stdio":
-            raise ValueError("--transport stdio veya http olmalıdır.")
         launcher = _prepare_stable_launcher(settings)
         _print_stdio_config(client, launcher)
     except AlreadyRunning as exc:

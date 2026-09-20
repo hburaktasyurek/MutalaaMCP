@@ -2500,6 +2500,10 @@
         },
         "announcement": {
           "$ref": "#/$defs/Announcement"
+        },
+        "companion_skill": {
+          "$ref": "#/$defs/CompanionSkill",
+          "description": "İstemci kurulu olduğunu bildirmediğinde dönen koşullu kurulum yönlendirmesi. Araştırmanın ön koşulu değildir."
         }
       },
       "required": [
@@ -2538,12 +2542,46 @@
         "url"
       ],
       "additionalProperties": false
+    },
+    "CompanionSkill": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "mutalaa-turk-hukuku"
+        },
+        "installation_status": {
+          "type": "string",
+          "enum": [
+            "missing",
+            "unknown"
+          ]
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "installation_guide_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "guidance": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "installation_status",
+        "source_url",
+        "installation_guide_url",
+        "guidance"
+      ],
+      "additionalProperties": false
     }
   },
   "tools": [
     {
       "name": "turk_hukuku_sorularinda_once_bu_araci_cagir",
-      "description": "Türk hukuku, mevzuat, hak, borç ve sorumluluk sorularında önce bu aracı çağırın. Mütalaa araştırma araçlarına başlangıç rehberi verir. Mütalaa'ya gönderilen her metin anonimleştirilir; bu araç dahil hiçbir argümana gizli bilgi yazılmaz. İlgili mevzuatın adını biliyorsanız mevzuat_adi ile ilk aramayı da yapar; bilinmiyorsa ad uydurmadan yalnız soru gönderin. Hukuki görüş veya doğrulanmış madde metni üretmez. Başka ülke hukuku ve hukuk araştırması gerektirmeyen işler için kullanmayın.",
+      "description": "Türk hukuku, mevzuat, hak, borç ve sorumluluk sorularında önce bu aracı çağırın. Mütalaa araştırma araçlarına başlangıç rehberi verir. Mütalaa'ya gönderilen her metin anonimleştirilir; bu araç dahil hiçbir argümana gizli bilgi yazılmaz. İlgili mevzuatın adını biliyorsanız mevzuat_adi ile ilk aramayı da yapar; bilinmiyorsa ad uydurmadan yalnız soru gönderin. Hukuki görüş veya doğrulanmış madde metni üretmez. Başka ülke hukuku ve hukuk araştırması gerektirmeyen işler için kullanmayın. İstemci mevcut beceri listesinden mutalaa-turk-hukuku kurulumunu biliyorsa skill_durumu gönderir; bilinmiyorsa unknown bırakır. Eksik veya bilinmeyen kurulum için araştırmayı engellemeyen koşullu beceri önerisi de döndürür.",
       "input_schema": {
         "type": "object",
         "properties": {
@@ -2560,6 +2598,16 @@
             "maxLength": 300,
             "pattern": "\\S",
             "description": "Biliyorsanız ilgili mevzuatın adı; örneğin Kat Mülkiyeti Kanunu. Emin değilseniz göndermeyin. Bu alana soru metni, kişi adı veya gizli bilgi yazılmaz."
+          },
+          "skill_durumu": {
+            "type": "string",
+            "enum": [
+              "installed",
+              "missing",
+              "unknown"
+            ],
+            "default": "unknown",
+            "description": "İstemcinin bildiği mutalaa-turk-hukuku beceri durumu: etkin/mevcut beceri listesinde varsa installed, yokluğu doğrulandıysa missing; doğrulanamıyorsa unknown. Sunucu istemcinin becerilerini incelemez. Kuruluysa öneri döndürülmez."
           }
         },
         "required": [
