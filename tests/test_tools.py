@@ -22,7 +22,7 @@ from mutalaamcp.settings import Settings
 
 _CONTRACT_PATH = Path(__file__).parents[1] / "contracts" / "tool-surface-v1.json"
 
-_CONTRACT = json.loads(_CONTRACT_PATH.read_text())
+_CONTRACT = json.loads(_CONTRACT_PATH.read_text(encoding="utf-8"))
 _TOOL_CONTRACTS = {tool["name"]: tool for tool in _CONTRACT["tools"]}
 _SCHEMA_DEFINITIONS = _CONTRACT["$defs"]
 _SOURCE_URL = "https://source.invalid/record"
