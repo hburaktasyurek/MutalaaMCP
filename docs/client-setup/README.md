@@ -19,10 +19,10 @@ Depoyu indirip klasör yönetmeniz gerekmez. uv yoksa [resmî kurulum sayfasınd
 macOS’ta **Terminal**, Windows’ta **PowerShell** açın. Aşağıdaki komutu yapıştırıp Enter’a basın:
 
 ```sh
-uv tool install --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.0/mutalaamcp-0.1.0-py3-none-any.whl"
+uv tool install --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.1/mutalaamcp-0.1.1-py3-none-any.whl"
 ```
 
-Bu komut yayımlanmış `v0.1.0` Release paketini kurar; PyPI yayını gerektirmez.
+Bu komut `v0.1.1` Release paketini kurar; PyPI yayını gerektirmez.
 İndirme ve kurulum bitince:
 
 ```sh
@@ -48,9 +48,9 @@ Yerel HTTP MCP ve OAuth destekleyen uygulamalar için:
 mutalaamcp setup --client codex --transport http
 ```
 
-Komut arka planda çalışan kullanıcı hizmetini kurar. Bu depodaki henüz yayımlanmamış
-`setup` güncellemesi Mütalaa becerisini de birlikte kurar; yukarıdaki `v0.1.0` indirmesinde
-bu davranışı varsaymayın. Eski sürümde [beceriyi ayrıca ekleyin](../mutalaa-skill.md). Yönetici parolası gerektiren sistem hizmeti oluşturmaz.
+Komut arka planda çalışan kullanıcı hizmetini kurar. `0.1.1` sürümünden itibaren
+`setup`, Mütalaa becerisini de birlikte kurar. Eski sürümde [beceriyi ayrıca ekleyin](../mutalaa-skill.md).
+Yönetici parolası gerektiren sistem hizmeti oluşturmaz.
 Uygulamanızın MCP ekleme ekranında şu değerleri kullanın:
 
 | Alan | Değer |
@@ -98,14 +98,14 @@ Tarayıcıdaki giriş ve cihaz onayını tamamlayın. Sonra uygulamanızı seçi
 
 Çıktıyı uygulamanızın MCP yapılandırmasına ekleyin. Witsy ve Cherry Studio için komut yolu ve `serve` değerini ayrı alanlara girin.
 `setup` MCP ayar dosyanızı değiştirmez; çıktıyı panoya kopyalamayı dener.
-Bu depodaki `setup` güncellemesi Codex/Cursor için Mütalaa becerisini de kurar. Diğer istemciler için beceri ZIP
+`0.1.1` sürümündeki `setup`, Codex/Cursor için Mütalaa becerisini de kurar. Diğer istemciler için beceri ZIP
 paketinin yolunu gösterir; Claude Desktop’ta Customize > Skills üzerinden içe aktarın.
 [Birlikte kurulum ve diğer istemciler](../mutalaa-skill.md).
 Bu liste yapılandırma şablonlarını gösterir; her uygulama sürümünün doğrulandığı anlamına gelmez.
-Bu depodaki henüz yayımlanmamış stdio güncellemesi, birden fazla istemcinin aynı
-yerel sunucuyu paylaşmasını sağlar. Claude Desktop sohbet ve Cowork bağlantıları
-ayrı açıldığında birbirini engellemez; mevcut `serve` ayarını değiştirmek gerekmez.
-Yayımlanmış `v0.1.0` paketinde bu düzeltme yoktur. HTTP hizmeti ve stdio’yu birlikte başlatmayın.
+`0.1.1` sürümü, birden fazla stdio istemcisinin aynı yerel sunucuyu paylaşmasını sağlar.
+Claude Desktop sohbet ve Cowork için ayrı süreçler açtığında ikinci bağlantı
+tek örnek kilidine takılmaz; `serve` komutu aynı kalır. Gerçek Claude Desktop/Cowork
+uygulamasıyla Windows doğrulaması henüz yapılmamıştır. HTTP hizmeti ve stdio’yu birlikte başlatmayın.
 
 ## 3. İlk araştırmayı deneyin
 
@@ -146,13 +146,17 @@ Stdio kullanıyorsanız Mütalaa’ya bağlı tüm uygulamaları kapatıp birka�
 sonra `mutalaamcp update` çalıştırın; uygulamalar bir sonraki açılışta yeni sürümü başlatır.
 Güncelleme, sürüm kanalında yayımlanan SHA-256 özetleriyle doğrulanır.
 
-İlk sürümden (0.1.0) geçiyorsanız hizmet kaydı eski başlatıcıya işaret ettiği için bir kez yeni Release’in wheel adresiyle yeniden kurun ve HTTP kullanıyorsanız hizmeti yeniden kaydedin:
+İlk sürümden (`0.1.0`) geçiyorsanız Mütalaa’ya bağlı tüm uygulamaları kapatın.
+HTTP hizmeti kullanıyorsanız önce `mutalaamcp service stop` çalıştırın. Ardından yeni paketi kurun:
 
 ```sh
-mutalaamcp service stop
-uv tool install --force --refresh --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.0/mutalaamcp-0.1.0-py3-none-any.whl"
-mutalaamcp service start
+uv tool install --force --refresh --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.1/mutalaamcp-0.1.1-py3-none-any.whl"
 ```
+
+HTTP için `mutalaamcp service start` çalıştırarak hizmet kaydını yenileyin.
+Stdio için istemcinizin `setup` komutunu yeniden çalıştırın (Claude Desktop:
+`mutalaamcp setup --client claude-desktop`) ve çıktıyı mevcut MCP kaydınıza uygulayın.
+Böylece sonraki güncellemeler kararlı başlatıcı üzerinden açılır; ikinci bir MCP kaydı eklemeyin.
 
 Beceriyi güncellemek için güncel paketle istemcinizin `setup` adımını yeniden çalıştırın;
 içe aktarma kullanan uygulamalara yeni ZIP’i yükleyin. Eski paketler birlikte beceri kurulumunu desteklemeyebilir.
@@ -186,7 +190,7 @@ Stdio kurulumunda hizmet adımlarını atlayın. Kaldırma araştırma önbelle�
 Taranmış PDF’ler için OCR ayrı kurulur. Önce hizmeti durdurun veya stdio istemcisini kapatın:
 
 ```sh
-uv tool install --force --python 3.12 "mutalaamcp[ocr] @ https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.0/mutalaamcp-0.1.0-py3-none-any.whl"
+uv tool install --force --python 3.12 "mutalaamcp[ocr] @ https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.1/mutalaamcp-0.1.1-py3-none-any.whl"
 mutalaamcp ocr install
 mutalaamcp ocr status
 ```

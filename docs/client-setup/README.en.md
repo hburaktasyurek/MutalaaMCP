@@ -19,11 +19,11 @@ If uv is not installed, follow its [official installation guide](https://docs.as
 Open **Terminal** on macOS or **PowerShell** on Windows and run:
 
 ```sh
-uv tool install --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.0/mutalaamcp-0.1.0-py3-none-any.whl"
+uv tool install --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.1/mutalaamcp-0.1.1-py3-none-any.whl"
 uv tool update-shell
 ```
 
-This installs the published `v0.1.0` release wheel; no PyPI release is required.
+This installs the `v0.1.1` release wheel; no PyPI release is required.
 Reopen the terminal and check:
 
 ```sh
@@ -43,9 +43,8 @@ For apps supporting local HTTP MCP and OAuth:
 mutalaamcp setup --client codex --transport http
 ```
 
-This installs a background service for your user. The unreleased `setup` update in this
-checkout also installs the Mütalaa skill; do not assume the `v0.1.0` download above includes
-that behavior. With older packages, [add the skill separately](../mutalaa-skill.md).
+This installs a background service for your user. Starting with `0.1.1`, `setup` also
+installs the Mütalaa skill. With older packages, [add the skill separately](../mutalaa-skill.md).
 Add these values in your app’s MCP settings:
 
 | Field | Value |
@@ -94,14 +93,14 @@ Complete browser sign-in and device approval, then choose your app:
 
 Add the output to your app’s MCP configuration. Witsy and Cherry Studio use separate command-path and `serve` argument fields.
 `setup` attempts clipboard copying but does not edit your app’s MCP settings.
-The `setup` update in this checkout also installs the skill for Codex/Cursor. For other clients it exports
+In `0.1.1`, `setup` also installs the skill for Codex/Cursor. For other clients it exports
 a skill ZIP; import it through Customize > Skills in Claude Desktop.
 See [combined setup and other clients](../mutalaa-skill.md).
 These are configuration templates, not a claim that every app version has been tested.
-The unreleased stdio update in this repository lets multiple clients share one
-local server. Separate Claude Desktop chat and Cowork connections no longer
-block each other; the existing `serve` configuration stays the same.
-The published `v0.1.0` package does not include this fix. Do not start the HTTP service and stdio together.
+Version `0.1.1` lets multiple stdio clients share one local server. When Claude Desktop
+starts separate processes for chat and Cowork, the second connection is no longer
+blocked by the single-instance lock; the `serve` command stays the same. Windows validation
+with the actual Claude Desktop/Cowork app is still pending. Do not start the HTTP service and stdio together.
 
 ## 3. Try your first research
 
@@ -141,13 +140,17 @@ For stdio, close all apps connected to Mütalaa and wait a few seconds, then run
 `mutalaamcp update`; the apps launch the new version on their next start.
 Updates are verified against the SHA-256 digests published on the release channel.
 
-Upgrading from the first release (0.1.0): the service registration points at the old launcher, so reinstall once from the new release wheel and re-register the HTTP service:
+When upgrading from `0.1.0`, close all apps connected to Mütalaa. If you use the HTTP
+service, first run `mutalaamcp service stop`. Then install the new package:
 
 ```sh
-mutalaamcp service stop
-uv tool install --force --refresh --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.0/mutalaamcp-0.1.0-py3-none-any.whl"
-mutalaamcp service start
+uv tool install --force --refresh --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.1/mutalaamcp-0.1.1-py3-none-any.whl"
 ```
+
+For HTTP, run `mutalaamcp service start` to update the service registration.
+For stdio, rerun your client's `setup` command (Claude Desktop:
+`mutalaamcp setup --client claude-desktop`) and apply its output to your existing MCP entry.
+This makes future updates use the stable launcher; do not add a second MCP entry.
 
 Run your client’s `setup` step again with the updated package to update the skill;
 re-import the new ZIP in apps that require imports. Older packages may not bundle skill setup.
@@ -181,7 +184,7 @@ Skip service steps for stdio. Uninstalling does not delete research caches; if d
 Stop the HTTP service or close your stdio client first:
 
 ```sh
-uv tool install --force --python 3.12 "mutalaamcp[ocr] @ https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.0/mutalaamcp-0.1.0-py3-none-any.whl"
+uv tool install --force --python 3.12 "mutalaamcp[ocr] @ https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.1/mutalaamcp-0.1.1-py3-none-any.whl"
 mutalaamcp ocr install
 mutalaamcp ocr status
 ```

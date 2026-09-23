@@ -7,9 +7,8 @@ kataloğu bu aracın yanıtından alınır. Beceri içine ikinci bir katalog kop
 
 ## MCP ile birlikte kurulum
 
-Bu depodaki güncellenmiş `setup` komutu MCP bağlantısını hazırlarken aynı sürümün
-becerisini de sunar; beceri için ayrıca internetten dosya indirmez. Bu özellik henüz
-yayımlanmamıştır; mevcut `v0.1.0` indirmesinin birlikte beceri kurduğunu varsaymayın.
+`0.1.1` sürümünden itibaren `setup` komutu MCP bağlantısını hazırlarken aynı sürümün
+becerisini de sunar; beceri için ayrıca internetten dosya indirmez.
 Eski paketlerde aşağıdaki beceri yükleyicisi veya elle kurulum yöntemi kullanılabilir.
 
 | İstemci | Kurulum davranışı |
@@ -78,9 +77,8 @@ The description enables discovery. The skill first discovers Mütalaa MCP and ca
 entry tool, then follows the returned guidance. Tool catalogs and detailed research rules
 stay in MCP rather than being copied into the skill.
 
-The updated `mutalaamcp setup --client …` in this checkout bundles both parts of setup.
-This feature has not been released yet; do not assume the existing `v0.1.0` download
-bundles the skill. Older packages can use the skill installer or manual folder installation. Codex and Cursor
+Starting with `0.1.1`, `mutalaamcp setup --client …` bundles both parts of setup.
+Older packages can use the skill installer or manual folder installation. Codex and Cursor
 receive the skill in `~/.agents/skills/mutalaa-turk-hukuku/SKILL.md`. Existing client-specific
 copies are updated in place, changed content is backed up, and symlinks are preserved.
 If only the other client has a private copy, move it to the shared directory before
