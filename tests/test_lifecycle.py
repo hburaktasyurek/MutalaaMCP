@@ -617,7 +617,7 @@ def test_selector_never_restores_cache_while_a_shared_backend_is_alive(
     _create_cache(settings.cache_db_path, user_version=1)
     backup = backup_cache(settings)
     assert backup is not None
-    with sqlite3.connect(settings.cache_db_path) as connection:
+    with closing(sqlite3.connect(settings.cache_db_path)) as connection, connection:
         connection.execute("PRAGMA user_version = 2")
     old = _fake_executable(tmp_path / "old" / "mutalaamcp")
     candidate = _fake_executable(
