@@ -607,6 +607,46 @@ def test_stable_launcher_rolls_back_failed_first_candidate_serve(
     assert subprocess.run([str(stable), "serve"], check=False).returncode == 0
 
 
+def test_selector_never_restores_cache_while_a_shared_backend_is_alive(
+    tmp_path: Path,
+) -> None:
+    from mutalaamcp.launcher import _launcher_source
+    from mutalaamcp.runtime import FileLock
+
+    settings = _settings(tmp_path)
+    _create_cache(settings.cache_db_path, user_version=1)
+    backup = backup_cache(settings)
+    assert backup is not None
+    with sqlite3.connect(settings.cache_db_path) as connection:
+        connection.execute("PRAGMA user_version = 2")
+    old = _fake_executable(tmp_path / "old" / "mutalaamcp")
+    candidate = _fake_executable(
+        settings.version_root / ".candidate-2.0.0-live" / "bin" / "mutalaamcp"
+    )
+    state = {"version": "2.0.0", "launcher": str(candidate)}
+    settings.active_version_state_path.parent.mkdir(parents=True, exist_ok=True)
+    settings.active_version_state_path.write_text(json.dumps(state), encoding="utf-8")
+    namespace = {"__name__": "selector_test"}
+    exec(  # noqa: S102 -- execute our generated selector with isolated test paths
+        _launcher_source(settings.data_dir, Path(sys.executable)), namespace
+    )
+    namespace["_RUNTIME_READY_TIMEOUT_SECONDS"] = 0.1
+    rollback = namespace["_rollback_failed_candidate"]
+    previous = {"version": "1.0.0", "launcher": str(old)}
+    with FileLock(settings.serve_lock_path):
+        with pytest.raises(RuntimeError, match="geri alma yedeği korundu"):
+            rollback(candidate, previous, settings.cache_db_path, backup)
+        assert _cache_version(settings.cache_db_path) == 2
+        assert json.loads(settings.active_version_state_path.read_text()) == state
+        assert backup.exists()
+        assert candidate.exists()
+    rollback(candidate, previous, settings.cache_db_path, backup)
+    assert _cache_version(settings.cache_db_path) == 1
+    assert json.loads(settings.active_version_state_path.read_text()) == previous
+    assert not backup.exists()
+    assert not candidate.exists()
+
+
 def test_stable_launcher_times_out_live_unavailable_runtime_and_rolls_back(
     tmp_path: Path,
 ) -> None:

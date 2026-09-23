@@ -102,7 +102,10 @@ Bu depodaki `setup` güncellemesi Codex/Cursor için Mütalaa becerisini de kura
 paketinin yolunu gösterir; Claude Desktop’ta Customize > Skills üzerinden içe aktarın.
 [Birlikte kurulum ve diğer istemciler](../mutalaa-skill.md).
 Bu liste yapılandırma şablonlarını gösterir; her uygulama sürümünün doğrulandığı anlamına gelmez.
-Aynı kullanıcı için tek sunucu çalıştırın; HTTP ve stdio’yu birlikte başlatmayın.
+Bu depodaki henüz yayımlanmamış stdio güncellemesi, birden fazla istemcinin aynı
+yerel sunucuyu paylaşmasını sağlar. Claude Desktop sohbet ve Cowork bağlantıları
+ayrı açıldığında birbirini engellemez; mevcut `serve` ayarını değiştirmek gerekmez.
+Yayımlanmış `v0.1.0` paketinde bu düzeltme yoktur. HTTP hizmeti ve stdio’yu birlikte başlatmayın.
 
 ## 3. İlk araştırmayı deneyin
 
@@ -124,7 +127,7 @@ Beceri araç seçimini destekler; modelin her zaman seçmesini garanti etmez.
 | Giriş kodu süresi doldu / `invalid_grant` | HTTP bağlantısında uygulamadan yeni kimlik doğrulama başlatın; stdio’da `mutalaamcp auth login` çalıştırın. Eski kodu kullanmayın. |
 | E-posta veya koşul onayı isteniyor | Mütalaa hesabındaki adımı tamamlayıp yeniden giriş yapın. |
 | Yalnız web araması yapıyor | Yeni sohbette açıkça “Mütalaa kullan” deyin. Beceri kurulumunu kontrol edin. MCP çağrısı olmadan bağlantının kullanıldığı kabul edilmez. |
-| `already_running` | Diğer istemci/sunucuyu kapatın; HTTP hizmeti açıksa ayrıca stdio başlatmayın. |
+| `already_running` | HTTP hizmeti açıksa stdio için önce `mutalaamcp service stop` çalıştırın. Eski sürümde diğer stdio istemcilerini kapatın. Güncelleme veya önbellek/OCR bakımı için tüm Mütalaa bağlantılarını kapatın. |
 | Kaynak geçici olarak kullanılamıyor / 429 / 503 | Biraz bekleyin, varsa belirtilen bekleme süresine uyun. |
 
 Sorun sürerse [destek rehberindeki](../../SUPPORT.md) bilgilerle bildirin; token, kişisel veri veya dava metni paylaşmayın.
@@ -139,7 +142,9 @@ mutalaamcp update
 mutalaamcp service start
 ```
 
-Stdio kullanıyorsanız uygulamayı kapatıp `mutalaamcp update` çalıştırın; uygulama bir sonraki açılışta yeni sürümü başlatır. Güncelleme, sürüm kanalında yayımlanan SHA-256 özetleriyle doğrulanır.
+Stdio kullanıyorsanız Mütalaa’ya bağlı tüm uygulamaları kapatıp birkaç saniye bekleyin,
+sonra `mutalaamcp update` çalıştırın; uygulamalar bir sonraki açılışta yeni sürümü başlatır.
+Güncelleme, sürüm kanalında yayımlanan SHA-256 özetleriyle doğrulanır.
 
 İlk sürümden (0.1.0) geçiyorsanız hizmet kaydı eski başlatıcıya işaret ettiği için bir kez yeni Release’in wheel adresiyle yeniden kurun ve HTTP kullanıyorsanız hizmeti yeniden kaydedin:
 

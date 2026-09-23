@@ -126,6 +126,7 @@ def _cmd_quote(path: Path) -> str:
 
 def _launcher_source(data_dir: Path, interpreter: Path) -> str:
     return f"""#!{interpreter}
+import errno
 import json
 import os
 import re
@@ -135,6 +136,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from contextlib import contextmanager
 from pathlib import Path
 
 _VERSION = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._+!]*$")
@@ -345,11 +347,43 @@ def _delete_backup(backup):
         print(f"mutalaamcp başlatıcısı: önbellek yedeği kaldırılamadı: {{exc}}", file=sys.stderr)
 
 
+@contextmanager
+def _rollback_lock():
+    # A stdio frontend may have spawned a backend. Wait for that backend's
+    # OS-held lock after killing the frontend, before touching cache or code.
+    descriptor = os.open(_DATA_DIR / "serve.lock", os.O_RDWR | os.O_CREAT, 0o644)
+    try:
+        deadline = time.monotonic() + _RUNTIME_READY_TIMEOUT_SECONDS
+        while True:
+            try:
+                if os.name == "nt":
+                    import msvcrt
+                    os.lseek(descriptor, 0, os.SEEK_SET)
+                    if os.fstat(descriptor).st_size < 1:
+                        os.write(descriptor, b"\\0")
+                        os.lseek(descriptor, 0, os.SEEK_SET)
+                    msvcrt.locking(descriptor, msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except OSError as exc:
+                if exc.errno not in {{errno.EACCES, errno.EAGAIN, errno.EWOULDBLOCK, errno.EDEADLK}}:
+                    raise
+                if time.monotonic() >= deadline:
+                    raise RuntimeError("çalışan sunucu kapanmadı; geri alma yedeği korundu") from exc
+                time.sleep(0.05)
+        yield
+    finally:
+        os.close(descriptor)
+
+
 def _rollback_failed_candidate(launcher, previous, cache_path, backup):
-    _restore_cache(cache_path, backup)
-    _atomic_state_write(previous)
-    _discard_candidate(launcher)
-    _delete_backup(backup)
+    with _rollback_lock():
+        _restore_cache(cache_path, backup)
+        _atomic_state_write(previous)
+        _discard_candidate(launcher)
+        _delete_backup(backup)
     print(
         "mutalaamcp başlatıcısı: aday serve başlatması başarısız oldu; önceki başlatıcı ve önbellek geri yüklendi",
         file=sys.stderr,

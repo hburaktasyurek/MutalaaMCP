@@ -98,7 +98,10 @@ The `setup` update in this checkout also installs the skill for Codex/Cursor. Fo
 a skill ZIP; import it through Customize > Skills in Claude Desktop.
 See [combined setup and other clients](../mutalaa-skill.md).
 These are configuration templates, not a claim that every app version has been tested.
-Run one server per user; do not start HTTP and stdio together.
+The unreleased stdio update in this repository lets multiple clients share one
+local server. Separate Claude Desktop chat and Cowork connections no longer
+block each other; the existing `serve` configuration stays the same.
+The published `v0.1.0` package does not include this fix. Do not start the HTTP service and stdio together.
 
 ## 3. Try your first research
 
@@ -119,7 +122,7 @@ The skill helps tool selection; it does not guarantee it.
 | Expired code / `invalid_grant` | Start a new authentication from the app for HTTP, or run `mutalaamcp auth login` for stdio. Do not reuse the old code. |
 | Email or terms confirmation required | Complete the step in your Mütalaa account, then sign in again. |
 | Only web searches appear | Explicitly ask to “use Mütalaa” in a new conversation. Check skill installation. Without an MCP call, Mütalaa was not used. |
-| `already_running` | Close the other server/client. Do not launch stdio while the HTTP service runs. |
+| `already_running` | If the HTTP service is running, use `mutalaamcp service stop` before stdio. On older versions, close the other stdio clients. Close all Mütalaa connections before updates or cache/OCR maintenance. |
 | Source unavailable / 429 / 503 | Wait before retrying and respect any reported delay. |
 
 For unresolved issues, use the [support guide](../../SUPPORT.en.md). Do not share tokens, personal information, or case text.
@@ -134,7 +137,9 @@ mutalaamcp update
 mutalaamcp service start
 ```
 
-For stdio, close the app and run `mutalaamcp update`; the app launches the new version on its next start. Updates are verified against the SHA-256 digests published on the release channel.
+For stdio, close all apps connected to Mütalaa and wait a few seconds, then run
+`mutalaamcp update`; the apps launch the new version on their next start.
+Updates are verified against the SHA-256 digests published on the release channel.
 
 Upgrading from the first release (0.1.0): the service registration points at the old launcher, so reinstall once from the new release wheel and re-register the HTTP service:
 

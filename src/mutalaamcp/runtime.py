@@ -1,4 +1,4 @@
-"""Per-user OS-held lock for a single ``mutalaamcp serve`` process."""
+"""Per-user OS-held lock for one backend runtime or maintenance operation."""
 
 from __future__ import annotations
 
@@ -62,8 +62,9 @@ class FileLock:
     """Exclusive lock released when this object, or the process, closes the fd.
 
     ``acquire`` is nonblocking. A collision maps to :class:`AlreadyRunning`.
-    ``serve`` and mutation commands share this lock; mutations hold it for the
-    entire operation via :func:`mutation_lock`.
+    The shared stdio backend, HTTP server and mutation commands use this lock;
+    stdio frontends connect to the backend without acquiring it themselves.
+    Mutations hold it for the entire operation via :func:`mutation_lock`.
     """
 
     def __init__(self, path: str | Path) -> None:

@@ -32,7 +32,7 @@ from typer.core import TyperCommand, TyperGroup
 from mutalaamcp.domain.errors import ErrorCode
 from mutalaamcp.ocr import OcrError
 from mutalaamcp.runtime import AlreadyRunning, FileLock, mutation_lock
-from mutalaamcp.server import V1_TOOL_NAMES, ToolRegistrationError, create_server
+from mutalaamcp.server import V1_TOOL_NAMES, ToolRegistrationError
 from mutalaamcp.settings import Settings
 
 _CONSOLE_SCRIPT = "mutalaamcp"
@@ -764,13 +764,16 @@ def _signal_readiness_probe() -> None:
 def serve() -> None:
     """Yerel stdio MCP sunucusunu çalıştır."""
 
+    from mutalaamcp.stdio_runtime import run_stdio
+
     settings = load_settings()
     try:
-        with FileLock(settings.serve_lock_path):
-            create_server().run(transport="stdio")
+        asyncio.run(run_stdio(settings))
     except AlreadyRunning as exc:
         _signal_readiness_probe()
         _fail(ErrorCode.ALREADY_RUNNING, str(exc))
+    except (OSError, RuntimeError) as exc:
+        _fail(ErrorCode.NOT_CONFIGURED, str(exc))
     except typer.Exit:
         raise
     except Exception as exc:  # noqa: BLE001 -- CLI boundary converts errors to exits

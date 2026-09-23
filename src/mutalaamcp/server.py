@@ -6,6 +6,8 @@ import importlib
 from contextlib import AbstractAsyncContextManager
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
+from mutalaamcp import __version__
+
 SERVER_NAME = "MutalaaMCP"
 RESEARCH_INSTRUCTIONS = """Mütalaa provides official Turkish legislation and court decisions.
 Use these tools to ground answers about Turkish legal rights, obligations,
@@ -167,6 +169,7 @@ def create_server(
         )
     mcp = FastMCP(
         SERVER_NAME,
+        version=__version__,
         instructions=RESEARCH_INSTRUCTIONS,
         auth=auth,
         lifespan=lifecycle,
