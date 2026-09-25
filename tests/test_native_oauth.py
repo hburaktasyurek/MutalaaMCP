@@ -5,7 +5,6 @@ from __future__ import annotations
 import base64
 import hashlib
 import re
-from types import SimpleNamespace
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
@@ -15,6 +14,7 @@ from starlette.testclient import TestClient
 
 from mutalaamcp.auth.device_flow import DeviceAuthorization
 from mutalaamcp.auth.native import NativeOAuth
+from mutalaamcp.auth.state import LocalAuthState
 from mutalaamcp.native_service import LoopbackGuard
 
 ORIGIN = "http://127.0.0.1:8769"
@@ -47,7 +47,7 @@ class Session:
                 interval=5,
             )
         )
-        self.state = SimpleNamespace(status="active", generation=1)
+        self.state = LocalAuthState("active", generation=1)
 
 
 @pytest.fixture
@@ -252,7 +252,7 @@ def test_pkce_code_replay_token_hashes_rotation_and_logout(native, tmp_path):
         ).json()["error"]
         == "invalid_grant"
     )
-    session.state = SimpleNamespace(status="logged_out", generation=2)
+    session.state = LocalAuthState("logged_out", generation=2)
     assert (
         client.post(
             "/mcp",

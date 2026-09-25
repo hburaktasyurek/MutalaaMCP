@@ -197,7 +197,7 @@ class NativeOAuth(OAuthProvider):
 
     def _authorized_state(self) -> int | None:
         state = self.session.local_state() if self.session else None
-        return state.generation if state and state.status == "active" else None
+        return state.session_generation if state and state.status == "active" else None
 
     async def load_authorization_code(
         self, client: OAuthClientInformationFull, authorization_code: str

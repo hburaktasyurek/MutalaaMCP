@@ -119,6 +119,7 @@ The skill helps tool selection; it does not guarantee it.
 | `mutalaamcp` not found | Run `uv tool update-shell` and open a new terminal. |
 | No Authenticate button | Check the URL. Run `mutalaamcp service status`; if necessary, run `mutalaamcp service start` and reopen the app. |
 | Expired code / `invalid_grant` | Start a new authentication from the app for HTTP, or run `mutalaamcp auth login` for stdio. Do not reuse the old code. |
+| Codex: local service is running but tools are missing / `OAuth reauthentication` | Check `mutalaamcp service status`; if stopped, run `mutalaamcp service start`. Renew the connection grant with **Authenticate** in Codex or `codex mcp login mutalaamcp` in a terminal. Then restart the MCP connection and try a new conversation. A running service does not confirm that Codex authentication succeeded. |
 | Email or terms confirmation required | Complete the step in your Mütalaa account, then sign in again. |
 | Only web searches appear | Explicitly ask to “use Mütalaa” in a new conversation. Check skill installation. Without an MCP call, Mütalaa was not used. |
 | `already_running` | If the HTTP service is running, use `mutalaamcp service stop` before stdio. On older versions, close the other stdio clients. Close all Mütalaa connections before updates or cache/OCR maintenance. |

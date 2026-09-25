@@ -124,6 +124,7 @@ Beceri araç seçimini destekler; modelin her zaman seçmesini garanti etmez.
 | `uv` bulunamadı | uv kurulumunu tamamlayıp yeni terminal açın. |
 | `mutalaamcp` bulunamadı | `uv tool update-shell` çalıştırıp yeni terminal açın. |
 | Kimliği Doğrula görünmüyor | URL kaydını kontrol edin. `mutalaamcp service status` ile hizmet durumunu görün; gerekirse `mutalaamcp service start` çalıştırıp uygulamayı yeniden açın. |
+| Codex: yerel hizmet çalışıyor ama araçlar görünmüyor / `OAuth reauthentication` | `mutalaamcp service status` ile hizmeti kontrol edin; durmuşsa `mutalaamcp service start` çalıştırın. Codex’te **Kimliği Doğrula** veya terminalde `codex mcp login mutalaamcp` ile bağlantı iznini yenileyin. Ardından MCP bağlantısını yeniden başlatıp yeni sohbette deneyin. Hizmetin açık olması, Codex’in kimlik doğrulamasının tamamlandığını göstermez. |
 | Giriş kodu süresi doldu / `invalid_grant` | HTTP bağlantısında uygulamadan yeni kimlik doğrulama başlatın; stdio’da `mutalaamcp auth login` çalıştırın. Eski kodu kullanmayın. |
 | E-posta veya koşul onayı isteniyor | Mütalaa hesabındaki adımı tamamlayıp yeniden giriş yapın. |
 | Yalnız web araması yapıyor | Yeni sohbette açıkça “Mütalaa kullan” deyin. Beceri kurulumunu kontrol edin. MCP çağrısı olmadan bağlantının kullanıldığı kabul edilmez. |

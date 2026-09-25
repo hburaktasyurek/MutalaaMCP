@@ -26,7 +26,14 @@ class AuthStateError(Exception):
 
 
 class LocalAuthState:
-    __slots__ = ("checked_at", "features", "generation", "plan", "status")
+    __slots__ = (
+        "checked_at",
+        "features",
+        "generation",
+        "plan",
+        "session_generation",
+        "status",
+    )
 
     def __init__(
         self,
@@ -36,12 +43,18 @@ class LocalAuthState:
         features: tuple[str, ...] = (),
         checked_at: str | None = None,
         generation: int = 0,
+        session_generation: int | None = None,
     ) -> None:
         self.status = status
         self.plan = plan
         self.features = features
         self.checked_at = checked_at
         self.generation = generation
+        # Every write advances generation for race checks; only a new session
+        # changes the OAuth binding. Legacy states used generation for both.
+        self.session_generation = (
+            generation if session_generation is None else session_generation
+        )
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, LocalAuthState):
@@ -52,6 +65,7 @@ class LocalAuthState:
             and self.features == other.features
             and self.checked_at == other.checked_at
             and self.generation == other.generation
+            and self.session_generation == other.session_generation
         )
 
     def __repr__(self) -> str:
@@ -59,7 +73,8 @@ class LocalAuthState:
             "LocalAuthState("
             f"status={self.status!r}, plan={self.plan!r}, "
             f"features={self.features!r}, checked_at={self.checked_at!r}, "
-            f"generation={self.generation!r})"
+            f"generation={self.generation!r}, "
+            f"session_generation={self.session_generation!r})"
         )
 
 
@@ -92,19 +107,15 @@ class AuthState:
         record: ActivationRecord,
         *,
         expected_generation: int | None = None,
-        allow_logged_out: bool = False,
+        new_session: bool = False,
     ) -> bool:
-        """Atomically write activation when its observed state version is current."""
+        """Advance the write version, preserving OAuth grants on revalidation."""
         with FileLock(self._lock_path()):
             state = self._read_unlocked()
             generation = 0 if state is None else state.generation
             if expected_generation is not None and generation != expected_generation:
                 return False
-            if (
-                state is not None
-                and state.status == _LOGGED_OUT
-                and not allow_logged_out
-            ):
+            if state is not None and state.status == _LOGGED_OUT and not new_session:
                 return False
             _atomic_replace(
                 self._path(),
@@ -114,6 +125,13 @@ class AuthState:
                     "features": list(record.features),
                     "checked_at": record.checked_at,
                     "generation": generation + 1,
+                    "session_generation": (
+                        state.session_generation
+                        if state is not None
+                        and state.status == _ACTIVE
+                        and not new_session
+                        else generation + 1
+                    ),
                 },
             )
             return True
@@ -179,24 +197,32 @@ def _parse_state(payload: dict[str, Any]) -> LocalAuthState:
     if not isinstance(checked_at, str) or not checked_at:
         raise AuthStateError("Etkin kimlik doğrulama durumu için checked_at gereklidir")
     generation = _generation_from_json(payload)
+    session_generation = _generation_from_json(
+        payload, key="session_generation", default=generation
+    )
+    if session_generation > generation:
+        raise AuthStateError("session_generation, generation değerini aşamaz")
     return LocalAuthState(
         status,
         plan=plan,
         features=(_FEATURE,),
         checked_at=checked_at,
         generation=generation,
+        session_generation=session_generation,
     )
 
 
-def _generation_from_json(payload: dict[str, Any]) -> int:
-    generation = payload.get("generation", 0)
+def _generation_from_json(
+    payload: dict[str, Any], *, key: str = "generation", default: int = 0
+) -> int:
+    generation = payload.get(key, default)
     if (
         isinstance(generation, bool)
         or not isinstance(generation, int)
         or generation < 0
     ):
         raise AuthStateError(
-            "Kimlik doğrulama durumu için generation negatif olmayan bir tam sayı olmalıdır"
+            f"Kimlik doğrulama durumu için {key} negatif olmayan bir tam sayı olmalıdır"
         )
     return generation
 

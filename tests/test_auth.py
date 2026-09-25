@@ -12,6 +12,7 @@ from urllib.parse import parse_qs
 import httpx
 import pytest
 from keyring.errors import PasswordDeleteError
+from mcp.shared.auth import OAuthClientInformationFull
 
 from mutalaamcp import __version__
 from mutalaamcp.auth import (
@@ -30,7 +31,8 @@ from mutalaamcp.auth import (
     activation_error_message,
 )
 from mutalaamcp.auth.credentials import CredentialStore
-from mutalaamcp.auth.state import AuthState
+from mutalaamcp.auth.native import NativeOAuth
+from mutalaamcp.auth.state import AuthState, AuthStateError
 from mutalaamcp.domain.errors import ErrorCode
 
 AUTH_BASE = "https://mutalaa.test"
@@ -357,11 +359,17 @@ def assert_no_persisted_secrets(
             "features",
             "checked_at",
             "generation",
+            "session_generation",
         }
         generation = payload.pop("generation")
         assert isinstance(generation, int) and not isinstance(generation, bool)
         assert generation >= 1
         if payload.get("status") == "active":
+            session_generation = payload.pop("session_generation")
+            assert isinstance(session_generation, int) and not isinstance(
+                session_generation, bool
+            )
+            assert 0 <= session_generation <= generation
             assert payload == {
                 "status": "active",
                 "plan": "mcp_local_free",
@@ -1024,6 +1032,114 @@ async def test_ensure_authorized_rechecks_activation_at_24_hours(
     local_state = session.local_state()
     assert local_state is not None
     assert local_state.checked_at == rechecked_at
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("legacy_state", "previously_invalidated"),
+    [(False, False), (True, False), (True, True)],
+)
+async def test_native_grants_survive_daily_revalidation_and_restart(
+    tmp_path: Path, legacy_state: bool, previously_invalidated: bool
+) -> None:
+    state = AuthState(tmp_path)
+    state.write_activated(_active_record())
+    if legacy_state:
+        payload = json.loads(_state_path(tmp_path).read_text())
+        payload.pop("session_generation", None)
+        _state_path(tmp_path).write_text(json.dumps(payload))
+    observed_generation = state.generation()
+    clock = _clock_after(CHECKED_AT, hours=25)
+    client = OAuthClientInformationFull(
+        client_id="codex", redirect_uris=["http://127.0.0.1:45678/callback"]
+    )
+
+    async with _gate_http() as http:
+        session = _gate_session(
+            http,
+            tmp_path,
+            clock,
+            device_flow=GateDeviceFlow(_refresh_tokens()),
+            activation_client=GateActivationClient(_active_record()),
+        )
+        session._credentials.replace_session(ACCESS_TOKEN, REFRESH_TOKEN)
+        provider = NativeOAuth(port=8769, data_dir=tmp_path)
+        provider.session = session
+        tokens = provider._issue("codex", ["local_research"])
+        await provider.aclose()
+        if previously_invalidated:
+            # The upgrade must not revive grants invalidated by an older version.
+            payload = json.loads(_state_path(tmp_path).read_text())
+            payload["generation"] += 1
+            _state_path(tmp_path).write_text(json.dumps(payload))
+
+        await session.ensure_authorized()
+        # State writes must still advance the cross-process race guard.
+        assert state.generation() > observed_generation
+        provider = NativeOAuth(port=8769, data_dir=tmp_path)
+        provider.session = session
+        try:
+            if previously_invalidated:
+                assert await provider.load_access_token(tokens.access_token) is None
+                assert (
+                    await provider.load_refresh_token(client, tokens.refresh_token)
+                    is None
+                )
+                return
+            assert await provider.load_access_token(tokens.access_token) is not None
+            grant = await provider.load_refresh_token(client, tokens.refresh_token)
+            assert grant is not None
+            rotated = await provider.exchange_refresh_token(
+                client, grant, ["local_research"]
+            )
+            assert await provider.load_access_token(rotated.access_token) is not None
+            assert (
+                await provider.load_refresh_token(client, tokens.refresh_token) is None
+            )
+        finally:
+            await provider.aclose()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("logout_first", [False, True])
+async def test_new_login_invalidates_previous_native_grants(
+    tmp_path: Path, logout_first: bool
+) -> None:
+    handler = AuthHttp()
+    handler.poll = [(200, TOKENS_BODY), (200, TOKENS_BODY)]
+    clock = FakeClock()
+    client = OAuthClientInformationFull(
+        client_id="codex", redirect_uris=["http://127.0.0.1:45678/callback"]
+    )
+    async with _http(handler) as http:
+        session = _session(http, tmp_path, clock)
+        await session.login(_noop_authorization)
+        provider = NativeOAuth(port=8769, data_dir=tmp_path)
+        provider.session = session
+        try:
+            tokens = provider._issue("codex", ["local_research"])
+            if logout_first:
+                await session.logout()
+            await session.login(_noop_authorization)
+            assert await provider.load_access_token(tokens.access_token) is None
+            assert (
+                await provider.load_refresh_token(client, tokens.refresh_token) is None
+            )
+        finally:
+            await provider.aclose()
+
+
+@pytest.mark.parametrize("session_generation", [True, -1, "1", None, 2])
+def test_auth_state_rejects_invalid_session_generation(
+    tmp_path: Path, session_generation: object
+) -> None:
+    state = AuthState(tmp_path)
+    state.write_activated(_active_record())
+    payload = json.loads(_state_path(tmp_path).read_text())
+    payload["session_generation"] = session_generation
+    _state_path(tmp_path).write_text(json.dumps(payload))
+    with pytest.raises(AuthStateError):
+        state.read()
 
 
 @pytest.mark.asyncio

@@ -197,11 +197,11 @@ class AuthSession:
                 if expected_state_generation is None
                 else expected_state_generation
             )
-            allow_logged_out = self._completed_login_generation == expected_generation
+            new_session = self._completed_login_generation == expected_generation
             if (
                 state is not None
                 and state.status == "logged_out"
-                and (not allow_logged_out or state.generation != expected_generation)
+                and (not new_session or state.generation != expected_generation)
             ):
                 raise AuthenticationRequired()
             credentials = self._credentials.snapshot()
@@ -220,10 +220,10 @@ class AuthSession:
             if not self._state.write_activated(
                 record,
                 expected_generation=expected_generation,
-                allow_logged_out=allow_logged_out,
+                new_session=new_session,
             ):
                 raise AuthenticationRequired()
-            if allow_logged_out:
+            if new_session:
                 self._completed_login_generation = None
         return record
 
