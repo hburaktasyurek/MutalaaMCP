@@ -19,10 +19,10 @@ Depoyu indirip klasör yönetmeniz gerekmez. uv yoksa [resmî kurulum sayfasınd
 macOS’ta **Terminal**, Windows’ta **PowerShell** açın. Aşağıdaki komutu yapıştırıp Enter’a basın:
 
 ```sh
-uv tool install --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.1/mutalaamcp-0.1.1-py3-none-any.whl"
+uv tool install --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.2.0/mutalaamcp-0.2.0-py3-none-any.whl"
 ```
 
-Bu komut `v0.1.1` Release paketini kurar; PyPI yayını gerektirmez.
+Bu komut `v0.2.0` Release paketini kurar; PyPI yayını gerektirmez.
 İndirme ve kurulum bitince:
 
 ```sh
@@ -137,11 +137,14 @@ Stdio kullanıyorsanız Mütalaa’ya bağlı tüm uygulamaları kapatıp birka�
 sonra `mutalaamcp update` çalıştırın; uygulamalar bir sonraki açılışta yeni sürümü başlatır.
 Güncelleme, sürüm kanalında yayımlanan SHA-256 özetleriyle doğrulanır.
 
+`0.2.0` sürümüyle Mütalaa hesabı girişi kaldırıldı. Eski sürümden kalan oturum bilgileri
+(anahtar zincirindeki belirteç ve yerel oturum dosyaları) ilk açılışta bir kez silinir; ayrıca işlem gerekmez.
+
 İlk sürümden (`0.1.0`) geçiyorsanız Mütalaa’ya bağlı tüm uygulamaları kapatın.
 HTTP hizmeti kullanıyorsanız önce `mutalaamcp service stop` çalıştırın. Ardından yeni paketi kurun:
 
 ```sh
-uv tool install --force --refresh --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.1/mutalaamcp-0.1.1-py3-none-any.whl"
+uv tool install --force --refresh --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.2.0/mutalaamcp-0.2.0-py3-none-any.whl"
 ```
 
 HTTP için `mutalaamcp service start` çalıştırarak hizmet kaydını yenileyin.
@@ -180,7 +183,7 @@ Stdio kurulumunda hizmet adımlarını atlayın. Kaldırma araştırma önbelle�
 Taranmış PDF’ler için OCR ayrı kurulur. Önce hizmeti durdurun veya stdio istemcisini kapatın:
 
 ```sh
-uv tool install --force --python 3.12 "mutalaamcp[ocr] @ https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.1/mutalaamcp-0.1.1-py3-none-any.whl"
+uv tool install --force --python 3.12 "mutalaamcp[ocr] @ https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.2.0/mutalaamcp-0.2.0-py3-none-any.whl"
 mutalaamcp ocr install
 mutalaamcp ocr status
 ```

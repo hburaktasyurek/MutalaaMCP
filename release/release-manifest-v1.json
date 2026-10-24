@@ -2,7 +2,7 @@
   "manifest_version": 1,
   "package": {
     "name": "mutalaamcp",
-    "version": "0.1.1"
+    "version": "0.2.0"
   },
   "cache_schema_version": 1,
   "ocr_model_manifest_version": 1,

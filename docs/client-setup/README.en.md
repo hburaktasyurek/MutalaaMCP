@@ -19,11 +19,11 @@ If uv is not installed, follow its [official installation guide](https://docs.as
 Open **Terminal** on macOS or **PowerShell** on Windows and run:
 
 ```sh
-uv tool install --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.1/mutalaamcp-0.1.1-py3-none-any.whl"
+uv tool install --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.2.0/mutalaamcp-0.2.0-py3-none-any.whl"
 uv tool update-shell
 ```
 
-This installs the `v0.1.1` release wheel; no PyPI release is required.
+This installs the `v0.2.0` release wheel; no PyPI release is required.
 Reopen the terminal and check:
 
 ```sh
@@ -131,11 +131,14 @@ For stdio, close all apps connected to Mütalaa and wait a few seconds, then run
 `mutalaamcp update`; the apps launch the new version on their next start.
 Updates are verified against the SHA-256 digests published on the release channel.
 
+Version `0.2.0` removes Mütalaa account sign-in. Session data left by older versions
+(the keychain token and local session files) is deleted once on first start; no action is needed.
+
 When upgrading from `0.1.0`, close all apps connected to Mütalaa. If you use the HTTP
 service, first run `mutalaamcp service stop`. Then install the new package:
 
 ```sh
-uv tool install --force --refresh --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.1/mutalaamcp-0.1.1-py3-none-any.whl"
+uv tool install --force --refresh --python 3.12 "https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.2.0/mutalaamcp-0.2.0-py3-none-any.whl"
 ```
 
 For HTTP, run `mutalaamcp service start` to update the service registration.
@@ -174,7 +177,7 @@ Skip service steps for stdio. Uninstalling does not delete research caches; if d
 Stop the HTTP service or close your stdio client first:
 
 ```sh
-uv tool install --force --python 3.12 "mutalaamcp[ocr] @ https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.1.1/mutalaamcp-0.1.1-py3-none-any.whl"
+uv tool install --force --python 3.12 "mutalaamcp[ocr] @ https://github.com/hburaktasyurek/MutalaaMCP/releases/download/v0.2.0/mutalaamcp-0.2.0-py3-none-any.whl"
 mutalaamcp ocr install
 mutalaamcp ocr status
 ```

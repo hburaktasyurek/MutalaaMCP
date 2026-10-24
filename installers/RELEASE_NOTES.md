@@ -1,22 +1,18 @@
-## 0.1.1
+## 0.2.0
 
-- Aynı kullanıcı için birden fazla stdio bağlantısı açılabilir. Claude Desktop sohbet ve Cowork için ayrı süreçler açtığında ikinci bağlantının `already_running` hatasıyla kapanmasına neden olan kilit çakışması giderildi.
-- İstemciler kimlik doğrulama ve önbellek için aynı yerel sunucuyu paylaşır. Bir istemci kapandığında diğerleri çalışmaya devam eder; güncelleme ve bakım kilitleri korunur.
-- MCP bağlantısında Mütalaa'nın kendi sürümü gösterilir; FastMCP kütüphanesinin sürümü gösterilmez.
-- `setup`, Codex/Cursor için Mütalaa becerisini kurar; Claude Desktop ve diğer istemciler için içe aktarılabilir ZIP hazırlar.
-- Güncelleme manifesti yayın dosyalarına eklendi. `0.1.0` kullanıcıları [güncelleme rehberindeki](https://github.com/hburaktasyurek/MutalaaMCP/blob/v0.1.1/docs/client-setup/README.md#güncelleme-ve-kaldırma) yeniden kurma ve istemci ayarı adımlarını izlemelidir.
-
-Gerçek Claude Desktop/Cowork uygulamasıyla Windows doğrulaması henüz yapılmamıştır.
+- Mütalaa hesabı, giriş, cihaz onayı ve koşul kabulü kaldırıldı. Kurulumdan sonra araçlar doğrudan çalışır; `mutalaamcp auth` komutları artık yoktur.
+- Yerel HTTP bağlantısı (Codex) OAuth olmadan çalışır. Mevcut `http://127.0.0.1:18769/mcp` ayarı aynen geçerlidir.
+- Araç sonuçlarına eklenen Mütalaa duyuruları kaldırıldı.
+- Eski sürümden kalan oturum bilgileri (anahtar zincirindeki belirteç, `auth_state.json`, yerel OAuth ve duyuru kayıtları) ilk açılışta bir kez silinir.
+- Stdio kullanıcıları yeni sürüme otomatik geçmez; Mütalaa'ya bağlı uygulamaları kapatıp `mutalaamcp update` çalıştırın.
 
 ### Changes in English
 
-- Multiple stdio clients can share one local runtime. This fixes the `already_running` collision when Claude Desktop starts separate chat and Cowork processes.
-- Closing one client leaves the others connected. Authentication, cache, maintenance locks and update rollback remain coordinated.
-- MCP reports the Mütalaa package version instead of the FastMCP library version.
-- `setup` installs the companion skill for Codex/Cursor and exports a skill ZIP for Claude Desktop and other clients.
-- The release includes the update manifest. Users upgrading from `0.1.0` should follow the [reinstallation and client setup steps](https://github.com/hburaktasyurek/MutalaaMCP/blob/v0.1.1/docs/client-setup/README.en.md#update-and-uninstall).
-
-Windows validation with the actual Claude Desktop/Cowork app is still pending.
+- Mütalaa account sign-in, device approval and terms acceptance are removed. Tools work right after installation; the `mutalaamcp auth` commands no longer exist.
+- The local HTTP connection (Codex) works without OAuth. The existing `http://127.0.0.1:18769/mcp` setting stays valid.
+- Mütalaa announcements attached to tool results are removed.
+- Session data left by older versions (the keychain token, `auth_state.json`, local OAuth and announcement records) is deleted once on first start.
+- stdio users are not updated automatically; close the apps connected to Mütalaa and run `mutalaamcp update`.
 
 ## Kurulum / Install
 
