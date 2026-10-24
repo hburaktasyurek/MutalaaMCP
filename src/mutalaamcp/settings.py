@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import ipaddress
 import re
 from pathlib import Path
-from urllib.parse import urlsplit, urlunsplit
 
 from platformdirs import user_cache_dir, user_data_dir
 from pydantic import Field, field_validator
@@ -23,50 +21,10 @@ _DEFAULT_OCR_ALLOWED_HOSTS = frozenset(
 )
 _OCR_MANIFEST_SCHEMA_VERSIONS = frozenset({1, 2})
 
-_DEFAULT_AUTH_BASE_URL = "https://mutalaa.tr"
-_DEFAULT_TERMS_BASE_URL = "https://mutalaa.tr/terms"
 _DEFAULT_UPDATE_MANIFEST_URL = (
     "https://github.com/hburaktasyurek/MutalaaMCP"
     "/releases/latest/download/update-manifest-v1.json"
 )
-
-
-def normalize_auth_origin(value: str, *, field: str) -> str:
-    """Normalize a secure auth origin, allowing HTTP only for local test servers."""
-    parsed = urlsplit(value.strip())
-    scheme = parsed.scheme.lower()
-    if scheme not in {"http", "https"}:
-        raise ValueError(f"{field} http veya https olmalıdır")
-    if parsed.username or parsed.password:
-        raise ValueError(f"{field} kimlik bilgileri içermemelidir")
-    hostname = parsed.hostname
-    if not hostname:
-        raise ValueError(f"{field} bir ana bilgisayar içermelidir")
-    if parsed.query or parsed.fragment:
-        raise ValueError(f"{field} sorgu veya parça içermemelidir")
-    try:
-        port = parsed.port
-    except ValueError as exc:
-        raise ValueError(f"{field} geçersiz bir bağlantı noktası içeriyor") from exc
-    host = hostname.rstrip(".").lower()
-    if scheme != "https" and not _is_explicit_loopback(host):
-        raise ValueError(
-            f"{field}, açıkça belirtilmiş bir geri döngü test kökeni olmadıkça https olmalıdır"
-        )
-    if ":" in host:
-        host = f"[{host}]"
-    default_port = 443 if scheme == "https" else 80
-    netloc = host if port is None or port == default_port else f"{host}:{port}"
-    return urlunsplit((scheme, netloc, parsed.path.rstrip("/"), "", ""))
-
-
-def _is_explicit_loopback(host: str) -> bool:
-    if host == "localhost":
-        return True
-    try:
-        return ipaddress.ip_address(host).is_loopback
-    except ValueError:
-        return False
 
 
 def _default_cache_dir() -> Path:
@@ -82,11 +40,7 @@ def _default_model_dir() -> Path:
 
 
 class Settings(BaseSettings):
-    """Public runtime configuration loaded from ``MUTALAAMCP_`` environment variables.
-
-    Authentication is brokered by Mütalaa. Refresh tokens, access tokens, and
-    API keys must not be stored on this object.
-    """
+    """Public runtime configuration loaded from ``MUTALAAMCP_`` environment variables."""
 
     model_config = SettingsConfigDict(
         env_prefix="MUTALAAMCP_",
@@ -100,8 +54,6 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    auth_base_url: str = Field(default=_DEFAULT_AUTH_BASE_URL, min_length=1)
-    terms_base_url: str = Field(default=_DEFAULT_TERMS_BASE_URL, min_length=1)
     update_manifest_url: str = Field(default=_DEFAULT_UPDATE_MANIFEST_URL, min_length=1)
     cache_dir: Path = Field(default_factory=_default_cache_dir)
     data_dir: Path = Field(default_factory=_default_data_dir)
@@ -109,7 +61,6 @@ class Settings(BaseSettings):
     http_timeout_seconds: float = Field(default=30.0, gt=0)
     http_connect_timeout_seconds: float = Field(default=10.0, gt=0)
     ocr_timeout_seconds: float = Field(default=120.0, gt=0)
-    activation_timeout_seconds: float = Field(default=30.0, gt=0)
     http_port: int = Field(default=18769, ge=1024, le=65535)
     cache_max_bytes: int = Field(default=_CACHE_MAX_BYTES, gt=0)
     max_download_bytes: int = Field(default=_DOWNLOAD_MAX_BYTES, gt=0)
@@ -134,18 +85,6 @@ class Settings(BaseSettings):
     ) -> tuple[PydanticBaseSettingsSource, ...]:
         del settings_cls, dotenv_settings, file_secret_settings
         return (init_settings, env_settings)
-
-    @field_validator("auth_base_url")
-    @classmethod
-    def _auth_base_url(cls, value: str) -> str:
-        return normalize_auth_origin(
-            value, field="Mütalaa kimlik doğrulama temel URL'si"
-        )
-
-    @field_validator("terms_base_url")
-    @classmethod
-    def _terms_base_url(cls, value: str) -> str:
-        return normalize_auth_origin(value, field="koşullar temel URL'si")
 
     @field_validator(
         "cache_dir", "data_dir", "model_dir", "ocr_manifest_path", "uv_executable"

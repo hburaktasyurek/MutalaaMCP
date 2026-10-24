@@ -6,7 +6,7 @@
 
 Report reproducible, non-sensitive problems in MutalaaMCP through
 [GitHub Issues](https://github.com/hburaktasyurek/MutalaaMCP/issues): documented
-source-checkout installation, local HTTP/OAuth or `stdio` startup, the documented configuration
+source-checkout installation, local HTTP or `stdio` startup, the documented configuration
 contract, or a defect in the client's handling of a supported upstream response.
 Include the source revision, operating system, affected client name and version,
 sanitized reproduction steps, and the expected and observed result.

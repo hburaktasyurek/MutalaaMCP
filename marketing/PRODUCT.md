@@ -24,7 +24,7 @@ Ayrı bir sohbet uygulaması yerine mevcut yapay zekâ uygulamasına hukuk araş
 
 - Mevzuat, yargı kararları ve Anayasa Mahkemesi kararlarını arama; belge ve madde getirme; resmî kaynak bağlantılarına erişim.
 - Yerel kullanım ücretsiz ve MIT lisanslıdır. Yapay zekâ uygulamasının kendi ücretleri geçerli olabilir.
-- Mütalaa hesabı, internet ve yerel MCP destekleyen bir uygulama gerekir.
+- İnternet ve yerel MCP destekleyen bir uygulama gerekir; Mütalaa hesabı gerekmez.
 - Yerel çalışma tamamen çevrimdışı kullanım veya hiçbir verinin bilgisayardan çıkmaması anlamına gelmez.
 - Ürün hukuk araştırma yazılımıdır; hukuki sonuç veya doğruluk garantisi vermez.
 
@@ -35,7 +35,7 @@ Mevcut Mütalaa adı, m. işareti ve Türkçe ürün dili korunur. Bu çalışma
 ## Evidence on Hand
 
 - ../README.md: ürün tanımı, kapsam, ücretsiz kullanım ve veri akışı.
-- ../docs/client-setup/README.md: kurulum, hesap ve uygulama gereksinimleri.
+- ../docs/client-setup/README.md: kurulum ve uygulama gereksinimleri.
 - ../docs/index.html, ../docs/assets/site.css, ../docs/assets/fonts/: mevcut tanıtım kimliği.
 - ../docs/assets/mutalaa-mark.svg: mevcut marka işareti.
 - ../docs/assets/social/mutalaa-mcp-tanitim.png: mevcut pazarlama görseli.

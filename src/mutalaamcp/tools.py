@@ -22,16 +22,6 @@ from fastmcp.server.middleware import CallNext, Middleware, MiddlewareContext
 from fastmcp.tools.base import ToolResult
 from fastmcp.tools.function_tool import FunctionTool
 
-from mutalaamcp.announcements import Announcements
-from mutalaamcp.auth import (
-    ActivationError,
-    ActivationProtocolError,
-    AuthenticationRequired,
-    AuthSession,
-    DeviceFlowError,
-    SessionExpired,
-    activation_error_message,
-)
 from mutalaamcp.cache.store import CacheStore
 from mutalaamcp.companion_skill import SKILL_GUIDE_URL, SKILL_NAME, SKILL_SOURCE_URL
 from mutalaamcp.domain.errors import ErrorBody, ErrorCode, ErrorDetails, ErrorEnvelope
@@ -43,6 +33,7 @@ from mutalaamcp.domain.ids import (
     parse_document_id,
 )
 from mutalaamcp.domain.models import ConstitutionalKind, Court, LegislationType
+from mutalaamcp.legacy_auth import remove_legacy_auth_state
 from mutalaamcp.net import Origin, OriginProtection, SafeHttpClient
 from mutalaamcp.ocr import resolve_local_ocr
 from mutalaamcp.providers.anayasa.client import AYM_ALLOWED_HOSTS, AnayasaClient
@@ -117,16 +108,12 @@ def _signal_runtime_ready() -> None:
 
 @dataclass(slots=True)
 class HttpClients:
-    """The lifespan-owned clients for authenticated and official-source traffic."""
+    """The lifespan-owned client for official-source traffic."""
 
-    auth: httpx.AsyncClient
     research: httpx.AsyncClient
 
     async def aclose(self) -> None:
-        try:
-            await self.auth.aclose()
-        finally:
-            await self.research.aclose()
+        await self.research.aclose()
 
 
 @dataclass(slots=True)
@@ -142,13 +129,11 @@ class ResearchServices:
 class ToolRuntime:
     """All resources created once for one FastMCP lifespan."""
 
-    auth: AuthSession
     decisions: DecisionService
     legislation: LegislationService
     constitutional: ConstitutionalService
     cache: CacheStore
     clients: HttpClients
-    announcements: Announcements | None = None
 
     async def aclose(self) -> None:
         try:
@@ -168,13 +153,12 @@ def load_settings() -> Settings:
 
 
 def create_http_clients(settings: Settings) -> HttpClients:
-    """Create the two lifespan-owned HTTP clients without sending a request."""
+    """Create the lifespan-owned HTTP client without sending a request."""
     timeout = httpx.Timeout(
         timeout=settings.http_timeout_seconds,
         connect=settings.http_connect_timeout_seconds,
     )
     return HttpClients(
-        auth=httpx.AsyncClient(timeout=timeout, follow_redirects=False),
         research=httpx.AsyncClient(timeout=timeout, follow_redirects=False),
     )
 
@@ -182,16 +166,6 @@ def create_http_clients(settings: Settings) -> HttpClients:
 def create_cache_store(settings: Settings) -> CacheStore:
     """Open the local cache only after validated settings enter the lifespan."""
     return CacheStore(settings.cache_db_path, max_bytes=settings.cache_max_bytes)
-
-
-def create_auth_session(settings: Settings, client: httpx.AsyncClient) -> AuthSession:
-    """Build the Mütalaa-brokered account and activation gate."""
-    return AuthSession(
-        client,
-        auth_base_url=settings.auth_base_url,
-        allowed_terms_base_url=settings.terms_base_url,
-        data_dir=settings.data_dir,
-    )
 
 
 def _research_origin_protections() -> dict[Origin, OriginProtection]:
@@ -239,6 +213,7 @@ def create_services(
 
 async def create_runtime(settings: Settings) -> ToolRuntime:
     """Allocate all operational resources, cleaning up a partially built runtime."""
+    remove_legacy_auth_state(settings.data_dir)
     clients = create_http_clients(settings)
     cache: CacheStore | None = None
     try:
@@ -257,15 +232,11 @@ async def create_runtime(settings: Settings) -> ToolRuntime:
             cache, research_http, ocr=resolve_local_ocr(settings)
         )
         return ToolRuntime(
-            auth=create_auth_session(settings, clients.auth),
             decisions=services.decisions,
             legislation=services.legislation,
             constitutional=services.constitutional,
             cache=cache,
             clients=clients,
-            announcements=Announcements(
-                clients.auth, settings.auth_base_url, settings.data_dir
-            ),
         )
     except BaseException:
         try:
@@ -328,14 +299,8 @@ def _envelope(
     message: str,
     *,
     field_errors: dict[str, tuple[str, ...]] | None = None,
-    retry_after: float | None = None,
-    terms_url: str | None = None,
 ) -> dict[str, Any]:
-    details = ErrorDetails(
-        field_errors=field_errors,
-        retry_after=retry_after,
-        terms_url=terms_url,
-    )
+    details = ErrorDetails(field_errors=field_errors)
     if details.model_dump() == {}:
         details = None  # type: ignore[assignment]
     return ErrorEnvelope(
@@ -351,53 +316,6 @@ def _envelope(
 
 def _not_configured() -> dict[str, Any]:
     return _envelope(ErrorCode.NOT_CONFIGURED, "MutalaaMCP yapılandırılmamış.")
-
-
-def _authorization_error(error: Exception) -> dict[str, Any]:
-    reauth_hint = (
-        " Yeniden giriş için istemcide MutalaaMCP'nin kimlik doğrulama "
-        "akışını başlatın veya terminalde `mutalaamcp auth login` çalıştırın."
-    )
-    if isinstance(error, AuthenticationRequired):
-        return _envelope(
-            ErrorCode.AUTHENTICATION_REQUIRED,
-            "Kimlik doğrulaması gerekli." + reauth_hint,
-        )
-    if isinstance(error, SessionExpired):
-        return _envelope(
-            ErrorCode.SESSION_EXPIRED, "Oturumun süresi doldu." + reauth_hint
-        )
-    if isinstance(error, ActivationError):
-        return _envelope(
-            error.code,
-            activation_error_message(error.code, error.remote_detail),
-            retry_after=(
-                error.retry_after
-                if error.code is ErrorCode.UPSTREAM_RATE_LIMITED
-                else None
-            ),
-            terms_url=(
-                error.terms_url if error.code is ErrorCode.TERMS_REQUIRED else None
-            ),
-        )
-    if isinstance(error, (ActivationProtocolError, DeviceFlowError, httpx.HTTPError)):
-        return _envelope(
-            ErrorCode.UPSTREAM_UNAVAILABLE,
-            "Kimlik doğrulama hizmetine şu anda erişilemiyor.",
-        )
-    return _envelope(ErrorCode.UPSTREAM_UNAVAILABLE, "Kimlik doğrulama başarısız oldu.")
-
-
-async def _ensure_authorized(
-    runtime: ToolRuntime | _UnavailableRuntime,
-) -> dict[str, Any] | None:
-    if isinstance(runtime, _UnavailableRuntime):
-        return _not_configured()
-    try:
-        await runtime.auth.ensure_authorized()
-    except Exception as error:  # noqa: BLE001 -- auth errors become safe envelopes
-        return _authorization_error(error)
-    return None
 
 
 @cache
@@ -650,8 +568,8 @@ def _contract_input_errors(
     return {field: tuple(messages) for field, messages in errors.items()}
 
 
-class ResearchAuthorizationMiddleware(Middleware):
-    """Authorize raw V1 calls, then enforce their authoritative input contract."""
+class ResearchContractMiddleware(Middleware):
+    """Enforce the authoritative input contract on raw V1 calls."""
 
     def __init__(self, tool_names: frozenset[str]) -> None:
         self._tool_names = tool_names
@@ -661,7 +579,6 @@ class ResearchAuthorizationMiddleware(Middleware):
         context: MiddlewareContext[mt.CallToolRequestParams],
         call_next: CallNext[mt.CallToolRequestParams, ToolResult],
     ) -> ToolResult:
-        # Keep the raw arguments opaque until the request has passed this gate.
         tool_name, arguments = context.message.name, context.message.arguments
         if tool_name not in self._tool_names:
             return await call_next(context)
@@ -670,8 +587,8 @@ class ResearchAuthorizationMiddleware(Middleware):
             if context.fastmcp_context is not None
             else _UnavailableRuntime()
         )
-        if error := await _ensure_authorized(runtime):
-            return ToolResult(structured_content=error)
+        if isinstance(runtime, _UnavailableRuntime):
+            return ToolResult(structured_content=_not_configured())
         if field_errors := _contract_input_errors(tool_name, arguments):
             return ToolResult(
                 structured_content=_envelope(
@@ -680,16 +597,7 @@ class ResearchAuthorizationMiddleware(Middleware):
                     field_errors=field_errors,
                 )
             )
-        result = await call_next(context)
-        payload = result.structured_content
-        announcements = getattr(runtime, "announcements", None)
-        if isinstance(payload, dict) and payload.get("ok") is True and announcements:
-            announcement = await announcements.take()
-            if announcement is not None:
-                return ToolResult(
-                    structured_content={**payload, "announcement": announcement}
-                )
-        return result
+        return await call_next(context)
 
 
 async def _call(

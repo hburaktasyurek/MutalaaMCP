@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import importlib
 import os
 import sys
@@ -16,13 +15,10 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-from mutalaamcp.auth import AuthenticationRequired, LogoutResult
-from mutalaamcp.auth.activation import ActivationError, activation_error_message
-from mutalaamcp.auth.device_flow import SessionExpired
-from mutalaamcp.cli import _launcher_path, _run_login, app
+from mutalaamcp.cli import _launcher_path, app
 from mutalaamcp.domain.errors import ErrorCode
 from mutalaamcp.runtime import AlreadyRunning, FileLock, serve_lock_held
-from mutalaamcp.server import V1_TOOL_NAMES, ToolRegistrationError, create_server
+from mutalaamcp.server import ToolRegistrationError, create_server
 from mutalaamcp.settings import Settings
 
 ACCESS_TOKEN = "at_cli_must_not_leak_9f3c7e21"
@@ -70,9 +66,6 @@ def isolate_runtime(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setenv("MUTALAAMCP_CACHE_DIR", str(tmp_path / "cache"))
     monkeypatch.setenv("MUTALAAMCP_DATA_DIR", str(tmp_path / "data"))
     monkeypatch.setenv("MUTALAAMCP_MODEL_DIR", str(tmp_path / "models"))
-    monkeypatch.setenv("MUTALAAMCP_AUTH_BASE_URL", "https://mutalaa.test")
-    monkeypatch.setenv("MUTALAAMCP_TERMS_BASE_URL", "https://mutalaa.test/kosullar")
-    monkeypatch.setattr("mutalaamcp.cli.webbrowser.open", lambda *_a, **_k: False)
     monkeypatch.setattr(sys, "dont_write_bytecode", True)
     return tmp_path
 
@@ -115,14 +108,14 @@ def test_root_help_is_turkish_first_and_keeps_command_identifiers() -> None:
     assert "Usage:" not in output
     assert "Options:" not in output
     assert "Commands:" not in output
-    for command in ("serve", "setup", "update", "auth", "cache", "ocr"):
+    for command in ("serve", "setup", "update", "cache", "ocr"):
         assert command in output
+    assert "auth" not in output
 
 
 @pytest.mark.parametrize(
     ("subgroup", "commands"),
     [
-        ("auth", ("login", "logout", "status")),
         ("cache", ("clear", "refresh")),
         ("ocr", ("install", "remove", "status")),
     ],
@@ -192,17 +185,6 @@ def test_settings_validation_errors_are_turkish_and_field_specific(
     assert "Input should" not in output
 
 
-def test_auth_status_uses_stable_no_auth_state_token(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr("mutalaamcp.auth.state.AuthState.read", lambda _self: None)
-
-    result = runner.invoke(app, ["auth", "status"])
-
-    assert result.exit_code == 0
-    assert result.output.strip() == "status=none"
-
-
 def _write_executable(path: Path) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("#!/bin/sh\n", encoding="utf-8")
@@ -227,66 +209,6 @@ async def _empty_lifespan(_server: object) -> AsyncIterator[dict[str, object]]:
     yield {}
 
 
-async def _silent_login(_settings: object) -> None:
-    return None
-
-
-@asynccontextmanager
-async def _null_http(_settings: object) -> Iterator[object]:
-    yield object()
-
-
-def test_auth_login_uses_shared_activation_message_and_preserves_remote_detail(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    code = ErrorCode.EMAIL_VERIFICATION_REQUIRED
-    remote_detail = "verify this email in English"
-
-    class _Session:
-        async def login(self, _present_authorization: object) -> None:
-            raise ActivationError(
-                code,
-                remote_detail,
-                http_status=403,
-            )
-
-    monkeypatch.setattr("mutalaamcp.cli._http_client", _null_http)
-    monkeypatch.setattr(
-        "mutalaamcp.cli._auth_session", lambda _settings, _client: _Session()
-    )
-
-    result = runner.invoke(app, ["auth", "login"])
-
-    assert result.exit_code == 1
-    output = _cli_text(result)
-    message = activation_error_message(code, remote_detail)
-    assert f"{code}: {message}" in output
-    assert f"Uzak hizmet ayrıntısı: {remote_detail}" in output
-
-
-def test_auth_login_session_expired_is_turkish_first_for_invalid_grant_detail(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    invalid_grant_detail = "The authorization grant is invalid, expired, or revoked."
-
-    class _Session:
-        async def login(self, _present_authorization: object) -> None:
-            raise SessionExpired(invalid_grant_detail)
-
-    monkeypatch.setattr("mutalaamcp.cli._http_client", _null_http)
-    monkeypatch.setattr(
-        "mutalaamcp.cli._auth_session", lambda _settings, _client: _Session()
-    )
-
-    result = runner.invoke(app, ["auth", "login"])
-
-    assert result.exit_code == 1
-    assert result.output.strip() == (
-        f"{ErrorCode.SESSION_EXPIRED}: Oturumun süresi doldu veya oturum geçersiz. "
-        f"Uzak hizmet ayrıntısı: {invalid_grant_detail}"
-    )
-
-
 def _patch_setup_prereqs(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
         "mutalaamcp.cli._launcher_path",
@@ -300,39 +222,6 @@ def _patch_setup_prereqs(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Non
         "mutalaamcp.cli._ensure_active_launcher_state",
         lambda _settings, _launcher: None,
     )
-
-
-def _patch_fastmcp_client(
-    monkeypatch: pytest.MonkeyPatch,
-    names: frozenset[str],
-    *,
-    smoke_payload: dict[str, object] | None = None,
-) -> None:
-    class _Client:
-        def __init__(self, _transport: object) -> None:
-            self._names = names
-
-        async def __aenter__(self) -> Self:
-            return self
-
-        async def __aexit__(self, *_exc: object) -> None:
-            return None
-
-        async def list_tools(self) -> list[SimpleNamespace]:
-            return [SimpleNamespace(name=name) for name in self._names]
-
-        async def call_tool(
-            self, name: str, _arguments: dict[str, object]
-        ) -> dict[str, object]:
-            if name == "belge_getir":
-                return {
-                    "ok": False,
-                    "error": {"code": ErrorCode.INVALID_PARAMS.value},
-                }
-            assert name == "mevzuat_ara"
-            return {"items": []} if smoke_payload is None else smoke_payload
-
-    monkeypatch.setattr("fastmcp.Client", _Client)
 
 
 def test_importing_server_does_not_mutate_filesystem(
@@ -421,69 +310,10 @@ def test_broken_tool_registrar_raises_tool_registration_error(
         create_server(lifespan_factory=_empty_lifespan)
 
 
-def test_auth_login_fails_when_the_local_stable_launcher_cannot_start(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    _patch_setup_prereqs(monkeypatch, tmp_path)
-    monkeypatch.setattr("mutalaamcp.cli._run_login", _silent_login)
-
-    class _FailingClient:
-        def __init__(self, _transport: object) -> None:
-            return None
-
-        async def __aenter__(self) -> Self:
-            raise RuntimeError("launcher exited")
-
-        async def __aexit__(self, *_exc: object) -> None:
-            return None
-
-    monkeypatch.setattr("fastmcp.Client", _FailingClient)
-
-    result = runner.invoke(app, ["auth", "login"])
-
-    assert result.exit_code == 1
-    assert "Kararlı başlatıcının MCP sağlık denetimi başarısız oldu" in _cli_text(
-        result
-    )
-    assert_no_stdio_config(result)
-    assert_no_tokens(result)
-
-
-@pytest.mark.parametrize(
-    "found",
-    [
-        frozenset(),
-        frozenset({"karar_ara"}),
-        LEGACY_PUBLIC_TOOL_NAMES,
-        frozenset(EXPECTED_PUBLIC_TOOL_NAMES | {"extra_tool"}),
-    ],
-)
-def test_auth_login_health_rejects_wrong_tool_catalog(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, found: frozenset[str]
-) -> None:
-    _patch_setup_prereqs(monkeypatch, tmp_path)
-    monkeypatch.setattr("mutalaamcp.cli._run_login", _silent_login)
-    assert V1_TOOL_NAMES == EXPECTED_PUBLIC_TOOL_NAMES
-    assert not V1_TOOL_NAMES & LEGACY_PUBLIC_TOOL_NAMES
-    _patch_fastmcp_client(monkeypatch, found)
-    result = runner.invoke(app, ["auth", "login"])
-    assert result.exit_code == 1
-    blob = _cli_text(result)
-    assert ErrorCode.NOT_CONFIGURED in blob
-    assert "V1 araçlarını" in blob
-    assert_no_stdio_config(result)
-    assert_no_tokens(result)
-
-
 def test_setup_prints_config_and_installs_skill_without_changing_mcp_settings(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _patch_setup_prereqs(monkeypatch, tmp_path)
-    for name in (
-        "MUTALAAMCP_AUTH_BASE_URL",
-        "MUTALAAMCP_TERMS_BASE_URL",
-    ):
-        monkeypatch.delenv(name)
     rendered: list[tuple[str, str]] = []
     monkeypatch.setattr(
         "mutalaamcp.cli._print_stdio_config",
@@ -650,170 +480,17 @@ def test_setup_warns_when_clipboard_copy_is_unsupported(
     assert calls == []
 
 
-def test_settings_uses_official_public_defaults_below_environment(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    for name in (
-        "MUTALAAMCP_AUTH_BASE_URL",
-        "MUTALAAMCP_TERMS_BASE_URL",
-    ):
-        monkeypatch.delenv(name)
-    monkeypatch.setenv("MUTALAAMCP_DATA_DIR", str(tmp_path / "data"))
-
-    defaults = Settings()
-
-    assert defaults.auth_base_url == "https://mutalaa.tr"
-    assert defaults.terms_base_url == "https://mutalaa.tr/terms"
-    monkeypatch.setenv("MUTALAAMCP_AUTH_BASE_URL", "https://auth.environment.test")
-    monkeypatch.setenv(
-        "MUTALAAMCP_TERMS_BASE_URL", "https://terms.environment.test/kosullar"
-    )
-
-    from_environment = Settings()
-
-    assert from_environment.auth_base_url == "https://auth.environment.test"
-    assert from_environment.terms_base_url == "https://terms.environment.test/kosullar"
-
-
-@pytest.mark.parametrize(
-    ("field_name", "expected_error"),
-    (
-        (
-            "auth_base_url",
-            "Mütalaa kimlik doğrulama temel URL'si, açıkça belirtilmiş bir geri döngü test kökeni olmadıkça https olmalıdır",
-        ),
-        (
-            "terms_base_url",
-            "koşullar temel URL'si, açıkça belirtilmiş bir geri döngü test kökeni olmadıkça https olmalıdır",
-        ),
-    ),
-)
-def test_settings_reject_non_loopback_http_auth_endpoints(
-    field_name: str, expected_error: str
-) -> None:
-    with pytest.raises(ValueError, match=expected_error):
-        Settings(**{field_name: "http://credential-sink.test"})
-
-
-def test_settings_allow_http_only_for_explicit_loopback_auth_origins() -> None:
-    settings = Settings(
-        auth_base_url="http://localhost:4318/",
-        terms_base_url="http://[::1]:4319/kosullar/",
-    )
-
-    assert settings.auth_base_url == "http://localhost:4318"
-    assert settings.terms_base_url == "http://[::1]:4319/kosullar"
-
-
-def test_auth_login_exercises_the_generated_stable_launcher(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    _patch_setup_prereqs(monkeypatch, tmp_path)
-    monkeypatch.setattr("mutalaamcp.cli._run_login", _silent_login)
-    _patch_fastmcp_client(monkeypatch, V1_TOOL_NAMES)
-    current = tmp_path / "bin" / "mutalaamcp"
-    stable = tmp_path / "data" / "bin" / "mutalaamcp"
-    generation_calls: list[tuple[Path, str]] = []
-    transport_calls: list[tuple[str, list[str], dict[str, str]]] = []
-
-    def _stable(settings: Settings, launcher: str) -> str:
-        generation_calls.append((settings.data_dir, launcher))
-        return str(stable)
-
-    class _Transport:
-        def __init__(
-            self,
-            command: str,
-            args: list[str],
-            env: dict[str, str],
-            keep_alive: bool,
-        ) -> None:
-            assert keep_alive is False
-            transport_calls.append((command, args, env))
-
-    monkeypatch.setattr("mutalaamcp.cli._stable_launcher", _stable)
-    monkeypatch.setattr("fastmcp.client.transports.StdioTransport", _Transport)
-
-    result = runner.invoke(app, ["auth", "login"])
-
-    assert result.exit_code == 0
-    assert generation_calls == [(tmp_path / "data", str(current))]
-    assert [(command, args) for command, args, _environment in transport_calls] == [
-        (str(stable), ["serve"])
-    ]
-    assert {
-        name: transport_calls[0][2][name]
-        for name in (
-            "MUTALAAMCP_AUTH_BASE_URL",
-            "MUTALAAMCP_TERMS_BASE_URL",
-        )
-    } == {
-        "MUTALAAMCP_AUTH_BASE_URL": "https://mutalaa.test",
-        "MUTALAAMCP_TERMS_BASE_URL": "https://mutalaa.test/kosullar",
-    }
-
-
-def test_auth_login_warns_when_only_the_official_source_is_unavailable(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    _patch_setup_prereqs(monkeypatch, tmp_path)
-    monkeypatch.setattr("mutalaamcp.cli._run_login", _silent_login)
-    _patch_fastmcp_client(
-        monkeypatch,
-        V1_TOOL_NAMES,
-        smoke_payload={
-            "error": {
-                "code": ErrorCode.UPSTREAM_UNAVAILABLE.value,
-                "details": {"upstream": "bedesten"},
-            }
-        },
-    )
-
-    result = runner.invoke(app, ["auth", "login"])
-
-    assert result.exit_code == 0
-    assert "resmî kaynak=bedesten" in _cli_text(result)
-    assert ErrorCode.UPSTREAM_UNAVAILABLE.value in _cli_text(result)
-
-
-def test_auth_login_retries_terms_activation_without_repeating_device_login(
+def test_settings_ignore_variables_left_by_older_service_registrations(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    terms_url = "https://mutalaa.test/kosullar"
-    opened: list[str] = []
+    monkeypatch.setenv("MUTALAAMCP_AUTH_BASE_URL", "https://mutalaa.tr")
+    monkeypatch.setenv("MUTALAAMCP_TERMS_BASE_URL", "https://mutalaa.tr/terms")
+    monkeypatch.setenv("MUTALAAMCP_ACTIVATION_TIMEOUT_SECONDS", "30")
 
-    class _TermsSession:
-        login_calls = 0
-        activate_calls = 0
+    settings = Settings()
 
-        async def login(self, _present: object) -> None:
-            self.login_calls += 1
-            raise ActivationError(
-                ErrorCode.TERMS_REQUIRED,
-                "accept terms",
-                http_status=403,
-                terms_url=terms_url,
-            )
-
-        async def activate(self) -> object:
-            self.activate_calls += 1
-            return object()
-
-    session = _TermsSession()
-    monkeypatch.setattr("mutalaamcp.cli._http_client", _null_http)
-    monkeypatch.setattr(
-        "mutalaamcp.cli._auth_session", lambda _settings, _client: session
-    )
-    monkeypatch.setattr("mutalaamcp.cli._confirm_terms_accepted", lambda: True)
-    monkeypatch.setattr(
-        "mutalaamcp.cli.webbrowser.open", lambda url: opened.append(url)
-    )
-
-    asyncio.run(_run_login(Settings()))
-
-    assert session.login_calls == 1
-    assert session.activate_calls == 1
-    assert opened == [terms_url]
+    assert not hasattr(settings, "auth_base_url")
+    assert not hasattr(settings, "terms_base_url")
 
 
 def test_launcher_resolver_accepts_absolute_executable(
@@ -854,15 +531,11 @@ def test_launcher_resolver_rejects_module_relative_and_unavailable(
     assert code == 1
 
 
-def test_cache_refresh_authorizes_before_provider_access(
+def test_cache_refresh_forces_provider_refresh(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     calls: list[str] = []
-
-    class _Auth:
-        async def ensure_authorized(self) -> None:
-            calls.append("authorize")
 
     class _Decisions:
         async def get_document(
@@ -874,7 +547,6 @@ def test_cache_refresh_authorizes_before_provider_access(
             return {"ok": True, "id": document_id}
 
     class _Runtime:
-        auth = _Auth()
         decisions = _Decisions()
 
         async def aclose(self) -> None:
@@ -905,59 +577,7 @@ def test_cache_refresh_authorizes_before_provider_access(
         f"Calls: {calls}"
     )
     assert '"id":"bedesten:decision-42"' in _cli_text(result)
-    assert calls == ["authorize", "provider", "close"]
-    assert_no_tokens(result)
-
-
-def test_cache_refresh_stops_before_cache_or_provider_when_auth_fails(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    calls: list[str] = []
-
-    class _Auth:
-        async def ensure_authorized(self) -> None:
-            calls.append("authorize")
-            raise AuthenticationRequired()
-
-    class _Decisions:
-        async def get_document(self, *_args: object, **_kwargs: object) -> object:
-            pytest.fail("provider must not be reached after authorization failure")
-
-    class _Runtime:
-        auth = _Auth()
-        decisions = _Decisions()
-
-        @property
-        def cache(self) -> object:
-            pytest.fail("cache must not be accessed after authorization failure")
-
-        async def aclose(self) -> None:
-            calls.append("close")
-
-    async def create_runtime(_settings: Settings) -> _Runtime:
-        return _Runtime()
-
-    monkeypatch.setattr("mutalaamcp.tools.create_runtime", create_runtime)
-    settings = Settings(
-        cache_dir=tmp_path / "cache",
-        data_dir=tmp_path / "data",
-        model_dir=tmp_path / "models",
-    )
-    monkeypatch.setattr("mutalaamcp.cli.load_settings", lambda: settings)
-
-    @contextmanager
-    def no_mutation_lock(_path: Path) -> Iterator[None]:
-        yield
-
-    monkeypatch.setattr("mutalaamcp.cli.mutation_lock", no_mutation_lock)
-
-    result = runner.invoke(app, ["cache", "refresh", "bedesten:decision-42"])
-
-    assert result.exit_code == 1
-    assert ErrorCode.AUTHENTICATION_REQUIRED in _cli_text(result)
-    assert calls == ["authorize", "close"]
-
+    assert calls == ["provider", "close"]
     assert_no_tokens(result)
 
 
@@ -1067,47 +687,6 @@ def test_launcher_discovery_keeps_venv_directory_without_activated_path(
     assert _launcher_path() == str(launcher.resolve())
 
 
-def test_login_rejects_running_server_before_starting_device_flow(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    calls: list[str] = []
-
-    async def login(_settings: Settings) -> None:
-        calls.append("login")
-
-    monkeypatch.setattr("mutalaamcp.cli._run_login", login)
-    with FileLock(tmp_path / "data" / "serve.lock"):
-        result = runner.invoke(app, ["auth", "login"])
-
-    assert result.exit_code == 1
-    assert ErrorCode.ALREADY_RUNNING in _cli_text(result)
-    assert "istemciyi kapatın" in _cli_text(result)
-    assert calls == []
-
-
-def test_login_releases_lock_before_health_check(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    lock_path = tmp_path / "data" / "serve.lock"
-    checks: list[str] = []
-
-    async def login(_settings: Settings) -> None:
-        assert serve_lock_held(lock_path)
-        checks.append("login")
-
-    async def health(_launcher: str) -> None:
-        with FileLock(lock_path):
-            checks.append("health")
-
-    monkeypatch.setattr("mutalaamcp.cli._run_login", login)
-    monkeypatch.setattr("mutalaamcp.cli._prepare_stable_launcher", lambda _: "launcher")
-    monkeypatch.setattr("mutalaamcp.cli._health_check", health)
-    result = runner.invoke(app, ["auth", "login"])
-
-    assert result.exit_code == 0
-    assert checks == ["login", "health"]
-
-
 def test_ocr_mutation_is_rejected_while_serve_lock_is_held(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -1123,27 +702,6 @@ def test_ocr_mutation_is_rejected_while_serve_lock_is_held(
     assert result.exit_code == 1
     assert ErrorCode.ALREADY_RUNNING in _cli_text(result)
     assert calls == []
-
-
-def test_logout_delegates_local_auth_session_logout(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    calls: list[str] = []
-
-    class FakeAuthSession:
-        def __init__(self, *_args: object, **_kwargs: object) -> None:
-            pass
-
-        async def logout(self) -> LogoutResult:
-            calls.append("logout")
-            return LogoutResult(cleanup_error=None)
-
-    monkeypatch.setattr("mutalaamcp.auth.AuthSession", FakeAuthSession)
-    monkeypatch.setattr("mutalaamcp.cli._http_client", _null_http)
-    result = runner.invoke(app, ["auth", "logout"])
-    assert result.exit_code == 0
-    assert calls == ["logout"]
-    assert_no_tokens(result)
 
 
 def test_cli_help_handles_legacy_output_encoding() -> None:

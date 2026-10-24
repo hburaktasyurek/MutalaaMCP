@@ -78,7 +78,7 @@ that it may be made available under this repository's existing MIT License.
 | --- | --- |
 | `src/` | Uygulama kodu / Application code |
 | `tests/` | Tekrarlanabilir testler / Reproducible tests |
-| `contracts/` | Araç ve etkinleştirme sözleşmeleri / Tool and activation contracts |
+| `contracts/` | Araç sözleşmeleri / Tool contracts |
 | `release/` | Dağıtım kaynakları ve istemci şablonları / Distribution resources and client templates |
 | `skills/` | Kullanıcının isteğe bağlı kurduğu beceri / User-installable companion skill |
 | `docs/` | Kullanım belgeleri ve proje sitesi / User documentation and project site |
@@ -91,9 +91,9 @@ veri içermeyen testlere, kalıcı bilgiyi kullanım belgelerine dönüştürün
 `.local/` or outside the repository. Local state directories are excluded from
 Git and package builds. Turn reusable findings into sanitized tests or durable documentation.
 
-Fork almak beceriyi kurmaz, oturum açmaz veya hizmet başlatmaz. `skills/` kullanıcıya
+Fork almak beceriyi kurmaz veya hizmet başlatmaz. `skills/` kullanıcıya
 sunulan üründür; bu depo üzerinde çalışan bir ajana otomatik araştırma talimatı yüklemez.
-/ Forking does not install a skill, sign in, or start a service. `skills/` is a
+/ Forking does not install a skill or start a service. `skills/` is a
 user-installable feature, not an automatically loaded instruction for repository contributors.
 
 CI testleri fork’larda çalışabilir. Pages ve PyPI yayın işleri yalnız ana depoda
@@ -105,15 +105,6 @@ repository. Configure your own workflow conditions, accounts, package name, link
 and branding when publishing a derivative; follow the trademark policy.
 
 ## Geliştirme hizmetleri / Development services
-
-Varsayılan kurulum Mütalaa hizmetini kullanır. Kendi uyumlu etkinleştirme hizmetinizi
-sınamak için işlem ortamında `MUTALAAMCP_AUTH_BASE_URL` ve `MUTALAAMCP_TERMS_BASE_URL`
-kullanabilirsiniz. Bu adresler araştırma proxy’si değildir. Uygulama `.env` yüklemez;
-kimlik sağlayıcı sırları sunucu tarafında kalır.
-/ Defaults use the Mütalaa service. Set `MUTALAAMCP_AUTH_BASE_URL` and
-`MUTALAAMCP_TERMS_BASE_URL` in the process environment when testing a compatible
-activation service. These are not research proxies. The app does not load `.env`;
-identity-provider secrets belong on the backend.
 
 Ayrı geliştirme oturumu için `MUTALAAMCP_DATA_DIR`, `MUTALAAMCP_CACHE_DIR` ve
 `MUTALAAMCP_HTTP_PORT` değerlerini ayırın; aynı kullanıcının normal kurulumu ile

@@ -5,9 +5,9 @@
 
 [Türkçe](README.md) · [Home](../../README.en.md)
 
-This guide covers macOS and Windows. You need a Mütalaa account and an AI app with local MCP support.
-In-app sign-in has been exercised on macOS; real-device validation of the Windows service is still pending.
-MCP availability depends on your app version and account.
+This guide covers macOS and Windows. You need an AI app with local MCP support; no Mütalaa account is required.
+Real-device validation of the Windows service is still pending.
+MCP availability depends on your app version and your account in that app.
 
 ## 1. Install from a terminal
 
@@ -35,9 +35,9 @@ A command list confirms installation. Git and a preinstalled Python are not requ
 
 ## 2. Connect your app
 
-### Local URL and in-app sign-in
+### Local URL (HTTP)
 
-For apps supporting local HTTP MCP and OAuth:
+For apps supporting local HTTP MCP:
 
 ```sh
 mutalaamcp setup --client codex --transport http
@@ -61,23 +61,15 @@ For Codex TOML configuration, the equivalent is:
 url = "http://127.0.0.1:18769/mcp"
 ```
 
-Enable the connection, restart the app if needed, and select **Authenticate**.
-Grant access on the browser connection page and complete Mütalaa sign-in and device confirmation in the window that opens.
-Keep the first connection page open. Return to the app when complete.
+Enable the connection and restart the app if needed. There is no sign-in or authentication step.
 
-Do not also run `auth login` for this flow. `127.0.0.1` is your own computer; it cannot be added to a cloud service that requires a remotely accessible server.
+`127.0.0.1` is your own computer; it cannot be added to a cloud service that requires a remotely accessible server.
 An MCP settings screen need not display individual tools for the connection to work.
 
 ### Other apps: command-based connection (stdio)
 
 Use this alternative if your app launches a command instead of connecting to a local URL.
-If you previously installed the HTTP service, run `mutalaamcp service stop` first.
-
-```sh
-mutalaamcp auth login
-```
-
-Complete browser sign-in and device approval, then choose your app:
+If you previously installed the HTTP service, run `mutalaamcp service stop` first. Then choose your app:
 
 | App | Command |
 | --- | --- |
@@ -117,10 +109,8 @@ The skill helps tool selection; it does not guarantee it.
 | --- | --- |
 | `uv` not found | Complete uv installation and open a new terminal. |
 | `mutalaamcp` not found | Run `uv tool update-shell` and open a new terminal. |
-| No Authenticate button | Check the URL. Run `mutalaamcp service status`; if necessary, run `mutalaamcp service start` and reopen the app. |
-| Expired code / `invalid_grant` | Start a new authentication from the app for HTTP, or run `mutalaamcp auth login` for stdio. Do not reuse the old code. |
-| Codex: local service is running but tools are missing / `OAuth reauthentication` | Check `mutalaamcp service status`; if stopped, run `mutalaamcp service start`. Renew the connection grant with **Authenticate** in Codex or `codex mcp login mutalaamcp` in a terminal. Then restart the MCP connection and try a new conversation. A running service does not confirm that Codex authentication succeeded. |
-| Email or terms confirmation required | Complete the step in your Mütalaa account, then sign in again. |
+| Tools missing on the HTTP connection | Check the URL. Run `mutalaamcp service status`; if necessary, run `mutalaamcp service start` and reopen the app. |
+| Codex asks for authentication left over from an older version | Run `codex mcp logout mutalaamcp` in a terminal, then restart the MCP connection and try a new conversation. |
 | Only web searches appear | Explicitly ask to “use Mütalaa” in a new conversation. Check skill installation. Without an MCP call, Mütalaa was not used. |
 | `already_running` | If the HTTP service is running, use `mutalaamcp service stop` before stdio. On older versions, close the other stdio clients. Close all Mütalaa connections before updates or cache/OCR maintenance. |
 | Source unavailable / 429 / 503 | Wait before retrying and respect any reported delay. |
@@ -160,7 +150,6 @@ To uninstall, remove the MCP entry from your app, then run:
 
 ```sh
 mutalaamcp service stop
-mutalaamcp auth logout
 uv tool uninstall mutalaamcp
 ```
 

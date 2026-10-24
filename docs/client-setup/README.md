@@ -5,9 +5,9 @@
 
 [English](README.en.md) · [Ana sayfa](../../README.md)
 
-Bu rehber macOS ve Windows içindir. Bir Mütalaa hesabı ve yerel MCP destekleyen yapay zekâ uygulaması gerekir.
-macOS’ta uygulama içi giriş denenmiştir; Windows hizmeti için gerçek cihaz doğrulaması henüz tamamlanmamıştır.
-Uygulamanızda MCP özelliğinin açık olması gerekir; erişim uygulama sürümüne ve hesabınıza bağlıdır.
+Bu rehber macOS ve Windows içindir. Yerel MCP destekleyen bir yapay zekâ uygulaması gerekir; Mütalaa hesabı gerekmez.
+Windows hizmeti için gerçek cihaz doğrulaması henüz tamamlanmamıştır.
+Uygulamanızda MCP özelliğinin açık olması gerekir; erişim uygulama sürümüne ve o uygulamadaki hesabınıza bağlıdır.
 
 ## 1. Terminalden kurulum
 
@@ -40,9 +40,9 @@ Komut listesi görünüyorsa kurulum tamamdır. Bu yöntem için Git veya önced
 
 ## 2. Uygulamanıza bağlayın
 
-### Yerel URL ve uygulama içi giriş
+### Yerel URL (HTTP)
 
-Yerel HTTP MCP ve OAuth destekleyen uygulamalar için:
+Yerel HTTP MCP destekleyen uygulamalar için:
 
 ```sh
 mutalaamcp setup --client codex --transport http
@@ -67,22 +67,14 @@ Codex’in TOML yapılandırmasını kullananlar için aynı ayar:
 url = "http://127.0.0.1:18769/mcp"
 ```
 
-Bağlantıyı etkinleştirin, gerekirse uygulamayı yeniden açın ve **Kimliği Doğrula** seçin.
-Tarayıcıdaki bağlantı sayfasında izin verin; açılan Mütalaa penceresinde giriş ve cihaz onayını tamamlayın.
-İlk bağlantı sayfasını açık bırakın. İşlem tamamlanınca uygulamaya dönün.
+Bağlantıyı etkinleştirin, gerekirse uygulamayı yeniden açın. Giriş veya kimlik doğrulama adımı yoktur.
 
-Bu yolda ayrıca `auth login` çalıştırılmaz. `127.0.0.1` kendi bilgisayarınızdır; bu adresi uzaktan bağlantı isteyen bir bulut hizmetine ekleyemezsiniz.
+`127.0.0.1` kendi bilgisayarınızdır; bu adresi uzaktan bağlantı isteyen bir bulut hizmetine ekleyemezsiniz.
 MCP ayar ekranında tek tek araçların listelenmemesi tek başına bağlantı hatası değildir.
 
 ### Diğer uygulamalar: komutla bağlantı (stdio)
 
-Uygulamanız yerel URL yerine komut çalıştırıyorsa bu alternatifi kullanın. HTTP hizmetini daha önce kurduysanız önce `mutalaamcp service stop` çalıştırın.
-
-```sh
-mutalaamcp auth login
-```
-
-Tarayıcıdaki giriş ve cihaz onayını tamamlayın. Sonra uygulamanızı seçin:
+Uygulamanız yerel URL yerine komut çalıştırıyorsa bu alternatifi kullanın. HTTP hizmetini daha önce kurduysanız önce `mutalaamcp service stop` çalıştırın. Sonra uygulamanızı seçin:
 
 | Uygulama | Komut |
 | --- | --- |
@@ -123,10 +115,8 @@ Beceri araç seçimini destekler; modelin her zaman seçmesini garanti etmez.
 | --- | --- |
 | `uv` bulunamadı | uv kurulumunu tamamlayıp yeni terminal açın. |
 | `mutalaamcp` bulunamadı | `uv tool update-shell` çalıştırıp yeni terminal açın. |
-| Kimliği Doğrula görünmüyor | URL kaydını kontrol edin. `mutalaamcp service status` ile hizmet durumunu görün; gerekirse `mutalaamcp service start` çalıştırıp uygulamayı yeniden açın. |
-| Codex: yerel hizmet çalışıyor ama araçlar görünmüyor / `OAuth reauthentication` | `mutalaamcp service status` ile hizmeti kontrol edin; durmuşsa `mutalaamcp service start` çalıştırın. Codex’te **Kimliği Doğrula** veya terminalde `codex mcp login mutalaamcp` ile bağlantı iznini yenileyin. Ardından MCP bağlantısını yeniden başlatıp yeni sohbette deneyin. Hizmetin açık olması, Codex’in kimlik doğrulamasının tamamlandığını göstermez. |
-| Giriş kodu süresi doldu / `invalid_grant` | HTTP bağlantısında uygulamadan yeni kimlik doğrulama başlatın; stdio’da `mutalaamcp auth login` çalıştırın. Eski kodu kullanmayın. |
-| E-posta veya koşul onayı isteniyor | Mütalaa hesabındaki adımı tamamlayıp yeniden giriş yapın. |
+| HTTP bağlantısında araçlar görünmüyor | URL kaydını kontrol edin. `mutalaamcp service status` ile hizmet durumunu görün; gerekirse `mutalaamcp service start` çalıştırıp uygulamayı yeniden açın. |
+| Codex eski sürümden kalan kimlik doğrulamasını istiyor | Terminalde `codex mcp logout mutalaamcp` çalıştırın, ardından MCP bağlantısını yeniden başlatıp yeni sohbette deneyin. |
 | Yalnız web araması yapıyor | Yeni sohbette açıkça “Mütalaa kullan” deyin. Beceri kurulumunu kontrol edin. MCP çağrısı olmadan bağlantının kullanıldığı kabul edilmez. |
 | `already_running` | HTTP hizmeti açıksa stdio için önce `mutalaamcp service stop` çalıştırın. Eski sürümde diğer stdio istemcilerini kapatın. Güncelleme veya önbellek/OCR bakımı için tüm Mütalaa bağlantılarını kapatın. |
 | Kaynak geçici olarak kullanılamıyor / 429 / 503 | Biraz bekleyin, varsa belirtilen bekleme süresine uyun. |
@@ -166,7 +156,6 @@ Kaldırmak için önce uygulamadan MCP kaydını silin, ardından HTTP hizmetini
 
 ```sh
 mutalaamcp service stop
-mutalaamcp auth logout
 uv tool uninstall mutalaamcp
 ```
 

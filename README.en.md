@@ -29,7 +29,7 @@ Identify my operating system and intended AI app from context; ask if unknown. I
 
 If you can run commands on my computer, inspect the existing installation and follow the appropriate documented steps. Preserve existing app settings and other MCP connections. Otherwise, guide me one short step at a time without assuming technical knowledge. Explain if my app does not support local MCP.
 
-Direct me to the sign-in screen when needed. Never ask me to paste passwords or access tokens into chat. Install the Mütalaa companion skill if supported.
+Install the Mütalaa companion skill if supported.
 
 Finally, verify the connection with a real Mütalaa tool call: find the Turkish Income Tax Law and return its source link. Do not substitute web search for this verification. If tools are unavailable, guide me to the required new conversation or app and mark verification as pending.
 
@@ -38,10 +38,10 @@ Briefly state what is complete and what I still need to do. Do not claim the ins
 
 ## Manual setup
 
-You need a **Mütalaa account**, an internet connection, and an **AI app that supports local MCP connections**.
+You need an internet connection and an **AI app that supports local MCP connections**. No Mütalaa account is required.
 
 1. Follow the [setup guide](docs/client-setup/README.en.md) for your computer. No repository clone or coding is required.
-2. Add Mütalaa to your app and sign in.
+2. Add Mütalaa to your app.
 3. Check the [Mütalaa skill](docs/mutalaa-skill.md); add it separately if setup did not provide it, and complete any import your app requires.
 4. Try this in a new conversation:
 
@@ -55,10 +55,8 @@ A `mutalaamcp` tool call shows that Mütalaa was used. If you only see web searc
 
 Local use is free, with no commercial-use quota. Your AI app may charge separately.
 Processing and the research cache stay on your computer; source requests go to the relevant official services.
-Your Mütalaa account is used for sign-in and activation; legal queries and document text are not sent to the activation service.
+There is no account, sign-in, or activation; legal queries and document text are not sent to Mütalaa.
 Your AI app processes your question and tool results under its own data policy.
-
-Mütalaa product announcements may appear separately at the end of an answer. [How announcements work](docs/announcements.md).
 
 ## For developers
 

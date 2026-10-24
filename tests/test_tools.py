@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import os
 import stat
-from collections.abc import AsyncIterator, Callable, Mapping
+from collections.abc import AsyncIterator, Mapping
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -15,7 +15,6 @@ import pytest
 from fastmcp import Client
 
 from mutalaamcp import tools
-from mutalaamcp.auth import ActivationError, AuthenticationRequired, SessionExpired
 from mutalaamcp.domain.errors import ErrorCode
 from mutalaamcp.server import V1_TOOL_NAMES, create_server
 from mutalaamcp.settings import Settings
@@ -26,7 +25,6 @@ _CONTRACT = json.loads(_CONTRACT_PATH.read_text(encoding="utf-8"))
 _TOOL_CONTRACTS = {tool["name"]: tool for tool in _CONTRACT["tools"]}
 _SCHEMA_DEFINITIONS = _CONTRACT["$defs"]
 _SOURCE_URL = "https://source.invalid/record"
-_TERMS_URL = "https://terms.invalid/accept"
 _CONTENT_HASH = "sha256:" + "0" * 64
 
 _EXPECTED_PUBLIC_TOOL_NAMES = frozenset(
@@ -81,7 +79,7 @@ _TOOL_CALLS = {
 }
 
 
-_UNAUTHENTICATED_INVALID_RAW_CALLS: tuple[tuple[str, dict[str, object]], ...] = (
+_INVALID_RAW_CALLS: tuple[tuple[str, dict[str, object]], ...] = (
     ("belge_getir", {"id": "not-a-document-id"}),
     ("karar_ara", {}),
     ("anayasa_karari_ara", {"kind": "not-a-kind"}),
@@ -90,10 +88,6 @@ _UNAUTHENTICATED_INVALID_RAW_CALLS: tuple[tuple[str, dict[str, object]], ...] = 
         {"courts": ["yargitay"], "date_from": "2026-99-99"},
     ),
     ("belge_getir", {"id": 42}),
-)
-
-_AUTHORIZED_INVALID_RAW_CALLS = (
-    *_UNAUTHENTICATED_INVALID_RAW_CALLS,
     ("mevzuat_ara", {"query": "borç", "types": []}),
 )
 
@@ -134,17 +128,6 @@ def _document_success(
             "2026-09-04T00:00:00+00:00" if document_id.startswith("mevzuat:") else None
         ),
     }
-
-
-class FakeAuth:
-    def __init__(self, error: Exception | None = None) -> None:
-        self.error = error
-        self.calls = 0
-
-    async def ensure_authorized(self) -> None:
-        self.calls += 1
-        if self.error is not None:
-            raise self.error
 
 
 class FakeDecisions:
@@ -291,7 +274,6 @@ class FakeConstitutional:
 
 @dataclass
 class FakeRuntime:
-    auth: FakeAuth = field(default_factory=FakeAuth)
     decisions: FakeDecisions = field(default_factory=FakeDecisions)
     legislation: FakeLegislation = field(default_factory=FakeLegislation)
     constitutional: FakeConstitutional = field(default_factory=FakeConstitutional)
@@ -547,7 +529,6 @@ async def test_all_tools_forward_arguments_and_contract_defaults() -> None:
                 is True
             )
 
-    assert runtime.auth.calls == 8
     assert runtime.decisions.calls == [
         (
             "search",
@@ -682,90 +663,9 @@ async def test_belge_getir_routes_namespaced_ids_and_rejects_raw_urls() -> None:
     ]
 
 
-def _activation_error(code: ErrorCode) -> ActivationError:
-    return ActivationError(
-        code,
-        f"{code.value} fixture",
-        http_status=409 if code is ErrorCode.ACCOUNT_LINK_REQUIRED else 403,
-        terms_url=_TERMS_URL if code is ErrorCode.TERMS_REQUIRED else None,
-    )
-
-
-_AUTH_FAILURES: tuple[tuple[Callable[[], Exception], ErrorCode, str | None], ...] = (
-    (AuthenticationRequired, ErrorCode.AUTHENTICATION_REQUIRED, None),
-    (lambda: SessionExpired("refresh token expired"), ErrorCode.SESSION_EXPIRED, None),
-    (
-        lambda: _activation_error(ErrorCode.TERMS_REQUIRED),
-        ErrorCode.TERMS_REQUIRED,
-        _TERMS_URL,
-    ),
-    (
-        lambda: _activation_error(ErrorCode.ACCOUNT_DISABLED),
-        ErrorCode.ACCOUNT_DISABLED,
-        None,
-    ),
-    (
-        lambda: _activation_error(ErrorCode.ACCOUNT_LINK_REQUIRED),
-        ErrorCode.ACCOUNT_LINK_REQUIRED,
-        None,
-    ),
-)
-
-
 @pytest.mark.asyncio
-@pytest.mark.parametrize("name,arguments", _TOOL_CALLS.items())
-@pytest.mark.parametrize("error_factory,code,terms_url", _AUTH_FAILURES)
-async def test_every_raw_tool_call_authenticates_before_any_service_or_cache_access(
-    name: str,
-    arguments: dict[str, object],
-    error_factory: Callable[[], Exception],
-    code: ErrorCode,
-    terms_url: str | None,
-) -> None:
-    runtime = FakeRuntime(auth=FakeAuth(error_factory()))
-    server = _server_with_runtime(runtime)
-
-    async with Client(server) as client:
-        result = await client.call_tool(name, arguments, raise_on_error=False)
-
-    payload = _result_data(result)
-    error = payload["error"]
-    assert payload["ok"] is False
-    assert error["code"] == code
-    assert error["retryable"] is False
-    if terms_url is None:
-        assert "details" not in error or "terms_url" not in error["details"]
-    else:
-        assert error["details"]["terms_url"] == terms_url
-    assert runtime.auth.calls == 1
-    assert runtime.cache_reads == 0
-    assert runtime.service_calls == 0
-    assert runtime.closes == 1
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("name,arguments", _UNAUTHENTICATED_INVALID_RAW_CALLS)
-async def test_unauthenticated_invalid_raw_calls_return_auth_before_validation(
-    name: str, arguments: dict[str, object]
-) -> None:
-    runtime = FakeRuntime(auth=FakeAuth(AuthenticationRequired()))
-    server = _server_with_runtime(runtime)
-
-    async with Client(server) as client:
-        result = await client.call_tool_mcp(name, arguments)
-    assert isinstance(result.structuredContent, Mapping)
-    payload = dict(result.structuredContent)
-    assert payload["ok"] is False
-    assert payload["error"]["code"] == ErrorCode.AUTHENTICATION_REQUIRED
-    assert runtime.auth.calls == 1
-    assert runtime.cache_reads == 0
-    assert runtime.service_calls == 0
-    assert runtime.closes == 1
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("name,arguments", _AUTHORIZED_INVALID_RAW_CALLS)
-async def test_authorized_invalid_raw_calls_return_contract_invalid_params(
+@pytest.mark.parametrize("name,arguments", _INVALID_RAW_CALLS)
+async def test_invalid_raw_calls_return_contract_invalid_params(
     name: str, arguments: dict[str, object]
 ) -> None:
     runtime = FakeRuntime()
@@ -781,7 +681,6 @@ async def test_authorized_invalid_raw_calls_return_contract_invalid_params(
     field_errors = payload["error"]["details"]["field_errors"]
     assert isinstance(field_errors, Mapping)
     assert field_errors
-    assert runtime.auth.calls == 1
     assert runtime.service_calls == 0
     assert runtime.closes == 1
 
@@ -807,17 +706,18 @@ async def test_tool_lifespan_signals_after_creating_the_real_cache(
     if os.name == "posix":
         marker.chmod(0o600)
     settings = Settings(
-        auth_base_url="https://auth.test",
-        terms_base_url="https://terms.test",
         cache_dir=tmp_path / "cache",
         data_dir=tmp_path / "data",
         model_dir=tmp_path / "models",
     )
     monkeypatch.setenv(tools._RUNTIME_READY_FILE_ENV, str(marker))
     monkeypatch.setattr(tools, "load_settings", lambda: settings)
+    cleaned: list[Path] = []
+    monkeypatch.setattr(tools, "remove_legacy_auth_state", cleaned.append)
 
     async with tools.tool_lifespan(object()) as context:
         assert isinstance(context["runtime"], tools.ToolRuntime)
+        assert cleaned == [settings.data_dir]
         assert settings.cache_db_path.is_file()
         assert marker.read_bytes() == b"ready\n"
         if os.name == "posix":
@@ -943,38 +843,3 @@ async def test_research_start_rejects_invalid_skill_status_before_search() -> No
         )
     assert result.structuredContent["error"]["code"] == ErrorCode.INVALID_PARAMS
     assert runtime.service_calls == 0
-
-
-@pytest.mark.asyncio
-async def test_announcements_are_added_to_success_without_changing_errors(
-    tmp_path,
-) -> None:
-    import httpx
-
-    from mutalaamcp.announcements import Announcements
-
-    item = {"id": "news-1", "title": "Duyuru", "body": "Ürün haberi", "url": None}
-    runtime = FakeRuntime()
-    async with httpx.AsyncClient(
-        transport=httpx.MockTransport(
-            lambda r: httpx.Response(200, json={"announcement": item})
-        )
-    ) as http:
-        runtime.announcements = Announcements(http, "https://mutalaa.tr", tmp_path)
-        async with Client(_server_with_runtime(runtime)) as client:
-            invalid = _result_data(
-                await client.call_tool(
-                    "mevzuat_ara", {"page_size": 999}, raise_on_error=False
-                )
-            )
-            assert invalid["ok"] is False
-            assert "announcement" not in invalid
-            result = _result_data(
-                await client.call_tool("mevzuat_ara", {"number": "634"})
-            )
-            assert result["ok"] is True
-            assert result["announcement"] == item
-            repeated = _result_data(
-                await client.call_tool("mevzuat_ara", {"number": "634"})
-            )
-            assert "announcement" not in repeated

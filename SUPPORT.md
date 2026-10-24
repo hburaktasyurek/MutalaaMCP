@@ -6,7 +6,7 @@
 
 MutalaaMCP'nin yeniden üretilebilir ve hassas olmayan sorunlarını
 [GitHub Issues](https://github.com/hburaktasyurek/MutalaaMCP/issues) üzerinden
-bildirin: belgelenen paket kurulumu, yerel HTTP/OAuth veya `stdio` başlatma, belgelenen
+bildirin: belgelenen paket kurulumu, yerel HTTP veya `stdio` başlatma, belgelenen
 ayar sözleşmesi veya istemcinin desteklenen bir dış kaynak yanıtını işlemesindeki
 kusur. Paket veya kaynak kod sürümünü, işletim sistemini, etkilenen istemcinin adını ve
 sürümünü, hassas verilerden arındırılmış yeniden üretim adımlarını, beklenen ve

@@ -18,7 +18,7 @@ Eski paketlerde aşağıdaki beceri yükleyicisi veya elle kurulum yöntemi kull
 | Claude Desktop | `mutalaamcp setup --client claude-desktop`: beceri ZIP dosyasını hazırlar ve yolunu gösterir. Claude'da **Customize > Skills** üzerinden içe aktarın ve etkinleştirin. |
 | Diğer istemciler | `setup` ZIP dosyasını da hazırlar; uygulama beceri destekliyorsa kendi içe aktarma yöntemiyle ekleyin. Destek yoksa MCP'yi açıkça çağırarak kullanabilirsiniz. |
 
-MCP ayarını komutun çıktısıyla uygulamaya ekleyin ve hesap bağlantısını tamamlayın;
+MCP ayarını komutun çıktısıyla uygulamaya ekleyin;
 `setup` MCP ayar dosyanızı değiştirmez. Beceri kurulumu veya içe aktarma tek başına
 MCP bağlantısı kurmaz. İçe aktarma gereken uygulamalarda ZIP hazırlanması kurulumun
 bittiği anlamına gelmez. Yeni sohbet açın; beceri görünmüyorsa uygulamayı yeniden başlatın.
@@ -87,7 +87,7 @@ Claude Desktop receives a ZIP to import and enable through **Customize > Skills*
 Other clients receive the same ZIP with a prompt to use their supported import method.
 An exported ZIP is not reported as an installed skill.
 
-Add the printed MCP configuration to your app and complete authentication. Start a new
+Add the printed MCP configuration to your app. Start a new
 conversation after installing or importing the skill. Older package versions may require
 an update and another `setup` run. Re-import ZIP skills when updating them.
 The entry tool offers conditional installation guidance for existing users, based on

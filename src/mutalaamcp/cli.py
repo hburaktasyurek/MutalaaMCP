@@ -10,11 +10,10 @@ import re
 import shutil
 import subprocess
 import sys
-import webbrowser
 from collections.abc import Mapping
 from contextlib import suppress
 from pathlib import Path
-from typing import Any, NoReturn, Protocol, runtime_checkable
+from typing import Any, NoReturn
 
 import httpx
 import typer
@@ -32,20 +31,10 @@ from typer.core import TyperCommand, TyperGroup
 from mutalaamcp.domain.errors import ErrorCode
 from mutalaamcp.ocr import OcrError
 from mutalaamcp.runtime import AlreadyRunning, FileLock, mutation_lock
-from mutalaamcp.server import V1_TOOL_NAMES, ToolRegistrationError
+from mutalaamcp.server import ToolRegistrationError
 from mutalaamcp.settings import Settings
 
 _CONSOLE_SCRIPT = "mutalaamcp"
-_TERMS_ACTIVATION_RETRIES = 1
-_OFFICIAL_SMOKE_TOOL = "mevzuat_ara"
-_OFFICIAL_SMOKE_ARGUMENTS = {"number": "4721", "page_size": 1}
-_OFFICIAL_SMOKE_SOURCE = "bedesten"
-_UPSTREAM_SMOKE_ERROR_CODES = frozenset(
-    {
-        ErrorCode.UPSTREAM_RATE_LIMITED.value,
-        ErrorCode.UPSTREAM_UNAVAILABLE.value,
-    }
-)
 _TURKISH_HELP_OPTION = "Bu yardım iletisini göster ve çık."
 _TURKISH_SUBCOMMAND_METAVAR = "KOMUT [BAĞIMSIZ_DEĞİŞKENLER]..."
 _TURKISH_USAGE_PREFIX = "Kullanım: "
@@ -272,10 +261,8 @@ app = _TurkishTyper(
     pretty_exceptions_enable=False,
     pretty_exceptions_show_locals=False,
 )
-auth_app = _TurkishTyper(no_args_is_help=True, pretty_exceptions_enable=False)
 cache_app = _TurkishTyper(no_args_is_help=True, pretty_exceptions_enable=False)
 ocr_app = _TurkishTyper(no_args_is_help=True, pretty_exceptions_enable=False)
-app.add_typer(auth_app, name="auth")
 app.add_typer(cache_app, name="cache")
 app.add_typer(ocr_app, name="ocr")
 
@@ -371,74 +358,19 @@ def _http_client(settings: Settings) -> httpx.AsyncClient:
     )
 
 
-def _auth_session(settings: Settings, http_client: httpx.AsyncClient):
-    from mutalaamcp.auth import AuthSession
-
-    return AuthSession(
-        http_client,
-        auth_base_url=settings.auth_base_url,
-        allowed_terms_base_url=settings.terms_base_url,
-        data_dir=settings.data_dir,
-    )
-
-
-async def _present_authorization(authorization) -> None:
-    _err(
-        f"{authorization.verification_uri} adresini açın ve {authorization.user_code} kodunu girin."
-    )
-    _err(authorization.verification_uri_complete)
-    try:
-        webbrowser.open(authorization.verification_uri_complete)
-    except Exception:  # noqa: BLE001 -- browser launch must not abort login
-        return
-
-
-def _handle_auth_failure(exc: BaseException) -> NoReturn:
-    from mutalaamcp.auth import AuthenticationRequired
-    from mutalaamcp.auth.activation import (
-        ActivationError,
-        ActivationProtocolError,
-        activation_error_message,
-    )
-    from mutalaamcp.auth.device_flow import DeviceFlowError, SessionExpired
-    from mutalaamcp.auth.state import AuthStateError
-
+def _handle_failure(exc: BaseException) -> NoReturn:
     if isinstance(exc, typer.Exit):
         raise exc
     if isinstance(exc, AlreadyRunning):
         _fail(ErrorCode.ALREADY_RUNNING, str(exc))
     if isinstance(exc, ToolRegistrationError):
         _fail(ErrorCode.NOT_CONFIGURED, str(exc))
-    if isinstance(exc, AuthenticationRequired):
-        _fail(ErrorCode.AUTHENTICATION_REQUIRED, "Kimlik doğrulaması gerekli.")
-    if isinstance(exc, SessionExpired):
-        remote_detail = (
-            exc.description if exc.description and exc.description.strip() else None
-        )
-        _fail(
-            ErrorCode.SESSION_EXPIRED,
-            activation_error_message(ErrorCode.SESSION_EXPIRED, remote_detail),
-        )
-    if isinstance(exc, ActivationError):
-        if exc.terms_url:
-            _err(exc.terms_url)
-            try:
-                webbrowser.open(exc.terms_url)
-            except Exception:  # noqa: BLE001 -- terms browser launch is best effort
-                _err("Koşullar adresi tarayıcıda açılamadı.")
-        _fail(exc.code, activation_error_message(exc.code, exc.remote_detail))
-    if isinstance(exc, (ActivationProtocolError, DeviceFlowError, httpx.HTTPError)):
+    if isinstance(exc, httpx.HTTPError):
         _fail(
             ErrorCode.UPSTREAM_UNAVAILABLE,
-            "Kimlik doğrulama hizmetine şu anda erişilemiyor. "
+            "Hizmete şu anda erişilemiyor. "
             f"Teknik ayrıntı: {_technical_error_detail(exc)}",
         )
-    if isinstance(exc, AuthStateError):
-        _err(
-            "Yerel kimlik doğrulama durumu okunamadı. "
-            f"Teknik ayrıntı: {_technical_error_detail(exc)}"
-        )
-        raise typer.Exit(1)
     if isinstance(exc, ValidationError):
         _fail(ErrorCode.NOT_CONFIGURED, _format_validation_error(exc, settings=False))
     raise exc
@@ -565,173 +497,6 @@ def _print_stdio_config(client: str, launcher: str) -> None:
     _copy_to_clipboard(config)
 
 
-async def _run_login(settings: Settings) -> None:
-    from mutalaamcp.auth.activation import ActivationError
-
-    async with _http_client(settings) as client:
-        session = _auth_session(settings, client)
-        try:
-            await session.login(_present_authorization)
-        except ActivationError as error:
-            if error.code is not ErrorCode.TERMS_REQUIRED:
-                raise
-            await _retry_terms_activation(settings, session, error)
-
-
-async def _run_logout(settings: Settings) -> None:
-    async with _http_client(settings) as client:
-        result = await _auth_session(settings, client).logout()
-
-    if result.cleanup_error is not None:
-        _err(f"Oturum kapatma temizleme uyarısı: {result.cleanup_error}")
-
-
-def _allowlisted_terms_url(settings: Settings, terms_url: str | None) -> str:
-    """Revalidate an activation terms URL before passing it to the browser."""
-    from mutalaamcp.auth.activation import (
-        ActivationProtocolError,
-        _allowed_terms_url,
-        _parse_allowed_terms_base,
-    )
-
-    if terms_url is None:
-        _fail(ErrorCode.NOT_CONFIGURED, "terms_required bir koşullar adresi içermedi.")
-    try:
-        return _allowed_terms_url(
-            terms_url, _parse_allowed_terms_base(settings.terms_base_url or "")
-        )
-    except (ActivationProtocolError, ValueError) as exc:
-        _fail(ErrorCode.NOT_CONFIGURED, str(exc))
-
-
-def _confirm_terms_accepted() -> bool:
-    """Require an affirmative acknowledgement before activation is retried."""
-    try:
-        return typer.confirm(
-            "Koşulları tarayıcıda kabul ettim; etkinleştirme yeniden denensin mi?",
-            default=False,
-            abort=False,
-        )
-    except (EOFError, typer.Abort):
-        return False
-
-
-async def _retry_terms_activation(settings: Settings, session: Any, error: Any) -> None:
-    """Retry activation after an authenticated user accepts allowed terms."""
-    from mutalaamcp.auth.activation import ActivationError
-
-    for _attempt in range(_TERMS_ACTIVATION_RETRIES):
-        terms_url = _allowlisted_terms_url(settings, error.terms_url)
-        _err(f"Girişin tamamlanabilmesi için koşullar kabul edilmelidir: {terms_url}")
-        try:
-            webbrowser.open(terms_url)
-        except Exception:  # noqa: BLE001 -- browser launch must not block login
-            _err("Koşullar adresi tarayıcıda açılamadı.")
-        if not _confirm_terms_accepted():
-            _fail(
-                ErrorCode.TERMS_REQUIRED,
-                "Girişi tamamlamak için koşulların açıkça kabul edilmesi gerekli.",
-            )
-        try:
-            await session.activate()
-            return
-        except ActivationError as retry_error:
-            if retry_error.code is not ErrorCode.TERMS_REQUIRED:
-                raise
-            error = retry_error
-    raise error
-
-
-@runtime_checkable
-class _JsonDumpable(Protocol):
-    def model_dump(self, *, mode: str) -> object: ...
-
-
-def _structured_payload(result: object) -> object:
-    payload = getattr(result, "structured_content", result)
-    if isinstance(payload, _JsonDumpable):
-        model_dump = payload.model_dump
-        return model_dump(mode="json") if callable(model_dump) else payload
-    return payload
-
-
-def _tool_error(payload: object) -> tuple[str | None, str | None] | None:
-    if not isinstance(payload, Mapping):
-        return None
-    error = payload.get("error")
-    if not isinstance(error, Mapping):
-        return None
-    code = error.get("code")
-    details = error.get("details")
-    upstream = details.get("upstream") if isinstance(details, Mapping) else None
-    return (
-        code if isinstance(code, str) else None,
-        upstream if isinstance(upstream, str) else None,
-    )
-
-
-async def _health_check(launcher: str) -> None:
-    """Exercise the stable stdio launcher and distinguish upstream smoke outages."""
-    from fastmcp import Client
-    from fastmcp.client.transports import StdioTransport
-
-    transport = StdioTransport(
-        command=launcher,
-        args=["serve"],
-        env=dict(os.environ),
-        keep_alive=False,
-    )
-    try:
-        async with Client(transport) as client:
-            tools = await client.list_tools()
-            names = {tool.name for tool in tools}
-            if names != V1_TOOL_NAMES:
-                expected = ", ".join(sorted(V1_TOOL_NAMES))
-                found = ", ".join(sorted(names)) if names else "yok"
-                _fail(
-                    ErrorCode.NOT_CONFIGURED,
-                    "MCP sunucusu tam olarak şu V1 araçlarını sunmalıdır: "
-                    f"{expected}; bulunan: {found}",
-                )
-            local_payload = _structured_payload(
-                await client.call_tool("belge_getir", {"id": "invalid"})
-            )
-            smoke_payload = _structured_payload(
-                await client.call_tool(_OFFICIAL_SMOKE_TOOL, _OFFICIAL_SMOKE_ARGUMENTS)
-            )
-    except typer.Exit:
-        raise
-    except Exception as exc:  # noqa: BLE001 -- external launcher boundary
-        _fail(
-            ErrorCode.NOT_CONFIGURED,
-            f"Kararlı başlatıcının MCP sağlık denetimi başarısız oldu ({type(exc).__name__}).",
-        )
-
-    local_error = _tool_error(local_payload)
-    if local_error is None or local_error[0] != ErrorCode.INVALID_PARAMS.value:
-        _fail(
-            ErrorCode.NOT_CONFIGURED,
-            "Yerel MCP aracı sağlık denetiminde geçersiz belge kimliğini reddetmedi.",
-        )
-
-    smoke_error = _tool_error(smoke_payload)
-    if smoke_error is None:
-        return
-    error_code, source = smoke_error
-    if source == _OFFICIAL_SMOKE_SOURCE and error_code in _UPSTREAM_SMOKE_ERROR_CODES:
-        _err(
-            "Bağlantı uyarısı: "
-            f"resmî kaynak={source} hata_kodu={error_code}; "
-            "yerel başlatıcı sağlıklı, ancak kaynak geçici olarak kullanılamıyor."
-        )
-        return
-    _fail(
-        ErrorCode.NOT_CONFIGURED,
-        "Resmî kaynak deneme çağrısı başarısız oldu"
-        f" (kaynak={source or 'bilinmiyor'}, hata_kodu={error_code or 'bilinmiyor'}).",
-    )
-
-
 def _confirm_ocr_install() -> bool:
     """Ask for an affirmative OCR download decision; EOF is the default no."""
 
@@ -777,7 +542,7 @@ def serve() -> None:
     except typer.Exit:
         raise
     except Exception as exc:  # noqa: BLE001 -- CLI boundary converts errors to exits
-        _handle_auth_failure(exc)
+        _handle_failure(exc)
 
 
 @app.command()
@@ -788,7 +553,7 @@ def setup(
         help="Yazdırılacak stdio yapılandırması için desteklenen masaüstü istemcisi kısaltması.",
     ),
     transport: str = typer.Option(
-        "stdio", "--transport", help="stdio veya uygulama içi OAuth için http (Codex)."
+        "stdio", "--transport", help="stdio veya yerel HTTP (Codex)."
     ),
 ) -> None:
     """MCP bağlantısını hazırla ve Mütalaa becerisini birlikte kur veya paketle."""
@@ -803,7 +568,7 @@ def setup(
         if transport not in {"stdio", "http"}:
             raise ValueError("--transport stdio veya http olmalıdır.")
         if transport == "http" and client != "codex":
-            raise ValueError("HTTP giriş akışı için --client codex seçin.")
+            raise ValueError("HTTP bağlantısı için --client codex seçin.")
         # Validate and install the companion before modifying a running service
         # or launcher. If MCP setup fails later, this status remains explicit.
         _err(setup_companion_skill(client, settings.data_dir))
@@ -814,7 +579,6 @@ def setup(
             config = f'[mcp_servers.mutalaamcp]\nurl = "http://127.0.0.1:{settings.http_port}/mcp"\n'
             print(config, end="")
             _copy_to_clipboard(config)
-            _err("Uygulamada MutalaaMCP için Kimliği Doğrula seçin.")
             return
         launcher = _prepare_stable_launcher(settings)
         _print_stdio_config(client, launcher)
@@ -825,12 +589,12 @@ def setup(
     except (OSError, subprocess.CalledProcessError, RuntimeError) as exc:
         _fail(ErrorCode.NOT_CONFIGURED, f"Yerel kurulum tamamlanamadı: {exc}")
     except Exception as exc:  # noqa: BLE001 -- CLI boundary converts errors to exits
-        _handle_auth_failure(exc)
+        _handle_failure(exc)
 
 
 @app.command("serve-http")
 def serve_http() -> None:
-    """Yerel HTTP ve uygulama içi OAuth sunucusunu çalıştır."""
+    """Yerel HTTP MCP sunucusunu çalıştır."""
     from mutalaamcp.native_service import run_native_server
 
     settings = load_settings()
@@ -846,7 +610,7 @@ def serve_http() -> None:
 def native_service(
     action: str = typer.Argument("status", help="start, stop veya status"),
 ) -> None:
-    """Uygulama içi giriş için yerel HTTP hizmetini yönet."""
+    """Yerel HTTP MCP hizmetini yönet."""
     from mutalaamcp.native_service import (
         install_native_service,
         native_service_ready,
@@ -864,69 +628,6 @@ def native_service(
     except (OSError, subprocess.CalledProcessError, RuntimeError, ValueError) as exc:
         _fail(ErrorCode.NOT_CONFIGURED, f"Yerel hizmet işlemi tamamlanamadı: {exc}")
     print("status=running" if native_service_ready(settings) else "status=stopped")
-
-
-@auth_app.command("login")
-def auth_login() -> None:
-    """Mütalaa cihaz oturumunu aç ve yerel MCP bağlantısını doğrula."""
-
-    settings = load_settings()
-    try:
-        # Reject a running client before opening the browser or replacing its
-        # credentials. Release the lock before the health-check child starts.
-        with FileLock(settings.serve_lock_path):
-            asyncio.run(_run_login(settings))
-            launcher = _prepare_stable_launcher(settings)
-        asyncio.run(_health_check(launcher))
-    except AlreadyRunning as exc:
-        _fail(
-            ErrorCode.ALREADY_RUNNING,
-            f"{exc} Giriş yapmadan önce MutalaaMCP kullanan istemciyi kapatın; "
-            "ardından mutalaamcp auth login komutunu yeniden çalıştırın.",
-        )
-    except Exception as exc:  # noqa: BLE001 -- CLI boundary converts errors to exits
-        _handle_auth_failure(exc)
-
-
-@auth_app.command("logout")
-def auth_logout() -> None:
-    """Yerel kimlik bilgilerini ve etkinleştirme durumunu temizle."""
-
-    settings = load_settings()
-    try:
-        asyncio.run(_run_logout(settings))
-    except Exception as exc:  # noqa: BLE001 -- CLI boundary converts errors to exits
-        _handle_auth_failure(exc)
-
-
-@auth_app.command("status")
-def auth_status() -> None:
-    """Yerel oturum ve etkinleştirme durumunu göster."""
-
-    from mutalaamcp.auth.state import AuthState, AuthStateError
-
-    settings = load_settings()
-    try:
-        state = AuthState(settings.data_dir).read()
-    except AuthStateError as exc:
-        _err(str(exc))
-        raise typer.Exit(1) from exc
-    if state is None:
-        print("status=none")
-        return
-    status = state.status
-    plan = state.plan
-    checked_at = state.checked_at
-    print(
-        json.dumps(
-            {
-                "status": status,
-                **({"plan": plan} if plan is not None else {}),
-                **({"checked_at": checked_at} if checked_at is not None else {}),
-            },
-            separators=(",", ":"),
-        )
-    )
 
 
 @cache_app.command("clear")
@@ -965,7 +666,6 @@ async def _refresh_cached_document(
     parsed = parse_document_id(document_id)
     runtime = await create_runtime(settings)
     try:
-        await runtime.auth.ensure_authorized()
         canonical_id = parsed.format()
         if isinstance(parsed, BedestenId):
             return await runtime.decisions.get_document(canonical_id, refresh=True)
@@ -1014,9 +714,6 @@ def _raise_refresh_error(result: dict[str, object]) -> None:
 def cache_refresh(document_id: str) -> None:
     """Ad alanlı kimliğiyle önbellekteki bir belgeyi yeniden doğrula."""
 
-    from mutalaamcp.auth.activation import ActivationError, ActivationProtocolError
-    from mutalaamcp.auth.device_flow import DeviceFlowError
-    from mutalaamcp.auth.state import AuthStateError
     from mutalaamcp.cache import CacheError
     from mutalaamcp.conversion.documents import DocumentConversionError
     from mutalaamcp.domain.ids import InvalidDocumentId, parse_document_id
@@ -1039,15 +736,8 @@ def cache_refresh(document_id: str) -> None:
             ErrorCode.INVALID_PARAMS,
             f"Belge kimliği geçersiz: {_technical_error_detail(exc)}",
         )
-    except (
-        ActivationError,
-        ActivationProtocolError,
-        AuthStateError,
-        DeviceFlowError,
-        httpx.HTTPError,
-        ValidationError,
-    ) as exc:
-        _handle_auth_failure(exc)
+    except (httpx.HTTPError, ValidationError) as exc:
+        _handle_failure(exc)
     except (
         AnayasaProtocolError,
         CacheError,

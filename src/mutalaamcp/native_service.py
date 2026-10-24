@@ -1,4 +1,4 @@
-"""Loopback HTTP runtime and per-user startup registration for native OAuth."""
+"""Loopback HTTP runtime and per-user startup registration for native clients."""
 
 from __future__ import annotations
 
@@ -49,30 +49,21 @@ class LoopbackGuard:
 
 
 def create_native_server(settings: Settings):
-    from mutalaamcp.auth.native import NativeOAuth
     from mutalaamcp.server import create_server
-    from mutalaamcp.tools import ToolRuntime, tool_lifespan
-
-    provider = NativeOAuth(port=settings.http_port, data_dir=settings.data_dir)
+    from mutalaamcp.tools import tool_lifespan
 
     @asynccontextmanager
     async def lifespan(mcp):
-        try:
-            async with tool_lifespan(mcp) as context:
-                runtime = context["runtime"]
-                if isinstance(runtime, ToolRuntime):
-                    provider.session = runtime.auth
-                update_task = asyncio.create_task(_auto_update_task(settings))
-                try:
-                    yield context
-                finally:
-                    update_task.cancel()
-                    with suppress(asyncio.CancelledError):
-                        await update_task
-        finally:
-            await provider.aclose()
+        async with tool_lifespan(mcp) as context:
+            update_task = asyncio.create_task(_auto_update_task(settings))
+            try:
+                yield context
+            finally:
+                update_task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await update_task
 
-    server = create_server(lifespan_factory=lifespan, auth=provider)
+    server = create_server(lifespan_factory=lifespan)
 
     @server.custom_route("/health", methods=["GET"])
     async def health(_request):
@@ -210,8 +201,6 @@ def install_native_service(settings: Settings, launcher: str) -> None:
         "MUTALAAMCP_DATA_DIR": str(settings.data_dir),
         "MUTALAAMCP_CACHE_DIR": str(settings.cache_dir),
         "MUTALAAMCP_MODEL_DIR": str(settings.model_dir),
-        "MUTALAAMCP_AUTH_BASE_URL": settings.auth_base_url,
-        "MUTALAAMCP_TERMS_BASE_URL": settings.terms_base_url,
         "MUTALAAMCP_UPDATE_MANIFEST_URL": settings.update_manifest_url,
     }
     # launchd/Task Scheduler run with a stripped PATH; pin the absolute uv so

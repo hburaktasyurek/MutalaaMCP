@@ -29,7 +29,7 @@ https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/mutalaa-skill.md
 
 Bilgisayarımda komut çalıştırabiliyorsan mevcut kurulumu kontrol et ve rehberdeki uygun adımları uygula. Mevcut uygulama ayarlarımı ve diğer MCP bağlantılarımı koru. Komut çalıştıramıyorsan beni her seferinde tek, kısa bir adımla yönlendir; teknik bilgi bildiğimi varsayma. Uygulama yerel MCP desteklemiyorsa bu sınırlamayı açıkla.
 
-Hesap girişi gerektiğinde beni ilgili ekrana yönlendir. Şifremi veya erişim belirteçlerimi sohbete yazmamı isteme. Destekleniyorsa Mütalaa becerisini de kur.
+Destekleniyorsa Mütalaa becerisini de kur.
 
 Son olarak gerçek bir Mütalaa araç çağrısıyla Gelir Vergisi Kanunu’nu bul ve kaynak bağlantısını getir. Web aramasını bu doğrulamanın yerine kullanma. Araçlara erişemiyorsan yeni sohbet veya uygulama adımında beni yönlendir; doğrulamanın beklediğini belirt.
 
@@ -38,10 +38,10 @@ Tamamlanan adımları ve benim yapmam gerekenleri kısaca belirt. Araç çağrı
 
 ## Elle kurulum
 
-Bir **Mütalaa hesabı**, internet bağlantısı ve **yerel MCP bağlantısını destekleyen bir yapay zekâ uygulaması** gerekir.
+İnternet bağlantısı ve **yerel MCP bağlantısını destekleyen bir yapay zekâ uygulaması** gerekir. Mütalaa hesabı gerekmez.
 
 1. [Kurulum rehberinden](docs/client-setup/README.md) bilgisayarınıza uygun adımları izleyin. Depoyu klonlamanız veya kod yazmanız gerekmez.
-2. Uygulamanıza Mütalaa bağlantısını ekleyip hesabınızla giriş yapın.
+2. Uygulamanıza Mütalaa bağlantısını ekleyin.
 3. [Mütalaa becerisini](docs/mutalaa-skill.md) kontrol edin; kurulum çıktısında beceri yoksa ayrıca ekleyin, uygulamanız içe aktarma istiyorsa tamamlayın.
 4. Yeni bir sohbette şunu deneyin:
 
@@ -56,10 +56,8 @@ Yalnız web araması görünüyorsa [sorun giderme adımlarını](docs/client-se
 
 Yerel kullanım ücretsizdir; ticari kullanım kotası yoktur. Yapay zekâ uygulamanızın kendi ücretleri geçerli olabilir.
 Araştırma ve önbellek bilgisayarınızda işlenir; kaynak istekleri ilgili resmî hizmetlere gider.
-Mütalaa hesabı giriş ve etkinleştirme için kullanılır; hukuki sorgular ve belge metinleri etkinleştirme hizmetine gönderilmez.
+Hesap, giriş veya etkinleştirme yoktur; hukuki sorgular ve belge metinleri Mütalaa'ya gönderilmez.
 Kullandığınız yapay zekâ uygulaması, sorunuz ve araç sonuçlarını kendi veri politikası kapsamında işler.
-
-Mütalaa ürün duyuruları yanıtın sonunda ayrı bir bölümde görünebilir. [Duyuruların çalışma biçimi](docs/announcements.md).
 
 ## Geliştiriciler için
 

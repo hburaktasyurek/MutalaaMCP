@@ -125,7 +125,7 @@ Identify my operating system and intended AI app from context; ask if unknown. I
 
 If you can run commands on my computer, inspect the existing installation and follow the appropriate documented steps. Preserve existing app settings and other MCP connections. Otherwise, guide me one short step at a time without assuming technical knowledge. Explain if my app does not support local MCP.
 
-Direct me to the sign-in screen when needed. Never ask me to paste passwords or access tokens into chat. Install the Mütalaa companion skill if supported.
+Install the Mütalaa companion skill if supported.
 
 Finally, verify the connection with a real Mütalaa tool call: find the Turkish Income Tax Law and return its source link. Do not substitute web search for this verification. If tools are unavailable, guide me to the required new conversation or app and mark verification as pending.
 
@@ -170,13 +170,12 @@ Briefly state what is complete and what I still need to do. Do not claim the ins
         <div class="section-intro flow-intro">
           <p class="eyebrow">How to use it</p>
           <h2 id="how-title">Install, connect, and start researching.</h2>
-          <p>Install a published version using the terminal guide, then sign in to Mütalaa from your app.</p>
+          <p>Install a published version using the terminal guide and connect it to your app; no account is required.</p>
         </div>
         <ol class="steps">
           <li><span>1</span><div><h3>Install the package</h3><p>Run the uv command in the setup guide. uv manages the Python environment.</p></div></li>
           <li><span>2</span><div><h3>Connect your app</h3><p>Set up the local MCP service and add the guide’s URL to your app’s MCP settings.</p></div></li>
-          <li><span>3</span><div><h3>Sign in with Mütalaa</h3><p>Select Authenticate in your app, then complete account sign-in and device approval in the browser.</p></div></li>
-          <li><span>4</span><div><h3>Ask your first question</h3><p>Check the Mütalaa skill; add it if setup did not provide it. Start a new conversation. Check the tool calls to confirm Mütalaa was used.</p></div></li>
+          <li><span>3</span><div><h3>Ask your first question</h3><p>Check the Mütalaa skill; add it if setup did not provide it. Start a new conversation. Check the tool calls to confirm Mütalaa was used.</p></div></li>
         </ol>
       </div>
       <div class="shell client-panel">
@@ -243,7 +242,7 @@ Briefly state what is complete and what I still need to do. Do not claim the ins
         <div class="faq-list">
           <details open><summary>Can I install it today?</summary><p>Yes. The installation guide uses the GitHub release package. uv prepares the required Python environment.</p></details>
           <details><summary>Does it cost anything?</summary><p>Local MutalaaMCP use is free and open source. The AI app you use may have its own separate fees.</p></details>
-          <details><summary>Does it work with ChatGPT Desktop?</summary><p>It depends on your app version and account. The guide walks through in-app sign-in for desktop versions that support it; a remote-only connection screen cannot use this local address.</p></details>
+          <details><summary>Does it work with ChatGPT Desktop?</summary><p>It depends on your app version and account. The guide walks through desktop versions that support local MCP connections; a remote-only connection screen cannot use this local address.</p></details>
           <details><summary>Does my research stay entirely offline?</summary><p>No. The tool runs on your computer, but it reaches official sources over the internet to find decisions and legislation.</p></details>
         </div>
       </div>

@@ -6,7 +6,6 @@ import asyncio
 import json
 import os
 import sys
-from datetime import UTC, datetime
 from pathlib import Path
 
 import httpx
@@ -24,8 +23,6 @@ def _environment(root: Path) -> dict[str, str]:
             "MUTALAAMCP_DATA_DIR": str(root / "data"),
             "MUTALAAMCP_CACHE_DIR": str(root / "cache"),
             "MUTALAAMCP_MODEL_DIR": str(root / "models"),
-            "MUTALAAMCP_AUTH_BASE_URL": "https://mutalaa.invalid",
-            "MUTALAAMCP_TERMS_BASE_URL": "https://mutalaa.invalid/terms",
             "PYTHON_KEYRING_BACKEND": "keyring.backends.null.Keyring",
         }
     )
@@ -175,13 +172,13 @@ async def test_two_stdio_clients_survive_first_client_exit(
         finally:
             await _stop(mismatched)
 
-        # The shared runtime must still enforce authorization before research.
+        # The shared runtime must still enforce the input contract before research.
         result = await _request(
             clients[1],
             "tools/call",
             {"name": "belge_getir", "arguments": {"document_id": "invalid"}},
         )
-        assert "authentication_required" in json.dumps(result)
+        assert "invalid_params" in json.dumps(result)
 
         maintenance = await asyncio.create_subprocess_exec(
             sys.executable,
@@ -294,8 +291,6 @@ async def test_backend_exits_if_startup_parent_disappears(tmp_path: Path) -> Non
         data_dir=tmp_path / "data",
         cache_dir=tmp_path / "cache",
         model_dir=tmp_path / "models",
-        auth_base_url="https://mutalaa.invalid",
-        terms_base_url="https://mutalaa.invalid/terms",
     )
     child = _spawn_backend(settings)
     try:
@@ -361,14 +356,9 @@ def test_endpoint_refuses_symlinks_and_world_readable_credentials(
 
 
 @pytest.mark.asyncio
-async def test_stdio_clients_share_token_refresh_and_preserve_tool_results(
+async def test_stdio_clients_share_one_runtime_and_preserve_tool_results(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    import keyring
-
-    from mutalaamcp.auth.activation import ActivationRecord
-    from mutalaamcp.auth.credentials import CredentialStore
-    from mutalaamcp.auth.state import AuthState
     from mutalaamcp.settings import Settings
     from mutalaamcp.stdio_runtime import _connection, _Leases, _serve_backend
     from mutalaamcp.tools import HttpClients
@@ -377,52 +367,8 @@ async def test_stdio_clients_share_token_refresh_and_preserve_tool_results(
         data_dir=tmp_path / "data",
         cache_dir=tmp_path / "cache",
         model_dir=tmp_path / "models",
-        auth_base_url="https://mutalaa.invalid",
-        terms_base_url="https://mutalaa.invalid/terms",
     )
-    passwords: dict[tuple[str, str], str] = {}
-    monkeypatch.setattr(
-        keyring, "get_password", lambda service, user: passwords.get((service, user))
-    )
-    monkeypatch.setattr(
-        keyring,
-        "set_password",
-        lambda service, user, value: passwords.__setitem__((service, user), value),
-    )
-    monkeypatch.setattr(
-        keyring,
-        "delete_password",
-        lambda service, user: passwords.pop((service, user), None),
-    )
-    credentials = CredentialStore(auth_base_url=settings.auth_base_url)
-    credentials.replace_session("test-access", "test-refresh")
-    AuthState(settings.data_dir).write_activated(
-        ActivationRecord(
-            status="active",
-            plan="mcp_local_free",
-            features=("local_research",),
-            checked_at=datetime.now(UTC).isoformat(),
-        )
-    )
-    refreshes = 0
     runtimes = 0
-
-    async def auth_request(request: httpx.Request) -> httpx.Response:
-        nonlocal refreshes
-        if request.method == "POST":
-            refreshes += 1
-            assert b"test-refresh" in request.content
-            await asyncio.sleep(0.2)
-            return httpx.Response(
-                200,
-                json={
-                    "access_token": "rotated-access",
-                    "refresh_token": "rotated-refresh",
-                    "expires_in": 3600,
-                },
-            )
-        assert request.url.path == "/api/mcp/v1/announcement"
-        return httpx.Response(200, json={"announcement": None})
 
     def research_request(_request: httpx.Request) -> httpx.Response:
         pytest.fail("No external research request should be made by this test")
@@ -431,10 +377,10 @@ async def test_stdio_clients_share_token_refresh_and_preserve_tool_results(
         nonlocal runtimes
         runtimes += 1
         return HttpClients(
-            auth=httpx.AsyncClient(transport=httpx.MockTransport(auth_request)),
             research=httpx.AsyncClient(transport=httpx.MockTransport(research_request)),
         )
 
+    monkeypatch.setattr("mutalaamcp.tools.remove_legacy_auth_state", lambda _dir: None)
     monkeypatch.setattr("mutalaamcp.tools.create_http_clients", http_clients)
     leases = _Leases()
     lock = FileLock(settings.serve_lock_path).acquire()
@@ -446,7 +392,7 @@ async def test_stdio_clients_share_token_refresh_and_preserve_tool_results(
                 break
             await asyncio.sleep(0.05)
         # Keep the in-process test backend alive during frontend startup. Its
-        # HTTP/keyring dependencies are mocked; both stdio clients are real.
+        # HTTP dependencies are mocked; both stdio clients are real.
         async with _connection(settings):
             clients = [await _start(_environment(tmp_path)) for _ in range(2)]
             initialized = await asyncio.gather(
@@ -477,8 +423,6 @@ async def test_stdio_clients_share_token_refresh_and_preserve_tool_results(
                 assert payload["research_performed"] is False
                 assert "companion_skill" not in payload
             assert runtimes == 1
-            assert refreshes == 1
-            assert credentials.load_refresh_token() == "rotated-refresh"
     finally:
         for client in clients:
             await _stop(client)
