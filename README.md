@@ -1,4 +1,4 @@
-# Mütalaa MCP
+# Mütalaa Açık Kaynak
 
 ![Mütalaa MCP — Türk hukuk kaynakları, kullandığınız yapay zekâda. Ücretsiz, açık kaynak ve yerel çalışma.](docs/assets/social/mutalaa-mcp-tanitim.png)
 
@@ -6,6 +6,8 @@
 Ücretsiz, açık kaynaklı ve bilgisayarınızda çalışır.
 
 [Kurulum rehberi](docs/client-setup/README.md) · [English](README.en.md) · [Mütalaa](https://mutalaa.tr/)
+
+Kurulum yapmadan kullanmak isterseniz [Mütalaa MCP](https://mutalaa.tr/ictihat-arama) sayfasına bakın.
 
 ## Ne yapabilirsiniz?
 
