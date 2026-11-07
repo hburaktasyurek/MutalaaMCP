@@ -1,4 +1,4 @@
-# Mütalaa MCP
+# Mütalaa Open Source
 
 ![Mütalaa MCP promotional graphic in Turkish: Turkish legal sources in your AI app. Free, open source, and local.](docs/assets/social/mutalaa-mcp-tanitim.png)
 
@@ -6,6 +6,8 @@
 Free, open source, and running on your computer.
 
 [Setup guide](docs/client-setup/README.en.md) · [Türkçe](README.md) · [Mütalaa](https://mutalaa.tr/)
+
+To use it without installing anything, see [Mütalaa MCP](https://mutalaa.tr/ictihat-arama).
 
 ## What can you do?
 
