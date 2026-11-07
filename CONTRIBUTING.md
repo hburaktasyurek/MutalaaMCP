@@ -1,6 +1,6 @@
 # Katkıda Bulunma / Contributing
 
-MutalaaMCP'yi geliştirmeye yardımcı olduğunuz için teşekkürler. Bu belge Türkçe
+Mütalaa Açık Kaynak'ı geliştirmeye yardımcı olduğunuz için teşekkürler. Bu belge Türkçe
 önceliklidir; her kuralın İngilizce karşılığı yanındadır.
 
 ## Başlamadan önce / Before you start

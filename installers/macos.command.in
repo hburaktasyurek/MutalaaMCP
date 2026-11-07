@@ -12,7 +12,7 @@ finish() {
 }
 trap finish EXIT
 [ "$(uname -s)" = Darwin ] || { echo "Bu dosya macOS icindir."; exit 1; }
-echo "Mutalaa MCP @VERSION@ kurulumu"
+echo "Mutalaa Acik Kaynak @VERSION@ kurulumu"
 echo "Internet kullanilir; gerekirse uv ve Python indirilir."
 echo "Mevcut Mutalaa uv kurulumu bu surumle degistirilir. Acik arastirmalari bitirin."
 read -r -p "Devam etmek icin Enter, iptal icin Ctrl+C... " _

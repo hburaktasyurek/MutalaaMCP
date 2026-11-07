@@ -295,7 +295,7 @@ def install_native_service(settings: Settings, launcher: str) -> None:
             return
         time.sleep(0.25)
     raise RuntimeError(
-        "Yerel HTTP hizmeti başlatılamadı. Diğer MutalaaMCP sunucusunu kapatıp kurulumu yeniden deneyin."
+        "Yerel HTTP hizmeti başlatılamadı. Diğer Mütalaa Açık Kaynak sunucusunu kapatıp kurulumu yeniden deneyin."
     )
 
 

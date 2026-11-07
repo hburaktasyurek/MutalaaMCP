@@ -1,7 +1,7 @@
-# Mütalaa MCP ve becerisi / Mütalaa MCP and its skill
+# Mütalaa Açık Kaynak ve becerisi / Mütalaa Open Source and its skill
 
 Beceri iş akışını öğretir; MCP güncel kaynakları, kapsamı ve araçları sağlar.
-Becerinin açıklaması hukuki sorularda keşfedilmesini sağlar. İlk işi mevcut Mütalaa MCP
+Becerinin açıklaması hukuki sorularda keşfedilmesini sağlar. İlk işi mevcut Mütalaa Açık Kaynak
 araçlarını keşfedip başlangıç aracını çağırmaktır; ayrıntılı araştırma kuralları ve araç
 kataloğu bu aracın yanıtından alınır. Beceri içine ikinci bir katalog kopyalanmaz.
 
@@ -73,7 +73,7 @@ Kurulum ve keşif davranışı için resmî kaynaklar:
 ## English
 
 The skill teaches the workflow; MCP supplies current tools, scope and source material.
-The description enables discovery. The skill first discovers Mütalaa MCP and calls its
+The description enables discovery. The skill first discovers Mütalaa Open Source and calls its
 entry tool, then follows the returned guidance. Tool catalogs and detailed research rules
 stay in MCP rather than being copied into the skill.
 

@@ -306,7 +306,7 @@ def read_active_version(
     raw = _read_json_object(state_path)
     if raw is None:
         if fallback_launcher is None:
-            raise UpdateError("Etkin bir MutalaaMCP sürümü yapılandırılmamış.")
+            raise UpdateError("Etkin bir Mütalaa Açık Kaynak sürümü yapılandırılmamış.")
         launcher = _absolute_executable(fallback_launcher, "geçerli başlatıcı")
         return ActiveVersion(
             version=fallback_version or _installed_version(), launcher=launcher

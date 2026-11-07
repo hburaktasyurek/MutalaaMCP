@@ -1,6 +1,6 @@
 # Mütalaa Open Source
 
-![Mütalaa MCP promotional graphic in Turkish: Turkish legal sources in your AI app. Free, open source, and local.](docs/assets/social/mutalaa-mcp-tanitim.png)
+![Mütalaa Open Source promotional graphic in Turkish: Turkish legal sources in your AI app. Free, open source, and local.](docs/assets/social/mutalaa-mcp-tanitim.png)
 
 **Research Turkish legal sources from the AI app you already use.**
 Free, open source, and running on your computer.
@@ -20,7 +20,7 @@ To use it without installing anything, see [Mütalaa MCP](https://mutalaa.tr/ict
 Copy this prompt into your AI app. With access to your computer, it can perform setup; otherwise, it will guide you step by step.
 
 ```text
-Help me install Mütalaa MCP on my computer.
+Help me install Mütalaa Open Source on my computer.
 
 First read the official setup guide:
 https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/client-setup/README.en.md
@@ -72,4 +72,4 @@ Inputs and responses are defined in the [tool contract](contracts/tool-surface-v
 
 MIT licensed. [License](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.en.md) · [Trademark policy](TRADEMARK_POLICY.en.md)
 
-Mütalaa MCP is legal-research software. Verify results against primary sources and consult a qualified professional about a specific matter.
+Mütalaa Open Source is legal-research software. Verify results against primary sources and consult a qualified professional about a specific matter.

@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contract": "mutalaamcp.tool-surface",
   "version": "1",
-  "title": "MutalaaMCP V1 araştırma araç yüzeyi",
-  "description": "Sekiz V1 araştırma aracı için çalıştırılabilir JSON Schema/OpenAPI tarzı sözleşme. Araç adları, tanımlayıcılar ve hatalar MutalaaMCP’nin kendi yüzeyine aittir. Arama araçları kısa ve öz sonuçlar döndürür; belge_getir sayfalandırılmış Markdown döndürür. Her araştırma çağrısı, request_gate_errors içinde listelenen auth hatalarıyla denetlenir.",
+  "title": "Mütalaa Açık Kaynak V1 araştırma araç yüzeyi",
+  "description": "Sekiz V1 araştırma aracı için çalıştırılabilir JSON Schema/OpenAPI tarzı sözleşme. Araç adları, tanımlayıcılar ve hatalar Mütalaa Açık Kaynak'ın kendi yüzeyine aittir. Arama araçları kısa ve öz sonuçlar döndürür; belge_getir sayfalandırılmış Markdown döndürür. Her araştırma çağrısı, request_gate_errors içinde listelenen auth hatalarıyla denetlenir.",
   "schema_export": {
     "dialect": "https://json-schema.org/draft/2020-12/schema",
     "normative": true,
@@ -353,7 +353,7 @@
     },
     "already_running": {
       "retryable": false,
-      "when": "Geçerli kullanıcı için bir MutalaaMCP serve süreci zaten çalışıyor."
+      "when": "Geçerli kullanıcı için bir mutalaamcp serve süreci zaten çalışıyor."
     },
     "not_configured": {
       "retryable": false,

@@ -840,8 +840,8 @@ def update(
     except AlreadyRunning as exc:
         _fail(
             ErrorCode.ALREADY_RUNNING,
-            f"{exc} Elle güncelleme için MutalaaMCP kullanan istemciyi veya yerel "
-            "hizmeti kapatın; yönetilen hizmet güncellemeyi kendisi uygular.",
+            f"{exc} Elle güncelleme için Mütalaa Açık Kaynak kullanan istemciyi veya "
+            "yerel hizmeti kapatın; yönetilen hizmet güncellemeyi kendisi uygular.",
         )
     except UpdateError as exc:
         _fail(ErrorCode.NOT_CONFIGURED, str(exc))

@@ -21,7 +21,7 @@ sırları eklemeyin.
 
 ## Kapsam
 
-MutalaaMCP kaynak kodundaki, resmî paket artefaktlarındaki ve belgelenmiş
+Mütalaa Açık Kaynak'ın kodundaki, resmi paket artefaktlarındaki ve belgelenmiş
 yerel kurulumundaki güvenlik açıklarını bildirin. Buna kimlik bilgilerinin
 açığa çıkması, güvenli olmayan yerel dosya işleme, istek yönlendirme kusurları,
 bağımlılık veya paketleme sorunları ve yerel araştırma verilerini açığa
@@ -29,7 +29,7 @@ bağımlılık veya paketleme sorunları ve yerel araştırma verilerini açığ
 
 İstemcinin kullandığı dış hukuk-bilgisi hizmetleri bu deponun denetimi
 dışındadır. Bir dış hizmetteki veya kaynak belgedeki kusuru, o hizmetin resmî
-kanalı üzerinden bildirin. MutalaaMCP'nin bir dış hizmeti çağırma biçimindeki
+kanalı üzerinden bildirin. Mütalaa Açık Kaynak'ın bir dış hizmeti çağırma biçimindeki
 güvenlik açığı ise burada kapsam içindedir.
 
 ## Ele alma beklentileri

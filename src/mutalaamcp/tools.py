@@ -315,7 +315,7 @@ def _envelope(
 
 
 def _not_configured() -> dict[str, Any]:
-    return _envelope(ErrorCode.NOT_CONFIGURED, "MutalaaMCP yapılandırılmamış.")
+    return _envelope(ErrorCode.NOT_CONFIGURED, "Mütalaa Açık Kaynak yapılandırılmamış.")
 
 
 @cache

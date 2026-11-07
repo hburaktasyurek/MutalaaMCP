@@ -35,7 +35,7 @@ else:
 
 
 _ALREADY_RUNNING_MESSAGE = (
-    "Bu kullanıcı için bir MutalaaMCP serve işlemi zaten çalışıyor."
+    "Bu kullanıcı için bir mutalaamcp serve işlemi zaten çalışıyor."
 )
 
 
