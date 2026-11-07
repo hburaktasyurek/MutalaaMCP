@@ -20,7 +20,7 @@ not attach real secrets.
 
 ## Scope
 
-Report vulnerabilities in MutalaaMCP source, its official package artifacts,
+Report vulnerabilities in the Mütalaa Open Source code, its official package artifacts,
 and its documented local setup. Examples include credential exposure, unsafe
 local file handling, request-routing flaws, dependency or packaging issues, and
 behaviors that could expose local research data.
@@ -28,7 +28,7 @@ behaviors that could expose local research data.
 The upstream legal-information services used by the client are outside this
 repository's control. Report a defect in an upstream service or source document
 to that service through its official channel. A vulnerability in the way
-MutalaaMCP calls an upstream service remains in scope here.
+Mütalaa Open Source calls an upstream service remains in scope here.
 
 ## Handling expectations
 

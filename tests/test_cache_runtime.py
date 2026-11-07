@@ -430,7 +430,7 @@ def test_filelock_second_serve_raises_already_running(tmp_path: Path) -> None:
         assert caught.value.path == path
         assert (
             str(caught.value)
-            == "Bu kullanıcı için bir MutalaaMCP serve işlemi zaten çalışıyor."
+            == "Bu kullanıcı için bir mutalaamcp serve işlemi zaten çalışıyor."
         )
 
     assert serve_lock_held(path) is False

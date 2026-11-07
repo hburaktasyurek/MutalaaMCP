@@ -4,7 +4,7 @@
 
 ## Reporting a problem
 
-Report reproducible, non-sensitive problems in MutalaaMCP through
+Report reproducible, non-sensitive problems in Mütalaa Open Source through
 [GitHub Issues](https://github.com/hburaktasyurek/MutalaaMCP/issues): documented
 source-checkout installation, local HTTP or `stdio` startup, the documented configuration
 contract, or a defect in the client's handling of a supported upstream response.
@@ -18,7 +18,7 @@ reports.
 
 ## Support boundaries
 
-MutalaaMCP is legal-research software, not a law firm or legal-advice service.
+Mütalaa Open Source is legal-research software, not a law firm or legal-advice service.
 It does not provide legal advice, legal opinions, representation, or a
 professional-client relationship. Users must assess the law and verify results
 against authoritative sources for their own matters.

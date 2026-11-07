@@ -1,6 +1,6 @@
 # Mütalaa Açık Kaynak
 
-![Mütalaa MCP — Türk hukuk kaynakları, kullandığınız yapay zekâda. Ücretsiz, açık kaynak ve yerel çalışma.](docs/assets/social/mutalaa-mcp-tanitim.png)
+![Mütalaa Açık Kaynak tanıtım görseli. Türk hukuk kaynakları, kullandığınız yapay zekada. Ücretsiz, açık kaynak ve yerel çalışma.](docs/assets/social/mutalaa-mcp-tanitim.png)
 
 **Kullandığınız yapay zekâ uygulamasından Türkiye’nin hukuk kaynaklarını araştırın.**
 Ücretsiz, açık kaynaklı ve bilgisayarınızda çalışır.
@@ -20,7 +20,7 @@ Kurulum yapmadan kullanmak isterseniz [Mütalaa MCP](https://mutalaa.tr/ictihat-
 Metni kopyalayıp kullandığınız yapay zekâya yapıştırın. Bilgisayarınıza erişebiliyorsa kurulumu yapar; erişemiyorsa adım adım yardımcı olur.
 
 ```text
-Bilgisayarıma Mütalaa MCP’yi kurmama yardımcı ol.
+Bilgisayarıma Mütalaa Açık Kaynak'ı kurmama yardımcı ol.
 
 Önce resmî kurulum rehberini oku:
 https://github.com/hburaktasyurek/MutalaaMCP/blob/main/docs/client-setup/README.md
@@ -72,4 +72,4 @@ madde getirme, mevzuat içinde arama ve madde ağacı. Girdiler ve yanıtlar [ar
 
 MIT lisanslıdır. [Lisans](LICENSE) · [Üçüncü taraf bildirimleri](THIRD_PARTY_NOTICES) · [Marka politikası](TRADEMARK_POLICY)
 
-Mütalaa MCP hukuk araştırma yazılımıdır. Sonuçları birincil kaynaklardan doğrulayın; somut bir mesele için yetkin bir uzmana başvurun.
+Mütalaa Açık Kaynak hukuk araştırma yazılımıdır. Sonuçları birincil kaynaklardan doğrulayın. Somut bir mesele için yetkin bir uzmana başvurun.

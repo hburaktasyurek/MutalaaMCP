@@ -105,4 +105,4 @@ jobs:
           if git rev-parse --verify "refs/tags/$RELEASE_TAG" >/dev/null 2>&1; then
             test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$GITHUB_SHA"
           fi
-          gh release create "$RELEASE_TAG" dist/* --draft --target "$GITHUB_SHA" --title "Mutalaa MCP $RELEASE_TAG" --notes-file installers/RELEASE_NOTES.md
+          gh release create "$RELEASE_TAG" dist/* --draft --target "$GITHUB_SHA" --title "Mütalaa Açık Kaynak $RELEASE_TAG" --notes-file installers/RELEASE_NOTES.md

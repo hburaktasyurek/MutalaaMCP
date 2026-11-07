@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 $workDir = $null
 $result = 0
 try {
-    Write-Host 'Mutalaa MCP @VERSION@ kurulumu'
+    Write-Host 'Mutalaa Acik Kaynak @VERSION@ kurulumu'
     Write-Host 'Internet kullanilir; gerekirse uv ve Python indirilir.'
     Write-Host 'Mevcut Mutalaa uv kurulumu bu surumle degistirilir. Acik arastirmalari bitirin.'
     Read-Host 'Devam etmek icin Enter, iptal icin Ctrl+C' | Out-Null

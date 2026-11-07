@@ -4,7 +4,7 @@
 
 ## Bir sorunu bildirme
 
-MutalaaMCP'nin yeniden üretilebilir ve hassas olmayan sorunlarını
+Mütalaa Açık Kaynak'ın yeniden üretilebilir ve hassas olmayan sorunlarını
 [GitHub Issues](https://github.com/hburaktasyurek/MutalaaMCP/issues) üzerinden
 bildirin: belgelenen paket kurulumu, yerel HTTP veya `stdio` başlatma, belgelenen
 ayar sözleşmesi veya istemcinin desteklenen bir dış kaynak yanıtını işlemesindeki
@@ -19,7 +19,7 @@ açık bir issue'ya eklemeyin. Güvenlik açısından hassas bildirimler için
 
 ## Destek sınırları
 
-MutalaaMCP bir hukuk araştırma yazılımıdır; bir hukuk bürosu veya hukuki
+Mütalaa Açık Kaynak bir hukuk araştırma yazılımıdır, bir hukuk bürosu veya hukuki
 danışmanlık hizmeti değildir. Hukuki tavsiye, hukuki görüş, temsil veya
 profesyonel-müvekkil ilişkisi sunmaz. Kullanıcılar kendi işleri için hukuku
 değerlendirmeli ve sonuçları yetkili kaynaklardan doğrulamalıdır.
